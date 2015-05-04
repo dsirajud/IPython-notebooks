@@ -9,11 +9,25 @@ def function(_x):
 
 def derivative(_x, _n):
 
+    dn_max = 21
+    odd_parity = np.zeros(dn_max)
+    even_parity = np.zeros(dn_max)
+
+    sign = 1
+    for i in range(1,dn_max,2):
+        odd_parity[i] = sign
+        sign *= -1
+
+    sign = -1
+    for i in range(2,dn_max,2):
+        even_parity[i] = sign
+        sign *= -1
+
     if np.mod(_n,2) == 1: # n is odd
-        return (-1) ** (_n+1) * np.pi ** (2*_n - 1) * np.cos(np.pi*_x)
+        return odd_parity[_n]*np.pi ** _n * np.cos(np.pi*_x)
 
     elif np.mod(_n,2) == 0:
-        return (-1) ** _n * np.pi ** (2*_n) * np.sin(np.pi*_x)
+        return even_parity[_n] * np.pi ** _n * np.sin(np.pi*_x)
 
 def domain(_a = -1, _b = 1, _Nx = 21):
 
