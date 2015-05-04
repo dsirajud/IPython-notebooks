@@ -15,7 +15,7 @@ def derivative(_x, _n):
     elif np.mod(_n,2) == 0:
         return (-1) ** _n * np.pi ** (2*_n) * np.sin(np.pi*_x)
 
-def FD_derivative(_dn = 1, _p = 1, _Nx = 128):
+def FD_derivative_matrix_formulation(_dn = 1, _p = 1, _Nx = 128):
     dn_key = 'dn' + str(_dn)
     FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(_dn)
     FD_schemes = FD_schemes[dn_key]
@@ -69,8 +69,8 @@ def FD_derivative(_dn = 1, _p = 1, _Nx = 128):
 
 
 def convergence_routine(NumGrids = 10, Nx = 18, LTE = 1, dn = 1):
-    """executes FD_derivative(*args) on progressively finer grids. The first
-    grid contains Nx points (must be at least as large as the stencil size
+    """executes FD_derivative_matrix_formulation(*args) on progressively finer grids.
+    The first grid contains Nx points (must be at least as large as the stencil size
     = O(LTE) + order of derivative), the subsequent (NumGrids-1)
     grids double the number of points from the previous grid
 
@@ -94,12 +94,12 @@ def convergence_routine(NumGrids = 10, Nx = 18, LTE = 1, dn = 1):
 
     # calculate first order then loop over remaining
     q = 0
-    error_norm[q] = FD_derivative(dn, p, Nx)
+    error_norm[q] = FD_derivative_matrix_formulation(dn, p, Nx)
     grids[q] = Nx
 
     for q in range(1, NumGrids):
         Nx *= 2
-        error_norm[q] = FD_derivative(dn, p, Nx)
+        error_norm[q] = FD_derivative_matrix_formulation(dn, p, Nx)
         orders[q] = np.log2(error_norm[q-1] / error_norm[q])
         grids[q] = Nx
 
@@ -177,12 +177,12 @@ if __name__ == '__main__':
 
     # calculate first order then loop over remaining
     q = 0
-    error_norm[q] = FD_derivative(dn, p, Nx)
+    error_norm[q] = FD_derivative_matrix_formulation(dn, p, Nx)
     grids[q] = Nx
 
     for q in range(1, NumGrids):
         Nx *= 2
-        error_norm[q] = FD_derivative(dn, p, Nx)
+        error_norm[q] = FD_derivative_matrix_formulation(dn, p, Nx)
         orders[q] = np.log2(error_norm[q-1] / error_norm[q])
         grids[q] = Nx
 
@@ -198,11 +198,15 @@ if __name__ == '__main__':
             print "Nx%d        error = %g       order = %g" % (grids[n],error_norm[n],orders[n])
 
     fig, ax = plt.subplots()
-    ax.loglog(grids, error_norm, 'o')
+    ax.loglog(grids, error_norm, '--o')
     #ax.hold('on')
     #ax.loglog(abscissa, order_line, '-b')
     ax.set_xscale('log', basex=2)
     ax.set_yscale('log', basey=2)
     #ax.set_xlim(1, 1e4)
     #ax.set_ylim(1e-15, 1)
+    plt.ylabel('$L^2$ norm of $f_{num} - f_{exact}$', fontsize = 14)
+    plt.xlabel('number of gridpoints $N_x$', fontsize = 14)
+    plt.text(np.max(grids), np.max(error_norm),'slope = -%g' % order, horizontalalignment = 'right', verticalalignment = 'top', fontsize = 16)
+    plt.grid()
     plt.show()
