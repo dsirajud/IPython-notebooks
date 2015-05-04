@@ -15,25 +15,34 @@ def derivative(_x, _n):
     elif np.mod(_n,2) == 0:
         return (-1) ** _n * np.pi ** (2*_n) * np.sin(np.pi*_x)
 
-def FD_derivative_matrix_formulation(_dn = 1, _p = 1, _Nx = 128):
-    dn_key = 'dn' + str(_dn)
-    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(_dn)
-    FD_schemes = FD_schemes[dn_key]
+def domain(_a = -1, _b = 1, _Nx = 21):
 
-    a = -1.
-    b = 1.
-    L = b - a
-    dx = L / (_Nx)
+    _L = float(_b - _a)
+    _dx = _L / _Nx
 
-    x = np.zeros(_Nx)
+    _x = np.zeros(_Nx)
     for i in range(_Nx):
-        x[i] = a + i*dx
+        _x[i] = _a + i*_dx
+
+    return _x, _dx, _L
+
+
+def FD_derivative_matrix_formulation(_dn = 1, _p = 1, _Nx = 128):
+
+    x, dx, L = domain(_a = -1, _b = 1, _Nx = _Nx)
 
     f = function(x)
     df = derivative(x, _dn)
 
     # compute derivative approximations
-    imax = _Nx - 1
+
+    # extract subdictionary pertaining to scheme of derivative order dn
+    dn_key = 'dn' + str(_dn)
+    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(_dn)
+    FD_schemes = FD_schemes[dn_key] # dictionary containing the family of
+                                    # FD schemes or order dn
+
+    imax = len(x) - 1
     stencil_size = _p + _dn
     stencil_center = stencil_size // 2
 
