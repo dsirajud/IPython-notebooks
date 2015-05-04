@@ -4,45 +4,41 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numpy.linalg as LA
 
+def function(_x):
+    return np.sin(np.pi*_x)+1
 
-def FD_derivative(dn = 1, p = 1, Nx = 128):
-    dn_key = 'dn' + str(dn)
-    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(dn)
+def derivative(_x, _n):
+
+    if np.mod(_n,2) == 1: # n is odd
+        return (-1) ** (_n+1) * np.pi ** (2*_n - 1) * np.cos(np.pi*_x)
+
+    elif np.mod(_n,2) == 0:
+        return (-1) ** _n * np.pi ** (2*_n) * np.sin(np.pi*_x)
+
+def FD_derivative(_dn = 1, _p = 1, _Nx = 128):
+    dn_key = 'dn' + str(_dn)
+    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(_dn)
     FD_schemes = FD_schemes[dn_key]
 
     a = -1.
     b = 1.
     L = b - a
-    dx = L / (Nx)
+    dx = L / (_Nx)
 
-    x = np.zeros(Nx)
-    for i in range(Nx):
+    x = np.zeros(_Nx)
+    for i in range(_Nx):
         x[i] = a + i*dx
 
-    f =  np.sin(np.pi*x)+1
-
-    df1 = np.pi * np.cos(np.pi * x)
-    df2 = -np.pi*np.pi*np.sin(np.pi*x)
-    df3 = np.pi ** 3 * (-1) * np.cos(np.pi * x)
-    df4 = np.pi ** 4 *        np.sin(np.pi * x)
-    df5 = np.pi ** 5 *        np.cos(np.pi * x)
-    df6 = np.pi ** 6 * (-1) * np.sin(np.pi * x)
-    df7 = np.pi ** 7 * (-1) * np.cos(np.pi * x)
-    df8 = np.pi ** 8 *        np.sin(np.pi * x)
-    df9 = np.pi ** 9 *        np.cos(np.pi * x)
-    df10 = np.pi ** 10 *(-1) *np.sin(np.pi * x)
-    df11 = np.pi ** 11 *(-1) *np.cos(np.pi * x)
-    df12 = np.pi ** 12 *      np.sin(np.pi * x)
-    df13 = np.pi ** 13 *      np.cos(np.pi * x)
+    f = function(x)
+    df = derivative(x, _dn)
 
     # compute derivative approximations
-
-    imax = Nx - 1
-    stencil_size = p + dn
+    imax = _Nx - 1
+    stencil_size = _p + _dn
     stencil_center = stencil_size // 2
 
-    W = np.zeros([Nx, Nx])
-    for i in range(Nx):
+    W = np.zeros([_Nx, _Nx])
+    for i in range(_Nx):
         if i < stencil_center:
             handedness = 'forward'
             asymmetry = str(i)
@@ -63,19 +59,13 @@ def FD_derivative(dn = 1, p = 1, Nx = 128):
 
         W[i, i + np.array(stencil)] = w
 
-
-    df = W.dot(f)
-    df /= dx ** dn
-            #    for weight, stenc in zip(w,stencil):
-            #        print weight, stenc
-    error = df - eval('df' + str(dn))
-    L2_error_norm = np.sqrt(dx/L)* LA.norm(error, 2)
-    Linf_error = np.max(error)
+    df_approx = W.dot(f)
+    df_approx /= dx ** _dn
+    error = df_approx - df
+    L2_error_norm = np.sqrt(dx/L)* LA.norm(error, 2) # L2 norm of error
+    Linf_error = np.max(error) # L-infinity norm of error
 
     return L2_error_norm
-
-    #    plt.plot(x,eval('df' + str(dn)), '-', x, df, 'o')
-    #    plt.show()
 
 
 def convergence_routine(NumGrids = 10, Nx = 18, LTE = 1, dn = 1):
@@ -151,16 +141,8 @@ def convergence_for_several_derivatives_at_const_LTE(NumGrids = 10, LTE = 2, dn_
     plt.grid()
     plt.show()
 
-def f(x):
-    return np.sin(np.pi*x)+1
+    return None
 
-def dnf(_x, _n):
-
-    if np.mod(_n,2) == 1: # n is odd
-        return np.pi ** (_n+1) * np.pi ** (2*_n - 1) * np.cos(np.pi*_x)
-    
-    elif np.mod(_n,2) == 0:
-        return np.pi ** _n * np.pi ** (2*_n) * np.sin(np.pi*_x)
 
 if __name__ == '__main__':
     """
