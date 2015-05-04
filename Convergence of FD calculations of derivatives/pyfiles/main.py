@@ -1,0 +1,226 @@
+import _mypath
+import pyfiles
+import numpy as np
+import matplotlib.pyplot as plt
+import numpy.linalg as LA
+
+
+def FD_derivative(dn = 1, p = 1, Nx = 128):
+    dn_key = 'dn' + str(dn)
+    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(dn)
+    FD_schemes = FD_schemes[dn_key]
+
+    a = -1.
+    b = 1.
+    L = b - a
+    dx = L / (Nx)
+
+    x = np.zeros(Nx)
+    for i in range(Nx):
+        x[i] = a + i*dx
+
+    f =  np.sin(np.pi*x)+1
+
+    df1 = np.pi * np.cos(np.pi * x)
+    df2 = -np.pi*np.pi*np.sin(np.pi*x)
+    df3 = np.pi ** 3 * (-1) * np.cos(np.pi * x)
+    df4 = np.pi ** 4 *        np.sin(np.pi * x)
+    df5 = np.pi ** 5 *        np.cos(np.pi * x)
+    df6 = np.pi ** 6 * (-1) * np.sin(np.pi * x)
+    df7 = np.pi ** 7 * (-1) * np.cos(np.pi * x)
+    df8 = np.pi ** 8 *        np.sin(np.pi * x)
+    df9 = np.pi ** 9 *        np.cos(np.pi * x)
+    df10 = np.pi ** 10 *(-1) *np.sin(np.pi * x)
+    df11 = np.pi ** 11 *(-1) *np.cos(np.pi * x)
+    df12 = np.pi ** 12 *      np.sin(np.pi * x)
+    df13 = np.pi ** 13 *      np.cos(np.pi * x)
+
+    # compute derivative approximations
+
+    imax = Nx - 1
+    stencil_size = p + dn
+    stencil_center = stencil_size // 2
+
+    W = np.zeros([Nx, Nx])
+    for i in range(Nx):
+        if i < stencil_center:
+            handedness = 'forward'
+            asymmetry = str(i)
+        elif imax - i < stencil_center:
+            handedness = 'backward'
+            asymmetry = str(imax - i)
+        else:
+            if np.mod(stencil_size,2) == 1:
+                handedness = 'central'
+                asymmetry = str(0)
+            else:
+                handedness = 'forward'
+                asymmetry = str(stencil_center - 1)
+
+        FD_scheme = FD_schemes[handedness][asymmetry]
+        w = FD_scheme['w']
+        stencil = FD_scheme['stencil']
+
+        W[i, i + np.array(stencil)] = w
+
+
+    df = W.dot(f)
+    df /= dx ** dn
+            #    for weight, stenc in zip(w,stencil):
+            #        print weight, stenc
+    error = df - eval('df' + str(dn))
+    L2_error_norm = np.sqrt(dx/L)* LA.norm(error, 2)
+    Linf_error = np.max(error)
+
+    return L2_error_norm
+
+    #    plt.plot(x,eval('df' + str(dn)), '-', x, df, 'o')
+    #    plt.show()
+
+
+def convergence_routine(NumGrids = 10, Nx = 18, LTE = 1, dn = 1):
+    """executes FD_derivative(*args) on progressively finer grids. The first
+    grid contains Nx points (must be at least as large as the stencil size
+    = O(LTE) + order of derivative), the subsequent (NumGrids-1)
+    grids double the number of points from the previous grid
+
+    inputs:
+    NumGrids -- (int) number of grids the derivative is to be evaluated on
+    Nx -- (int) number of gridpoints on coarsest grid
+    LTE -- (int) local truncation error of the derivatives being used
+    dn -- (int) order of derivative to be evaluated
+
+    NOTE: derivative tables must be generated for the required dn at chosen LTE
+    by executing
+
+   $ python generate_tables_of_finite_difference_schemes_for_a_given_LTE.py LTE dn
+
+    from ./bin/ which stores the table in ./etc/
+    """
+    error_norm = np.zeros(NumGrids)
+    grids = np.zeros(NumGrids)
+    orders = np.zeros(NumGrids)
+    p = LTE # relabeling is due to author's personal collocation with this symbol
+
+    # calculate first order then loop over remaining
+    q = 0
+    error_norm[q] = FD_derivative(dn, p, Nx)
+    grids[q] = Nx
+
+    for q in range(1, NumGrids):
+        Nx *= 2
+        error_norm[q] = FD_derivative(dn, p, Nx)
+        orders[q] = np.log2(error_norm[q-1] / error_norm[q])
+        grids[q] = Nx
+
+    order = -np.polyfit(np.log2(grids), np.log2(error_norm), 1)[0]
+    print "slope of a linear fit = %g \n" % order
+
+    print "order calculations at each refinement step:"
+
+    for n in range(NumGrids):
+        if n == 0:
+            print "Nx%d        error = %g       ----" % (grids[n],error_norm[n])
+        else:
+            print "Nx%d        error = %g       order = %g" % (grids[n],error_norm[n],orders[n])
+
+    print '\n'
+    return error_norm, grids
+
+def convergence_for_several_derivatives_at_const_LTE(NumGrids = 10, LTE = 2, dn_max = 4):
+
+    error_histories = np.zeros([NumGrids, dn_max+1]) # no values stored in [:,0] entry
+    grid_histories = np.zeros([NumGrids, dn_max+1])  # no values stored in [:,0] entry
+
+    fig, ax = plt.subplots()
+
+    for d in range(1,dn_max + 1):
+        print "derivative dn = %d: \n" % d
+
+        error_histories[:,d], grid_histories[:,d] = convergence_routine(NumGrids = 10,
+                                                    Nx = 21, LTE = LTE, dn = d)
+
+        plot_label = '$dn = $' + str(d)
+        ax.loglog(2.0/grid_histories[:,d], error_histories[:,d], '--o', markersize = 8, linewidth = 2, label = plot_label)
+        ax.hold('on')
+    ax.set_xscale('log', basex=2)
+    ax.set_yscale('log', basey=2)
+    plt.xlabel('Mesh spacing $\Delta x$', fontsize = 16)
+    plt.ylabel('$L^2$ error', fontsize = 16)
+    plt.legend(loc = 'best')
+    plt.grid()
+    plt.show()
+
+def f(x):
+    return np.sin(np.pi*x)+1
+
+def dnf(_x, _n):
+
+    if np.mod(_n,2) == 1: # n is odd
+        return np.pi ** (_n+1) * np.pi ** (2*_n - 1) * np.cos(np.pi*_x)
+    
+    elif np.mod(_n,2) == 0:
+        return np.pi ** _n * np.pi ** (2*_n) * np.sin(np.pi*_x)
+
+if __name__ == '__main__':
+    """
+    run from terminal as
+
+        $ python main.py NumGrids Nx LTE dn
+
+    sys.argv inputs:
+    NumGrids -- (int) number of grids the derivative is to be evaluated on
+    Nx -- (int) number of gridpoints on coarsest grid
+    LTE -- (int) local truncation error of the derivatives being used
+    dn -- (int) order of derivative to be evaluated
+
+    NOTE: derivative tables must be generated for the required dn at chosen LTE
+    by executing
+
+   $ python generate_tables_of_finite_difference_schemes_for_a_given_LTE.py LTE dn
+
+    from ./bin/ which stores the table in ./etc/
+    """
+    import sys
+
+    NumGrids = int(sys.argv[1])
+    Nx = int(sys.argv[2])
+    LTE = int(sys.argv[3])
+    dn = int(sys.argv[4])
+
+    error_norm = np.zeros(NumGrids)
+    grids = np.zeros(NumGrids)
+    orders = np.zeros(NumGrids)
+    p = LTE # relabeling is due to author's personal collocation with this symbol
+
+    # calculate first order then loop over remaining
+    q = 0
+    error_norm[q] = FD_derivative(dn, p, Nx)
+    grids[q] = Nx
+
+    for q in range(1, NumGrids):
+        Nx *= 2
+        error_norm[q] = FD_derivative(dn, p, Nx)
+        orders[q] = np.log2(error_norm[q-1] / error_norm[q])
+        grids[q] = Nx
+
+    order = -np.polyfit(np.log2(grids), np.log2(error_norm), 1)[0]
+    print "slope of a linear fit = %g" % order
+
+    print "order calculations at each refinement step:"
+
+    for n in range(NumGrids):
+        if n == 0:
+            print "Nx%d        error = %g       ----" % (grids[n],error_norm[n])
+        else:
+            print "Nx%d        error = %g       order = %g" % (grids[n],error_norm[n],orders[n])
+
+    fig, ax = plt.subplots()
+    ax.loglog(grids, error_norm, 'o')
+    #ax.hold('on')
+    #ax.loglog(abscissa, order_line, '-b')
+    ax.set_xscale('log', basex=2)
+    ax.set_yscale('log', basey=2)
+    #ax.set_xlim(1, 1e4)
+    #ax.set_ylim(1e-15, 1)
+    plt.show()
