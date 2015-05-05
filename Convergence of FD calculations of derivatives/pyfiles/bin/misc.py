@@ -44,29 +44,30 @@ def strings_for_writeout():
 
     return table_strings
 
-def write_header(rel_path, dn, p):
+def write_header(dn, LTE):
 
     strings = strings_for_writeout()
 
-    # locally store for brevity
+    # locally store names for brevity
     newline = strings['newline']
     spc = strings['spc']
     colon = strings['colon']
     equaldivider = strings['equaldivider']
     outfilename_suffix = strings['outfilename_suffix']
-
+    underscore = '_'
     # open file for decorated table
-    decorated_out = open(rel_path +
-                           'Table_of_finite_difference_schemes_at_const_LTE_decorated.dat','w')
+    decorated_out = open('Table_of_finite_difference_schemes_at_const_LTE_decorated.dat','w')
 
-    # header for output
+    # header for decorated table output
     derivative = 'f^(' + str(dn) + ')'
-    decorated_out.write(derivative + colon + spc + 'LTE = O(z^' + str(p)
+    decorated_out.write(derivative + colon + spc + 'LTE = O(z^' + str(LTE)
                           + ')' + '\n')
     decorated_out.write(equaldivider + newline + newline)
 
+    # filename construction for outfile for each derivative dn at chosen LTE
     dn_outname_prefix = 'f' + str(dn)
-    dn_outname = dn_outname_prefix + outfilename_suffix
+    dn_outname_LTE = 'LTE_' + str(LTE)
+    dn_outname = dn_outname_prefix + underscore + dn_outname_LTE + outfilename_suffix
     dn_schemes_out = open(dn_outname, 'w')
 
     return decorated_out, dn_schemes_out
@@ -95,8 +96,8 @@ def write_scheme(outfile, _w, _stencil, high_precision = 'no'):
 
     elif high_precision == 'no':
         for i in range(stencil_size):
-            outfile.write( str(_w[i]) + ', '
-                           + str(_stencil[i]) + '\n')
+            outfile.write( '%2.5f' % _w[i] + ', '
+                           + '%2d' % _stencil[i] + '\n')
 
     return outfile
 
@@ -118,8 +119,14 @@ def write_rest(
     number_of_lines_to_read = strings['number_of_lines_to_read']
 
     # write scheme to decorated table
-    decorated_out.write(derivative + colon + spc +
-                            label + '\n')
+    if label[0] == 'F':
+        decorated_label = 'forward' + spc + label[1]
+    elif label[0] == 'C':
+        decorated_label = 'central' + spc + label[1]
+    elif label[0] == 'B':
+        decorated_label = 'bacward' + spc + label[1]
+
+    decorated_out.write(derivative + colon + spc + decorated_label + '\n')
     decorated_out.write(divider + newline)
     decorated_out.write('(weights, stencil)' + newline)
     decorated_out = write_scheme(decorated_out, w, stencil)

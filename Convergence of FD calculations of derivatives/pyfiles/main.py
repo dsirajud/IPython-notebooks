@@ -55,7 +55,7 @@ def FD_derivative_matrix_formulation(_dn = 1, _p = 1, _Nx = 128):
 
     # extract subdictionary pertaining to scheme of derivative order dn
     dn_key = 'dn' + str(_dn)
-    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(_dn)
+    FD_schemes = pyfiles.lib.make_FD_schemes_dict.store(_dn, _p)
     FD_schemes = FD_schemes[dn_key] # dictionary containing the family of
                                     # FD schemes or order dn
 
@@ -155,16 +155,15 @@ def convergence_routine(NumGrids = 10, Nx = 18, LTE = 1, dn = 3):
     error_norm = np.zeros(NumGrids)
     grids = np.zeros(NumGrids)
     orders = np.zeros(NumGrids)
-    p = LTE # relabeling is due to author's personal collocation with this symbol
 
     # calculate first order then loop over remaining
     q = 0
-    error_norm[q] = FD_derivative_matrix_formulation(dn, p, Nx)
+    error_norm[q] = FD_derivative_matrix_formulation(dn, LTE, Nx)
     grids[q] = Nx
 
     for q in range(1, NumGrids):
         Nx *= 2
-        error_norm[q] = FD_derivative_matrix_formulation(dn, p, Nx)
+        error_norm[q] = FD_derivative_matrix_formulation(dn, LTE, Nx)
         orders[q] = np.log2(error_norm[q-1] / error_norm[q])
         grids[q] = Nx
 
@@ -182,14 +181,17 @@ def convergence_routine(NumGrids = 10, Nx = 18, LTE = 1, dn = 3):
     print '\n'
     return error_norm, grids
 
-def convergence_for_several_derivatives_at_const_LTE(NumGrids = 10, _LTE = 3, _dn_max = 4):
+def convergence_for_several_derivatives_at_const_LTE(NumGrids = 10, _LTE = 3, _dn_min = 1, _dn_max = 4):
+    """runs a convergence routine on a chosen number of grids (NumGrids) that whose uniform
+    spacing between grid points is halved in each subsequent run, for the range of derivatives
+    dn_min <= dn <= dn_max"""
 
     error_histories = np.zeros([NumGrids, _dn_max+1]) # no values stored in [:,0] entry
     grid_histories = np.zeros([NumGrids, _dn_max+1])  # no values stored in [:,0] entry
 
     fig, ax = plt.subplots()
 
-    for d in range(1,_dn_max + 1):
+    for d in range(_dn_min, _dn_max + 1):
         print "derivative dn = %d: \n" % d
 
         error_histories[:,d], grid_histories[:,d] = convergence_routine(NumGrids = 10,

@@ -84,46 +84,47 @@ if __name__ == '__main__':
     import numpy as np # for modulo operation
 
     LTE = int(sys.argv[1])  # LTE
-    dn = int(sys.argv[2]) # order of derivative whose schemes are desired
+    dn_min = int(sys.argv[2]) # generate tables for derivatives
+    dn_max = int(sys.argv[3]) # in range dn_min <= dn <= dn_max
+
+    for dn in range(dn_min, dn_max + 1):
+
+        decorated_out, dn_schemes_out = misc.write_header(dn, LTE)
+
+        # generate finite difference schemes
+        stencil_size = LTE + dn
+        stencil_center = stencil_size // 2
+        jmax = stencil_size - 1
+
+        for j in range(stencil_size):
+            if j < (int( (LTE + dn)/2)):
+                label = 'F' + str(j)
+            elif j == stencil_center and np.mod(stencil_size, 2) == 1:
+                label = 'C0'
+            elif j == jmax:
+                label = 'B0'
+            else:
+                label = 'B' + str(jmax - j)
+
+            stencil = range(0 - j, LTE + dn - j)
+            w, stencil = find_weights(dn, LTE, stencil)
+
+            decorated_out, dn_schemes_out = misc.write_rest(decorated_out,
+                                                     dn_schemes_out,
+                                                     label,
+                                                     LTE,
+                                                     dn,
+                                                     stencil,
+                                                     w)
+
+        decorated_out = misc.write_footer(decorated_out)
+        dn_schemes_out.close()
+
+        # files created in bin/, move to etc/ via os.rename()
+        # move files to ../etc via os.rename()
+        rel_path = './../etc/'
+        os.rename('./' + dn_schemes_out.name, rel_path + dn_schemes_out.name)
 
 
-    decorated_out, dn_schemes_out = misc.write_header(dn, LTE)
-    print 'inside generate file'
-    print dn_schemes_out
-    print decorated_out
-    # generate finite difference schemes
-    stencil_size = LTE + dn
-    stencil_center = stencil_size // 2
-    jmax = stencil_size - 1
-
-    for j in range(stencil_size):
-        if j < (int( (LTE + dn)/2)):
-            label = 'F' + str(j)
-        elif j == stencil_center and np.mod(stencil_size, 2) == 1:
-            label = 'C0'
-        elif j == jmax:
-            label = 'B0'
-        else:
-            label = 'B' + str(jmax - j)
-
-        stencil = range(0 - j, LTE + dn - j)
-        w, stencil = find_weights(dn, LTE, stencil)
-
-        decorated_out, dn_schemes_out = misc.write_rest(decorated_out,
-                                                 dn_schemes_out,
-                                                 label,
-                                                 LTE,
-                                                 dn,
-                                                 stencil,
-                                                 w)
-
-    decorated_out = misc.write_footer(decorated_out)
     decorated_out.close()
-    dn_schemes_out.close()
-
-
-    # files created in bin/, move to etc/ via os.rename()
-    # move files to ../etc via os.rename()
-    rel_path = './../etc/' 
-    os.rename('./' + dn_schemes_out.name, rel_path + dn_schemes_out.name)
     os.rename('./' + decorated_out.name, rel_path + decorated_out.name)

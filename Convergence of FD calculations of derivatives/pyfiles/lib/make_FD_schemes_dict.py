@@ -3,12 +3,12 @@ import numpy as np
 import numpy.linalg as LA
  
 
-def store(dn):
+def store(dn, LTE):
 
     FD_schemes = {}
     infile_suffix = '_FD_coefficients.dat'
 
-    infilename = 'f' + str(dn) + infile_suffix
+    infilename = 'f' + str(dn) + '_' + 'LTE_' + str(LTE) + infile_suffix
     infilepath = './etc/' + infilename
 
     # create empty subdictionary for given dn
