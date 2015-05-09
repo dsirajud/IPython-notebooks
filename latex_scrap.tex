@@ -1,0 +1,37 @@
+We calculate the order as above:
+
+$$\text{order}_i = \log_2\frac{||E_{\Delta x}||_2}{||E_{\Delta x/2}}$$
+
+where $E_{\Delta x} = f_{exact} - f_{\Delta x}$
+
+The truncation error is bounded by constants $C_{\Delta x}, C_{\Delta x / 2}, M_{\Delta x}, M_{\Delta x/2}$, which depend on the mesh spacing, where $C$ limits the size on the LTE and $M$ is associated with the aforementioned numerical source of error (and thus contains terms on the order of machine error $\sim 10^{-16}$. Writing the order of the LTE as $p$, and the derivative order of interest as $n$ (also the negative order with which the machine error scales with). Thus, the above is written as
+
+$$\text{order}_i = \log_2\frac{C_{\Delta x}(\Delta x)^{p} + M_{\Delta x}(\Delta x)^{-n}}{C_{\Delta x / 2}(\Delta x / 2)^{p} + M_{\Delta x / 2}(\Delta x / 2)^{-n}}$$
+
+Formally, we can choose to retain the constants as distinct. The result does not change if we choose the constants $C_{\Delta x} = C_{\Delta x/2} \sim 1$ and $M_{\Delta x} = M_{\Delta x / 2} \sim \epsilon$ equal to unity, this also permits a cleaner equation work which is easier to follow and gets to the point more expediently.
+
+\begin{eqnarray*}
+\text{order}_i & = &  \log_2\frac{(\Delta x)^{p} + \epsilon (\Delta x)^{-n}}{(\Delta x / 2)^{p} + \epsilon (\Delta x / 2)^{-n}} \\[1em]
+& = & \log_2 \left\{ 2^n \frac{\epsilon^{-1}(\Delta x)^{n + p} + 1}{\epsilon^{-1}(2\Delta x)^{n + p} + 1}\right\} \\[1em]
+& = & \log_2 2^n + \log_2 \left\{\frac{ \epsilon^{-1}(\Delta x)^{n + p} + 1}{(\epsilon^{-1}2\Delta x)^{n + p} + 1}\right\} \\[1em]
+\text{order}_i & = & n + \log_2 \left\{\frac{ \epsilon^{-1}(\Delta x)^{n + p} + 1}{ \epsilon^{-1}(2\Delta x)^{n + p} + 1}\right\} 
+\end{eqnarray*}
+
+We consider the case for progressively smaller $\Delta x$, and consider a regime where the numerical error accumulation, $\epsilon (\Delta x)^{-n}$ is sufficiently larger than the LTE term $(\Delta x)^p$, i.e $\epsilon (\Delta x)^{-n} \gg (\Delta x)^p \, \Rightarrow \, \epsilon^{-1}(\Delta x)^{n+p} \ll 1$. Thus, the term in the denominator $\epsilon^{-1}(2\Delta x)^{n + p} \ll 1$ permits an expansion in this small parameter.
+
+\begin{eqnarray*}
+\text{order}_i  & = & n + \log_2 \left\{(1 + \epsilon^{-1}(\Delta x)^{n + p})(1 - \epsilon^{-1}(2\Delta x)^{n+p} + \epsilon^{-2}(2\Delta x)^{2(n + p)} + \ldots)\right\} \\[1em]
+ & = & n + \log_2 (1 + \epsilon^{-1}(\Delta x)^{n + p}) + \log_2 (1 - \epsilon^{-1}(2\Delta x)^{n+p} + \epsilon^{-2}(2\Delta x)^{2(n + p)} + \ldots )\\[1em]
+\text{order}_i  & = & n + \log_2 (1 + \epsilon^{-1}(\Delta x)^{n + p}) + \log_2 (1 - \epsilon^{-1}(2\Delta x)^{n+p}), \qquad \textrm{since } \epsilon^{-1}(2\Delta x)^{2(n+p)} \ll \epsilon^{-1}(2\Delta x)^{n+p}
+\end{eqnarray*}
+
+Expanding the logarithms
+
+\begin{eqnarray*}
+\text{order}_i  & = & n + (\epsilon^{-1}(\Delta x)^{n + p}) - \epsilon^{-2}(\Delta x)^{2(n + p)}) + \ldots) + (-\epsilon^{-1}(2\Delta x)^{n+p} - \epsilon^{-2}(2\Delta x)^{2(n+p)} + \ldots) 
+\end{eqnarray*}
+
+Hence, in the limit of $\Delta x \rightarrow 0$, we recover a \emph{positive} slope which corresponds to the order of the derivative $n$
+
+
+$$\boxed{\lim_{\Delta x \rightarrow 0} \text{order}_i = n}, \quad \textrm{when } \epsilon (\Delta x)^{-n} \gg (\Delta x)^p$$

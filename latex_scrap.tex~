@@ -1,0 +1,6 @@
+We calculate the order as above:
+
+$$\text{order}_i = \log_2\frac{||E_{\Delta x}||_2}{||E_{\Delta x/2}}$$
+
+where $E_{\Delta x} = f_{exact} - f_{\Delta x}$
+

@@ -124,7 +124,7 @@ def write_rest(
     elif label[0] == 'C':
         decorated_label = 'central' + spc + label[1]
     elif label[0] == 'B':
-        decorated_label = 'bacward' + spc + label[1]
+        decorated_label = 'backward' + spc + label[1]
 
     decorated_out.write(derivative + colon + spc + decorated_label + '\n')
     decorated_out.write(divider + newline)

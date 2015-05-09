@@ -253,7 +253,7 @@ def convergence_routine_nonperiodic(NumGrids = 10, Nx = 18, LTE = 3, dn = 1, plo
         plt.title(r'Error in $d^{%i}f/dx^{%i}$ using FD schemes at LTE = $O(\Delta x^{%i})$' % (dn,dn,LTE))
         plt.grid()
 
-    return error_norm, grids
+        return error_norm, grids
 
 
 

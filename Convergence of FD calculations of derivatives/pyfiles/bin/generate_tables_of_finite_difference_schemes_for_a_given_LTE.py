@@ -88,9 +88,6 @@ if __name__ == '__main__':
 
 
     decorated_out, dn_schemes_out = misc.write_header(dn, LTE)
-    print 'inside generate file'
-    print dn_schemes_out
-    print decorated_out
     # generate finite difference schemes
     stencil_size = LTE + dn
     stencil_center = stencil_size // 2
