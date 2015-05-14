@@ -15,6 +15,72 @@
 
 \begin{document}
 
+$$\left(\begin{array}{c}
+\text{forward 0} \\
+\text{forward 1} \\
+\text{forward 1} \\
+\text{forward 1} \\
+\text{backward 1} \\
+\text{backward 0}
+\end{array} \right)
+\left( \begin{array}{c}
+x_0 \\
+x_1 \\
+x_2 \\
+x_3 \\
+x_4 \\
+x_5 
+\end{array} \right)
+= \left(\begin{array}{c}
+df(x_0)/dx \\
+df(x_1)/dx \\
+df(x_2)/dx \\
+df(x_3)/dx \\
+df(x_4)/dx \\
+df(x_5)/dx 
+\end{array} \right)$$
+
+
+$$\left(\begin{array}{c c c c c c}
+-1.833 & \phantom{-}3.000 & -1.500 & \phantom{-}0.333 & 0 & 0 \\
+\phantom{-}0.333 & -0.500 & \phantom{-}1.000 & -0.167 & 0 & 0 \\
+0 & -0.333 & -0.500 & \phantom{-}1.000 & -0.167 & 0 \\
+0 & 0 & -0.333 & -0.500 & \phantom{-}1.000 & -0.166 \\
+0 & 0 & \phantom{-}0.167 & -1.000 & 0.500 & 0.333 \\
+0 & 0 & -0.333 & \phantom{-}1.500 & -3.000 & \phantom{-}1.833
+\end{array} \right)
+\left( \begin{array}{c}
+x_0 \\
+x_1 \\
+x_2 \\
+x_3 \\
+x_4 \\
+x_5 
+\end{array} \right)
+= \left(\begin{array}{c}
+df(x_0)/dx \\
+df(x_1)/dx \\
+df(x_2)/dx \\
+df(x_3)/dx \\
+df(x_4)/dx \\
+df(x_5)/dx 
+\end{array} \right)$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 In general, our goal is to seek the appropriate linear combination of functions $f(x_i + j\Delta x)$ that approximate the derivative of the desired order with the required local truncation error at a point $x_i$. In particular, each grid index $j$ furnishes a label for each unique weight $C_j$ needed for the cancellation of order terms up to the local truncation error seeked. 
 
 We obtain a starting point by considering the Taylor expanstion of a function at the $(i+j)$th grid point, $f(x_i + j\Delta x)$ where $\Delta x$ is the grid spacing.

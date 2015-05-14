@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{amsfonts}
+\usepackage{pifont} %for ding characters (e.g. circled numbers)
+\usepackage{amssymb, amsthm}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage[table]{xcolor}
+\usepackage{cancel}
+\usepackage[all]{xy}
+\usepackage{booktabs} %enables \toprule, \midrule, etc.
+\usepackage{makecell}
+\usepackage{relsize}
+\usepackage{array}
+\usepackage{mathrsfs} % provides \mathscr font (Euler script)
+\usepackage{eufrak}
+\usepackage{breakurl}
+\usepackage{wrapfig}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{pdflscape}
+\usepackage{bm}
+\usepackage{stmaryrd}
+\usepackage{textcomp} % symbols: http://home.online.no/~pjacklam/latex/textcomp.pdf
+\usepackage{mathtools}
+\geometry{letterpaper,tmargin=1in,bmargin=1in,lmargin=0.65in,rmargin=0.65in,headheight=30pt,headsep=30pt,footskip=12pt}
+\usepackage{fancyhdr}
+\usepackage{truncate}
+\pagestyle{fancy}
+\renewcommand{\headrule}{\rule[1.5ex]{\headwidth}{1pt}}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+% Color definitions
+\definecolor{darkorange}{RGB}{255,87,25}
+\definecolor{darkgreen}{RGB}{34,139,34}
+
+%Cyrillic font support, defining \Sha for Sha function
+\usepackage[OT2,T1]{fontenc}
+\DeclareSymbolFont{cyrletters}{OT2}{wncyr}{m}{n}
+\DeclareMathSymbol{\Sha}{\mathalpha}{cyrletters}{"58}
+
+% The entire IPython notebook is not contained here, this is just a scrap latex file used for editing for more involved LaTeX expressions that the author finds easiest to read and edit outside of the browser window
+
+\begin{document}
+
+For the convergence analysis of high order CS, we use an asymmetric, infinitely differentiable function for an initial condition that is the superposition of three Gaussian bells:
+
+$$f(t = 0, x) \equiv f_0(x) = \tfrac{3}{4} \exp(-\left(\tfrac{x + 0.25}{0.03}\right)^2) + \exp(-\left(\tfrac{x}{0.06}\right)^2) + \tfrac{1}{2}\exp(-(\tfrac{x - 0.25}{0.1}^2)$$ 
+
+Writing $a = 3/4, c = 1/2, w_a = 0.03, w_b = 0.06, w_c = 0.1, x_a = 0.25, x_c = -0.25$, the above is equivalent to
+
+$$f_0(x) = a\exp(-\left(\tfrac{x + x_a}{w_a}\right)^2) + \exp(-\left(\tfrac{x}{w_b}\right)^2) + c\exp(-(\tfrac{x + x_c}{w_c})^2)$$ 
+
+The first few derivatives are given by:
+
+\begin{eqnarray*}
+f^{(1)}_0(x) & = & a\left(-\frac{2}{w_a^2}\right)(x + x_a)\exp\left[-\left(\frac{x + x_a}{w_a}\right)^2\right] \\[1em]
+& & \left(-\frac{2}{w_b^2}\right)x\exp\left[-\left(\frac{x}{w_b}\right)^2\right]\\[1em]
+& & c\left(-\frac{2}{w_c^2}\right)(x + x_c)\exp\left[-\left(\frac{x + x_c}{w_c}\right)^2\right]
+\end{eqnarray*}
+
+\begin{eqnarray*}
+f^{(2)}_0(x) & = & a\left(-\frac{2}{w_a^2}\right)\left[1 - \frac{2}{w_a^2}(x + x_a)^2\right]\exp\left[-\left(\frac{x + x_a}{w_a}\right)^2\right] \\
+& & \left(-\frac{2}{w_b^2}\right)\left[1 - \frac{2}{w_b^2}x^2\right]\exp\left[-\left(\frac{x}{w_b}\right)^2\right] \\
+& & c\left(-\frac{2}{w_c^2}\right)\left[1 - \frac{2}{w_c^2}(x + x_c)^2\right]\exp\left[-\left(\frac{x + x_c}{w_c}\right)^2\right] \\
+\end{eqnarray*}
+
+\begin{eqnarray*}
+f^{(3)}_0(x) & = & a\left(-\frac{2}{w_a^2}\right)^2\left[3(x + x_a) - \frac{2}{w_a^2}(x + x_a)^3\right]\exp\left[-\left(\frac{x + x_a}{w_a}\right)^2\right] \\[1em]
+& & \left(-\frac{2}{w_b^2}\right)^2\left[3x - \frac{2}{w_b^2}x^3\right]\exp\left[-\left(\frac{x}{w_b}\right)^2\right] \\[1em]
+& & c\left(-\frac{2}{w_c^2}\right)^2\left[3(x + x_c) - \frac{2}{w_c^2}(x + x_c)^3\right]\exp\left[-\left(\frac{x + x_c}{w_c}\right)^2\right]
+\end{eqnarray*}
+
+\begin{eqnarray*}
+f^{(4)}_0(x) & = & a\left(-\frac{2}{w_a^2}\right)^2\left[3 + 3\left(1 - \frac{2}{w_a^2}\right)(x + x_a)^2 - \frac{2}{w_a^2}(x + x_a)^4\right]\exp\left[-\left(\frac{x + x_a}{w_a}\right)^2\right] \\[1em]
+& & \left(-\frac{2}{w_b^2}\right)^2\left[3 + 3\left(1 - \frac{2}{w_b^2}\right)x^2 - \frac{2}{w_b^2}x^4\right]\exp\left[-\left(\frac{x}{w_c}\right)^2\right] \\[1em]
+& & c\left(-\frac{2}{w_c^2}\right)^2\left[3 + 3\left(1 - \frac{2}{w_c^2}\right)(x + x_c)^2 - \frac{2}{w_c^2}(x + x_c)^4\right]\exp\left[-\left(\frac{x + x_c}{w_c}\right)^2\right]
+\end{eqnarray*}
+
+
+
+
+
+
+
+\begin{eqnarray*}
+f^{(1)}_0(x) & = & a\frac{d}{dx}\left[-\left(\frac{x + x_a}{w_a}\right)^2\right]\exp(-\left(\frac{x + x_a}{w_a}\right)^2) + \frac{d}{dx}\left[-\left(\frac{x}{w_b}\right]\right)^2\left(-\frac{2}{w_b}\right)\exp(-\left(\frac{x}{w_b}\right)^2) \\
+& & + c\frac{d}{dx}\left[-\left(\frac{x + x_c}{w_c}\right)^2\right]\exp(-(\frac{x + x_c}{w_c})^2) \\[2em]
+f^{(1)}_0(x) & = &  a\left(-\frac{2}{w_a}\right)\left(\frac{x + x_a}{w_a}\right)\exp(-\left(\frac{x + x_a}{w_a}\right)^2) + \left(-\frac{2}{w_b}x \right)\exp(-\left(\frac{x}{w_b}\right)^2) \\[2em]
+& & + c\left(-\frac{2}{w_c}\right)\left(\frac{x + x_c}{w_c}\right)\exp(-(\frac{x + x_c}{w_c})^2) \\[3em]
+\end{eqnarray*}
+\begin{eqnarray*}
+f^{(2)}_0(x) & = &  a\left(-\frac{2}{w_a}\right)\frac{d}{dx}\left[\left(\frac{x + x_a}{w_a}\right)\right]\exp(-\left(\frac{x + x_a}{w_a}\right)^2) + \left(\frac{x + x_a}{w_a}\right)\frac{d}{dx}\left[\exp(-\left(\frac{x + x_a}{w_a}\right)^2)\right] + \\[3em]
+& & \frac{d}{dx}\left[\left(-\frac{2}{w_b}x \right)\right]\exp(-\left(\frac{x}{w_b}\right)^2) + \left(-\frac{2}{w_b}x \right)\frac{d}{dx}\left[\exp(-\left(\frac{x}{w_b}\right)^2)\right]  \\[3em]
+& & + c\left(-\frac{2}{w_c}\right)\frac{d}{dx}\left[\left(\frac{x + x_c}{w_c}\right)\right]\exp(-(\frac{x + x_c}{w_c})^2) + c\left(-\frac{2}{w_c}\right)\left(\frac{x + x_c}{w_c}\right)\frac{d}{dx}\left[\exp(-(\frac{x + x_c}{w_c})^2)\right] \\[3em]
+& = & a\left(-\frac{2}{w_a}\right)\left[\frac{1}{w_a} + \frac{x + x_a}{w_a}\frac{d}{dx}\left(-\left(\frac{x + x_a}{w_a}\right)^2\right)\right]\exp(-\left(\frac{x + x_a}{w_a}\right)^2) \\[3em]
+&  & + \left(-\frac{2}{w_b}\right)\exp(-\left(\frac{x}{w_b}\right)^2) + \left(-\frac{2}{w_b}x\right)\frac{d}{dx}\left[-\left(\frac{x}{w_b}\right)^2\right]\exp(-\left(\frac{x}{w_b}\right)^2) \\[3em] 
+&&+ c\left(-\frac{2}{w_c}\right)\left[\frac{1}{w_c} + \left(\frac{x + x_c}{w_c}\right)\frac{d}{dx}\left[-(\frac{x + x_c}{w_c})^2\right]\right]\exp(-(\frac{x + x_c}{w_c})^2) \\[3em]
+& = & a\left(-\frac{2}{w_a}\right)\left[\frac{1}{w_a} + \left(-\frac{2}{w_a}\right)\left(\frac{x + x_a}{w_a}\right)^2\right]\exp(-\left(\frac{x + x_a}{w_a}\right)^2) \\[3em]
+&  & + \left(-\frac{2}{w_b}\right)\exp(-\left(\frac{x}{w_b}\right)^2) + \left(-\frac{2}{w_b}x\right)^2\exp(-\left(\frac{x}{w_b}\right)^2) \\[3em]
+&&+ c\left(-\frac{2}{w_c}\right)\left[\frac{1}{w_c} + \left(-\frac{2}{w_c}\right)\left(\frac{x + x_c}{w_c}\right)^2\right]\exp(-(\frac{x + x_c}{w_c})^2)
+\end{eqnarray*}
+
+
+
+\end{document}
