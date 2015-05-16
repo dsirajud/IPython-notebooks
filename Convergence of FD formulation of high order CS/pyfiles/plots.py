@@ -35,8 +35,8 @@ for n in range(1,nmax + 1):
         absmax = np.abs(minimum)
     else:
         absmax = np.abs(maximum)
-        
-    ax.plot(x,eval(df_str) / absmax, linewidth = 2, linestyle = '--', label = r'$\partial_x^{%i} f$' % n )
+
+    ax.plot(x,eval(df_str) / absmax, linewidth = 1, linestyle = '-', label = r'$\partial_x^{%i} f$' % n )
 
 ax.hold('off')
 frame = ax.get_position() # position of plot center
@@ -47,7 +47,9 @@ ax.set_position([frame.x0, frame.y0,
 
 # Place legend to the right of the shrunken frame
 ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-          fancybox=True, shadow=True, ncol=1)
+          fancybox=True, ncol=1)
 
+plt.xlim([-0.35,0.5])
+plt.ylim([-1.0,1.0])
 plt.grid()
 plt.show()

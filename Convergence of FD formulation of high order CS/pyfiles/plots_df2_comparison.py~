@@ -1,0 +1,20 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from convergence_routines import *
+
+x, dx, L = domain(_Nx = 2688)
+L2, df2_approx = FD_derivative_matrix_formulation(_dn = 2, _p = 3, _Nx = 2688)
+df2_exact = df2(x)
+
+# compare with df1
+df1_exact = df1(x)
+
+#plt.plot(x,df1_exact / np.abs(np.min(df1_exact)), label = 'exact df1', linewidth = 2)
+plt.hold('on')
+plt.plot(x,df2_exact / np.abs(np.min(df2_exact)), label = 'exact df2', marker = 'o', linewidth = 2)
+plt.plot(x,df2_approx / np.abs(np.min(df2_approx)), label = 'approx df2', linewidth = 2)
+
+plt.hold('off')
+plt.legend(loc = 'best')
+plt.grid()
+plt.show()

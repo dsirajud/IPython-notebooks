@@ -76,7 +76,7 @@ def find_weights(_dn, _p, _stencil):
     _w[np.abs(_w) < 2*eps] = 0 # zero out any weight close (factor of 2) to machine epsilon
     return _w, _stencil
 
-def main(LTE = 2, dn_min = 1, dn_max = 2, rel_path = './../etc/'):
+def main(LTE = 3, dn_min = 1, dn_max = 4, rel_path = './../etc/'):
 
     import misc
     import os
