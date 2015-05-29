@@ -1,0 +1,22 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from convergence_routines import *
+
+x, dx, L = domain(_Nx = 2688)
+L2error, df6_approx = FD_derivative_matrix_formulation(_dn = 6, _p = 3, _Nx = 2688)
+df6_exact = df6(x)
+
+plt.plot(x,df6_exact, label = 'exact df6', linewidth = 3)
+plt.hold('on')
+plt.plot(x,df6_approx, label = 'approx df6', linewidth = 1, color = "red")
+
+
+# compare with the function whose derivative this is
+
+df5_exact = df5(x)
+plt.plot(x,df5_exact * np.abs(np.min(df6_approx)) / np.abs(np.min(df5_exact)), label = 'exact df4', linewidth = 1, color = "cyan")
+
+plt.hold('off')
+plt.legend(loc = 'best')
+plt.grid()
+plt.show()

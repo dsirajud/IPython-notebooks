@@ -36,25 +36,21 @@ def read(infilename,
     FD_schemes[dn]['forward'] = {}
     FD_schemes[dn]['central'] = {}
     FD_schemes[dn]['backward'] = {}
-
     for i in range(len(lines)):
 
         if lines[i][0] == 'F':
             handedness = 'forward'
-            asymmetry = lines[i][1]
-
+            asymmetry = lines[i][1:].strip()
             # create empty subdictionary for given asymmetry
             FD_schemes[dn][handedness][asymmetry] = {}
         elif lines[i][0] == 'C':
             handedness = 'central'
-            asymmetry = lines[i][1]
-
+            asymmetry = lines[i][1] # always '0' if handedness = 'central'
             # create empty subdictionary for given asymmetry
             FD_schemes[dn][handedness][asymmetry] = {}
         elif lines[i][0] == 'B':
             handedness = 'backward'
-            asymmetry = lines[i][1]
-
+            asymmetry = lines[i][1:].strip()
             # create empty subdictionary for given asymmetry
             FD_schemes[dn][handedness][asymmetry] = {}
         elif lines[i].split(' ')[0] == 'number':

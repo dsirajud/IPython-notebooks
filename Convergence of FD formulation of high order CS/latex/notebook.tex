@@ -51,6 +51,92 @@
 
 \begin{document}
 
+\begin{equation}
+\begin{split}
+f^{(12)}_0(x)  =  \sum_{m} m\left(-\frac{2}{w_m^2}\right)^6 \left[10395 + 62370 \left(-\frac{2}{w_m^2}\right) (x + x_m)^2 + 51975\left(-\frac{2}{w_m^2}\right)^2 (x + x_m)^4 \right. \\
+\left. + 13860\left(-\frac{2}{w_m^2}\right)^3 (x + x_m)^6 + 1485\left(-\frac{2}{w_m^2}\right)^4 (x + x_m)^8 +  66\left(-\frac{2}{w_m^2}\right)^5 (x + x_m)^{10} + \left(-\frac{2}{w_m^2}\right)^6 (x + x_m)^{12}\right]\exp\left[-\left(\frac{x + x_m}{w_m}\right)^2\right]
+\end{split}
+\end{equation}
+
+
+
+
+
+
+    return a * (-2./w_a**2) ** 6 * (10395
+                                    + 62370 * (-2./w_a**2) * (_x + x_a)**2
+                                    + 51975 * (-2./w_a**2)**2 * (_x + x_a)**4
+                                    + 13860 * (-2./w_a**2) ** 3 * (_x + x_a)**6
+                                    + 1485 * (-2./w_a**2) ** 4 * (_x + x_a)**8
+                                    + 66 * (-2./w_a**2) ** 5 * (_x + x_a) ** 10
+                                    + (-2./w_a**2) ** 6 * (_x + x_a) ** 12)* np.exp(-( (_x + x_a) / w_a) ** 2 ) \
+                                    \
+
+
+
+
+
+\begin{equation}
+\begin{split}
+f^{(11)}_0(x)  =  \sum_{m} m\left(-\frac{2}{w_m^2}\right)^6 \left[ 10395(x + x_m) + 17325 \left(-\frac{2}{w_m^2}\right) (x + x_m)^3 + 6930\left(-\frac{2}{w_m^2}\right)^2 (x + x_m)^5 \right. \\
+\left. + 990\left(-\frac{2}{w_m^2}\right)^3 (x + x_m)^7 + 55\left(-\frac{2}{w_m^2}\right)^4 (x + x_m)^9 + \left(-\frac{2}{w_m^2}\right)^5 (x + x_m)^{11}\right]\exp\left[-\left(\frac{x + x_m}{w_m}\right)^2\right]
+\end{split}
+\end{equation}
+
+
+
+    return a * (-2./w_a**2) ** 6 * (10395 * (_x + x_a)
+                                    + 17325 * (-2./w_a**2) * (_x + x_a) ** 3
+                                    + 6930 * (-2./w_a**2) ** 2 * (_x + x_a) ** 5
+                                    + 990 *  (-2./w_a**2) ** 3 * (_x + x_a) ** 7
+                                    + 55 * (-2./w_a**2) ** 4 * (_x + x_a) ** 9
+                                    + (-2./w_a**2) ** 5 * (_x + x_a) ** 11
+                                    ) * np.exp(-( (_x + x_a) / w_a) ** 2 ) \
+                                    \
+
+
+
+
+
+\begin{equation}
+\begin{split}
+f^{(10)}_0(x)  =  \sum_{m} m\left(-\frac{2}{w_m^2}\right)^5 \left[ 945) + 4725 \left(-\frac{2}{w_m^2}\right) (x + x_m)^2 + 3150\left(-\frac{2}{w_m^2}\right)^2 (x + x_m)^4 \right. \\
+\left. + 630\left(-\frac{2}{w_m^2}\right)^3 (x + x_m)^6 + 45 \left(-\frac{2}{w_m^2}\right)^4 (x + x_m)^8 +  \left(-\frac{2}{w_m^2}\right)^5 (x + x_m)^{10}\right]\exp\left[-\left(\frac{x + x_m}{w_m}\right)^2\right]
+\end{split}
+\end{equation}
+
+
+\begin{equation}
+\begin{split}
+f^{(9)}_0(x)  =  \sum_{m = \{a,b,c\}} m\left(-\frac{2}{w_m^2}\right)^5 \left[ 945(x + x_m) + 1260 \left(-\frac{2}{w_m^2}\right) (x + x_m)^3 + 378\left(-\frac{2}{w_m^2}\right)^2 (x + x_m)^5 \right. \\
+\left. + 36\left(-\frac{2}{w_m^2}\right)^3 (x + x_m)^7 + \left(-\frac{2}{w_m^2}\right)^4 (x + x_m)^9\right]\exp\left[-\left(\frac{x + x_m}{w_m}\right)^2\right]
+\end{split}
+\end{equation}
+
+%\begin{multline}
+%f^{(5)}_0(x)  =  \sum_{m = \{a,b,c\}} m\left(-\frac{2}{w_m^2}\right)^3\left[ 15(x + x_a) + 10\left(-2\frac{2}{w_m^2}\right) (x + x_m)^3 \right.  \left. + \left(-\frac{2}{w_m^2}\right)^2 (x + x_m)^5\right]\exp\left[-\left(\frac{x + x_m}{w_m}\right)^2\] 
+%\end{multline}
+
+\begin{equation}
+    \begin{split}
+    \left( \int_1^2 ba ba \mathrm da \right. \\
+    \left. ba ba ba \vphantom{\int_1^2} \right)
+    \end{split}
+\end{equation}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 For the convergence analysis of high order CS, we use an asymmetric, infinitely differentiable function for an initial condition that is the superposition of three Gaussian bells:
 
 $$f(t = 0, x) \equiv f_0(x) = \tfrac{3}{4} \exp(-\left(\tfrac{x + 0.25}{0.03}\right)^2) + \exp(-\left(\tfrac{x}{0.06}\right)^2) + \tfrac{1}{2}\exp(-(\tfrac{x - 0.25}{0.1}^2)$$ 
@@ -108,6 +194,15 @@ f^{(2)}_0(x) & = &  a\left(-\frac{2}{w_a}\right)\frac{d}{dx}\left[\left(\frac{x 
 &  & + \left(-\frac{2}{w_b}\right)\exp(-\left(\frac{x}{w_b}\right)^2) + \left(-\frac{2}{w_b}x\right)^2\exp(-\left(\frac{x}{w_b}\right)^2) \\[3em]
 &&+ c\left(-\frac{2}{w_c}\right)\left[\frac{1}{w_c} + \left(-\frac{2}{w_c}\right)\left(\frac{x + x_c}{w_c}\right)^2\right]\exp(-(\frac{x + x_c}{w_c})^2)
 \end{eqnarray*}
+
+
+
+
+
+
+
+
+
 
 
 

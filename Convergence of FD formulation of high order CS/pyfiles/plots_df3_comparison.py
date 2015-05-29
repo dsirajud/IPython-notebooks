@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from convergence_routines import *
 
-from convergence_routines import FD_derivative_matrix_formulation, domain, df2
+from convergence_routines import FD_derivative_matrix_formulation, domain, df3
 
 x, dx, L = domain(_Nx = 2688)
 L2error, df3_approx = FD_derivative_matrix_formulation(_dn = 3, _p = 3, _Nx = 2688)
