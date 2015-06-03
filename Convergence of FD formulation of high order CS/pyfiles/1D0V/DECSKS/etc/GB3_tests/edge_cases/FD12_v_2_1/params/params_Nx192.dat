@@ -1,0 +1,91 @@
+#=============================================================================#
+#             Input file : 1D-1V Vlasov-Poisson input file
+#=============================================================================#
+                                                                              X
+Simulation specifications (case insensitive, except 'None'):
+
+High order corrections (enter: None, Fourier, or FD) = fd
+Global error order [if FD, must generate tables up to this order] (int) = 12
+Windowed Fourier transform on? (yes/no) = no
+
+Domain specifications:
+
+Enter the number of cells as int or None
+Enter the dimensions as float or None
+
+Number of cells, x = 192
+lower boundary ax = -0.5
+upper boundary bx = 1.5
+
+Number of cells, y = None
+lower boundary ay = None
+upper boundary by = None
+
+Number of cells, z = None
+lower boundary az = None
+upper boundary bz = None
+
+Number of cells, vx = 64
+lower boundary avx = -8.0
+upper boundary bvx =  8.0
+
+Number of cells, vy = None
+lower boundary avy = None
+upper boundary bvz = None
+
+Number of cells, vz = None
+lower boundary avz = None
+upper boundary bvz = None
+
+Number of time steps, Nt = 64
+lower boundary at = 0
+upper boundary bt = 1.
+Simulation duration, time T = 1.
+
+number of phase space dimensions (int) = 2
+density profile = triple gaussian bell asymmetric
+
+# options:
+
+    1D-1V options
+    -------------
+    bump on tail
+    Landau
+    1D1V bell
+    flower
+
+    1D, one speed options
+    -------------
+    gaussian
+    n cosine bell
+    rectangle and Gaussian bell
+    triangle
+    triple gaussian bell
+
+split scheme = LF2
+splitting coeffs in filename (in ./etc/): params_splitting_coeffs.dat
+
+#   options
+    -------
+    LF2
+    Y4
+    O6-4
+    O11-6
+    O14-6
+
+Velocity field given or self-consistent
+-------------------------------------------
+self-consistent vel. calcs? (yes/no): no
+
+Plot window specification
+-------------------------------------------
+
+x, min = -0.5
+x, max = 1.5
+
+y, min = 0.
+y, max = 1.1
+
+record outputs? (yes/no): yes
+-------------------------------------------
+output filename: params_output.dat

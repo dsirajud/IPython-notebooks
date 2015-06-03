@@ -1,0 +1,67 @@
+
+
+# Notes
+
+example, dn = 1, p = 6, (actually only need p = 5)
+
+all grid points in vector z
+
+z[0]
+z[1]
+z[2]
+.
+.
+.
+z[Nz-2]
+z[Nz-1]
+
+weights matrix W, and derivative vector df, want a computation
+
+To construct matrix, use stencil for mapping at each s, to insert
+entries of weights w[s]
+
+Wz = df
+
+W[1,:]  =
+
+stencil: 0, 1, 2, 3, 4, 5, 6
+w[0], w[1], w[2], ..., w[6], 0, 0, 0, ...., 0 < --- F0 weights
+
+W[2,:] = 
+
+stencil: -1, 0, 1, 2, 3, 4, 5
+w[0], w[1], w[2], ..., w[6], 0, 0, 0, ..., 0 <-- F1 weights
+
+W[3,:] = 
+
+stencil: -2, -1, 0, 1, 2, 3, 4
+0, 0, w[0], w[1], w[2], ..., w[6], 0, 0, 0, ..., 0 <-- F2 weights
+
+W[4,:] = 
+
+stencil: -3, -2, -1, 0, 1, 2, 3 :: Central
+0, 0, 0, w[0], w[1], w[2], ..., w[6], 0, 0, 0, ..., 0 <-- F2 weights
+
+W[5,:] = 
+
+stencil: -3, -2, -1, 0, 1, 2, 3 :: Central
+0, 0, 0, 0, w[0], w[1], w[2], ..., w[6], 0, 0, 0, ..., 0 <-- F2 weights
+
+.
+.
+.
+
+
+stencil: -2, -1, 0, 1, 2, 3, 4
+0, 0, 0, 0, 0, w[0], w[1], w[2], ..., w[6], 0, 0, 0, ..., 0 <-- F2 weights
+
+W[Nz - 1,:] = 
+
+stencil: -6, -5, -4, -3, -2, -1, 0
+0, 0, 0,  ..., 0, 0, w[0], w[1], w[2], ..., w[6] <-- F2 weights
+
+
+W = np.zeros([z.N, z.N])
+
+for s in range(len(stencil)):
+    

@@ -1,0 +1,35 @@
+folders are labelled as, e.g. FD7_v_2_1/, meaning the global error is 7, the velocity (const) is v = 2.1 in lib.velocityfields
+Note, the LTE is 7 + 1 = 8.
+
+One possible EDGE case convergence prescription:
+
+(1) velocityfields.py -- set v = 2.1 in const velocity profile
+
+(1.5) lib/diagonostics -- in L2 calc, replace x.cells with 
+                          (x.cells - 0.1) for the position of 
+                          the final density according to the 
+                          initial density you specify 
+
+                          i.e. will convect domain length L + 0.1
+
+                          current: 'triple gaussian bell asymmetric'
+                          (can change in params_Nx...dat files)
+
+(2) settle on which order you wish to correct for, create
+    an indicative folder, and inside ./params/ change the
+    global error to the desired error (= LTE - 1)
+
+(3) DECSKS/main_sh.py -- change the input params directory path according
+                  to (2) above, near top of script
+
+(4) DECSKS/bin/finite_differences../ generate the required FD tables needed
+    for the chosen method
+
+    will be stored in etc/finite_differences_.../
+    might need to delete all files in there before generating
+    to prevent the CS solver from trying to read in extraneous
+    files, for example if want an LTE of 9 (global error = 8)
+
+    python generate_tables_of_...._required_for_given_GE...py 8
+
+(5) run DECSKS/convergence_tests.sh in shell, will output to terminal the L2 errors
