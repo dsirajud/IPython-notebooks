@@ -173,50 +173,50 @@ for i in range(1,len(log_O14_6_t)):
 
 #pretty print table
 
-print "SN_dt        LF2 L2 error (max)        LF2 order (based on L2 error)"
-print "---------------------------------------------------------------------"
+print "SN_dt        N_t        LF2 L2 error (max)        LF2 order (based on L2 error)"
+print "-------------------------------------------------------------------------------"
 for i in range(len(LF2_t)):
     if i == 0:
-        print "%d           %2.5e                       --" % (SNdt_LF2[i], LF2_L2[i])
+        print "%d           %d           %2.5e                       --" % (SNdt_LF2[i], LF2_t[i], LF2_L2[i])
     else:
-        print "%d         %2.5e                       %2.5f" % (SNdt_LF2[i], LF2_L2[i], slope_LF2[i])
+        print "%d           %d         %2.5e                       %2.5f" % (SNdt_LF2[i], LF2_t[i], LF2_L2[i], slope_LF2[i])
 
 print "\n"
-print "SN_dt        Y4 L2 error (max)        Y4 order (based on L2 error)        Y4 L2 error (absmax)"
-print "-----------------------------------------------------------------------------------------------"
+print "SN_dt        N_t        Y4 L2 error (max)        Y4 order (based on L2 error)        Y4 L2 error (absmax)"
+print "---------------------------------------------------------------------------------------------------------"
 for i in range(len(Y4_t)):
     if i == 0:
-        print "%d            %2.5e                    --   " % (SNdt_Y4[i], Y4_L2[i])
+        print "%d          %d            %2.5e                    --   " % (SNdt_Y4[i], Y4_t[i], Y4_L2[i])
     else:
-        print "%d              %2.5e                 %2.5f                          %2.5e" % (SNdt_Y4[i], Y4_L2[i], slope_Y4[i], Y4_L1[i])
+        print "%d          %d              %2.5e                 %2.5f                          %2.5e" % (SNdt_Y4[i], Y4_t[i], Y4_L2[i], slope_Y4[i], Y4_L1[i])
 
 
 print "\n"
-print "SN_dt        O6_4 L2 error (max)        O6_4 order (based on L2 error)        O6_4 L2 error (absmax)"
-print "-----------------------------------------------------------------------------------------------"
+print "SN_dt        N_t        O6_4 L2 error (max)        O6_4 order (based on L2 error)        O6_4 L2 error (absmax)"
+print "-------------------------------------------------------------------------------------------------"
 for i in range(len(O6_4_t)):
     if i == 0:
-        print "%d            %2.5e                    --   " % (SNdt_O6_4[i], O6_4_L2[i])
+        print "%d          %d            %2.5e                    --   " % (SNdt_O6_4[i], O6_4_t[i], O6_4_L2[i])
     else:
-        print "%d              %2.5e                 %2.5f                          %2.5e" % (SNdt_O6_4[i], O6_4_L2[i], slope_O6_4[i], O6_4_L1[i])
+        print "%d          %d              %2.5e                 %2.5f                          %2.5e" % (SNdt_O6_4[i], O6_4_t[i], O6_4_L2[i], slope_O6_4[i], O6_4_L1[i])
 
 print "\n"
-print "SN_dt        O11_6 L2 error (max)        O11_6 order (based on L2 error)        O11_6 L2 error (absmax)"
-print "-----------------------------------------------------------------------------------------------"
+print "SN_dt        N_t        O11_6 L2 error (max)        O11_6 order (based on L2 error)        O11_6 L2 error (absmax)"
+print "---------------------------------------------------------------------------------------------------------"
 for i in range(len(O11_6_t)):
     if i == 0:
-        print "%d            %2.5e                    --   " % (SNdt_O11_6[i], O11_6_L2[i])
+        print "%d          %d            %2.5e                    --   " % (SNdt_O11_6[i], O11_6_t[i], O11_6_L2[i])
     else:
-        print "%d              %2.5e                 %2.5f                          %2.5e" % (SNdt_O11_6[i], O11_6_L2[i], slope_O11_6[i], O11_6_L1[i])
+        print "%d          %d              %2.5e                 %2.5f                          %2.5e" % (SNdt_O11_6[i], O11_6_t[i], O11_6_L2[i], slope_O11_6[i], O11_6_L1[i])
 
 print "\n"
-print "SN_dt        O14_6 L2 error (max)        O14_6 order (based on L2 error)        O14_6 L2 error (absmax)"
+print "SN_dt        N_t        O14_6 L2 error (max)        O14_6 order (based on L2 error)        O14_6 L2 error (absmax)"
 print "-----------------------------------------------------------------------------------------------"
 for i in range(len(O14_6_t)):
     if i == 0:
-        print "%d            %2.5e                    --   " % (SNdt_O14_6[i], O14_6_L2[i])
+        print "%d          %d            %2.5e                    --   " % (SNdt_O14_6[i], O14_6_t[i], O14_6_L2[i])
     else:
-        print "%d              %2.5e                 %2.5f                          %2.5e" % (SNdt_O14_6[i], O14_6_L2[i], slope_O14_6[i], O14_6_L1[i])
+        print "%d          %d              %2.5e                 %2.5f                          %2.5e" % (SNdt_O14_6[i], O14_6_t[i], O14_6_L2[i], slope_O14_6[i], O14_6_L1[i])
 
 
 methods = ['LF2', 'Y4', 'O6-4', 'O11-6', 'O14-6']
@@ -245,4 +245,3 @@ print '-------------------------------------------------------------------------
 
 for i in range(len(methods)):
     print "%s                      %g                                           %d" % (methods[i], simtimes_new[i], numstages[i])
-
