@@ -1,0 +1,10 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+Nx = [24,
+      48,
+      96,
+      192,
+      384,
+      768,
+      1536]
