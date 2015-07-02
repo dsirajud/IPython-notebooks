@@ -68,7 +68,7 @@ def L1(f,n,x,v):
     I1 -- (float) L1 norm
     """
 
-    return np.sum(f[n,:,:]) * x.width * v.width
+    return np.sum(f[n,:x.N,:v.N]) * x.width * v.width
 
 def L2(f,n,x,v):
     """computes the square of the L2 norm. Note, the intended
@@ -90,7 +90,7 @@ def L2(f,n,x,v):
 
     # compute the square of the L2 norm below to minimize
     # compounded error from repeated operations like squareroot
-    return np.sum(f[n,:,:]**2) * x.width * v.width
+    return np.sum(f[n,:x.N,:v.N]**2) * x.width * v.width
 
 def total_energy(f,n,x,v,E):
     """computes the total energy for a Vlasov-Poisson system
@@ -107,8 +107,8 @@ def total_energy(f,n,x,v,E):
     IW -- (float) total energy at time t^n in system
     """
 
-    return 1/2.*np.sum(f[n,:,:] * v.cells **2) * x.width * v.width \
-      + 1/2. * np.sum(E**2) * x.width
+    return 1/2.*np.sum(f[n,:x.N,:v.N] * v.gridvalues[:v.N] **2) * x.width * v.width \
+      + 1/2. * np.sum(E[:x.N]**2) * x.width
 
 def electrostatic_energy(x,E):
     """computes the electrostic energy WE = 1/2 sum_i E[i] dx
@@ -120,7 +120,7 @@ def electrostatic_energy(x,E):
     outputs:
     WE -- (float) electrostatic energy at time t^n
     """
-    return 1/2.* np.sum(E**2)* x.width
+    return 1/2.* np.sum(E[:x.N]**2)* x.width
 
 def entropy(f,n,x,v):
     """computes the entropy S at time t^n,
@@ -136,7 +136,7 @@ def entropy(f,n,x,v):
     S -- (float) entropy at time t^n
     """
     eps = sys.float_info.min # to evade taking np.log(0)
-    return -np.sum(f[n,:,:] * np.log(f[n,:,:] + eps)) * x.width * v.width
+    return -np.sum(f[n,:x.N,:v.N] * np.log(f[n,:x.N,:v.N] + eps)) * x.width * v.width
 
 def close_all_outfiles(sim_params):
     """Closes all opened output files inside dictionary

@@ -16,11 +16,11 @@ def setup(sim_params, t, z1, z2 = None):
 
     if z2 is None:
         # init density container with dims z1.N and zero time + t.N steps
-        f = np.zeros([t.N + 1, z1.N])
+        f = np.zeros([t.Ngridpoints, z1.Ngridpoints])
         f[:,0] = initial_profile(f[0,:], sim_params, z1)
 
     elif z2 is not None:
-        f = np.zeros([t.N + 1, z1.N, z2.N])
+        f = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
         f[0,:,:] = initial_profile(f[0,:,:], sim_params, z1, z2)
 
     return f
@@ -44,29 +44,29 @@ def initial_profile(f0, sim_params, z1, z2 = None):
         x,v = z1, z2
         eps, k = 0.01, 0.5
         print "initializing Landau profile"
-        for i in range(x.N):
-            for j in range(v.N):
-                f0[i,j] =1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.cells[i])) * np.exp(-v.cells[j] ** 2 / 2.)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] =1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.gridvalues[i])) * np.exp(-v.gridvalues[j] ** 2 / 2.)
         return f0
 
     if density == 'bump on tail':
         x,v = z1, z2
         for i in range(x.N):
             for j in range(v.N):
-                f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + 0.04*np.cos(0.3*x.cells[i])) * ( 0.9*np.exp(-v.cells[j]**2 / 2.) + 0.2*np.exp(-4 * (v.cells[j] - 4.5) ** 2) )
+                f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + 0.04*np.cos(0.3*x.gridvalues[i])) * ( 0.9*np.exp(-v.gridvalues[j]**2 / 2.) + 0.2*np.exp(-4 * (v.gridvalues[j] - 4.5) ** 2) )
         return f0
 
     if density == 'gaussian':
         mu, sigma = 0.0, 0.04
-        f0[:] = np.exp(-(z1.cells - mu)**2/(2*sigma**2))
+        f0[:] = np.exp(-(z1.gridvalues - mu)**2/(2*sigma**2))
         return f0
 
     if density == 'n cosine bell':
         # 6th degree cosine bell, cos(2pix)**6 in |x| < 0.5
         n = 6
         for i in range(z1.N):
-            if np.abs(z1.cells[i]) < 0.25:
-                f0[i] = 0.1 + (np.cos(2*np.pi*z1.cells[i])) ** n
+            if np.abs(z1.gridvalues[i]) < 0.25:
+                f0[i] = 0.1 + (np.cos(2*np.pi*z1.gridvalues[i])) ** n
             else:
                 f0[i] = 0.1
         return f0
@@ -74,10 +74,10 @@ def initial_profile(f0, sim_params, z1, z2 = None):
     if density == 'rectangle and gaussian bell':
 
         for i in range(z1.N):
-            if -0.4 <= z1.cells[i] <= -0.2:
+            if -0.4 <= z1.gridvalues[i] <= -0.2:
                 f0[i] = 0.1 + 1.0
-            elif -0.1 <= z1.cells[i] <= 0.5:
-                f0[i] = 0.1 + np.exp(- ((z1.cells[i] - 0.2)/0.04)**2)
+            elif -0.1 <= z1.gridvalues[i] <= 0.5:
+                f0[i] = 0.1 + np.exp(- ((z1.gridvalues[i] - 0.2)/0.04)**2)
             else:
                 f0[i] = 0.1 + 0.0
         return f0
@@ -85,15 +85,15 @@ def initial_profile(f0, sim_params, z1, z2 = None):
     if density == 'triangle':
 
         for i in range(z1.N):
-            if np.abs(z1.cells[i]) < 0.25:
-                f0[i] = 0.1 + (1 - 4*np.abs(z1.cells[i]))
+            if np.abs(z1.gridvalues[i]) < 0.25:
+                f0[i] = 0.1 + (1 - 4*np.abs(z1.gridvalues[i]))
             else:
                 f0[i] = 0.1
         return f0
 
     if density == 'triple gaussian bell':
 
-        f0[:] = 0.5*np.exp(-((z1.cells + 0.2) / 0.03)**2) + np.exp(-((z1.cells) / 0.06)**2) + 0.5*np.exp(-((z1.cells - 0.2) / 0.03)**2)
+        f0[:] = 0.5*np.exp(-((z1.gridvalues + 0.2) / 0.03)**2) + np.exp(-((z1.gridvalues) / 0.06)**2) + 0.5*np.exp(-((z1.gridvalues - 0.2) / 0.03)**2)
         return f0
 
 
@@ -129,9 +129,14 @@ def cold_background(f,x,v,sim_params):
 
     outputs:
     ni -- (float) constant ion background density
+
+    Note: for periodic BCs, z.N != z.Ngridpoints, hence
+    we pass only the active gridpoints [0:z.N].
+    for all other BCs, z.N = z.Ngridpoints  so the following
+    pass is general
     """
     ax, bx = sim_params['ax'], sim_params['bx']
-    ne = single_integration(f[0,:,:], of = x, wrt = v)
+    ne = single_integration(f[0,:x.N,:v.N], of = x, wrt = v)
     Ne = single_integration(ne, wrt = x)
     ni = Ne / (bx - ax)
     return ni

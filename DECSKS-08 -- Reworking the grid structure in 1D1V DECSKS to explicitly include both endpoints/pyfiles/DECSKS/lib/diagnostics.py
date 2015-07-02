@@ -36,7 +36,7 @@ def calcs_and_writeout(sim_params,f,n,x,t):
     #I = "invariant", I1 = L1 norm invariant, etc.
     if sim_params['record_outputs'] == 'yes':
         I1 = L1(f,n,x)
-        I2 = L2(f,n,x,t)
+        I2 = L2(f,n,x)
         S = entropy(f,n,x)
         # write to files
 
@@ -63,13 +63,8 @@ def L1(f,n,x):
 
     return np.sum(f[n,:]) * x.width
 
-def L2(f,n,x,t):
-    """computes the square of the L2 norm. Note, the intended
-    purpose of this computation is to compare with its deviation
-    from the value at time zero. To minimize compounded errors
-    from redundant operations, a squareroot is not taken here
-    and should be applied later if desired,
-    e.g. np.sqrt( (L2[t] - L2[0]) / L2[0])
+def L2(f,n,x):
+    """computes the L2 norm of the error.
 
     inputs:
     f -- (ndarray, ndim=3), f(t,x,v)
@@ -79,11 +74,6 @@ def L2(f,n,x,t):
     outputs:
     I2 -- (float) L2 norm
     """
-
-    # compute the square of the L2 norm below to minimize
-    # compounded error from repeated operations like squareroot
-    # TODO this has been modified for convergence analysis temporarily, computes L2 of L1 error norm
-
     f_exact = f[0,:]
     error = f[n,:] - f_exact
     return np.sqrt(x.width / x.L) * LA.norm(error, 2)

@@ -34,11 +34,11 @@ rm_plots = 0 # no input for script shell execution
 cleanup_report = 0 # no report of file cleanup printed
 tic = time.clock()
 
-params_dir = './etc/NGC_convergence_tests/GB3/F5/params/'
+params_dir = './etc/NGC_convergence_tests/GB3/F8_2nd/params/'
 params_filename = sys.argv[1]
 params_filepath = params_dir + params_filename
 
-out_dir = './etc/NGC_convergence_tests/GB3/F5/outfiles/'
+out_dir = './etc/NGC_convergence_tests/GB3/F8_2nd/outfiles/'
 
 sim_params = DECSKS.lib.read.inputfile(params_filepath)
 sim_params['BC'] = 'periodic'
@@ -47,11 +47,11 @@ t = DECSKS.lib.domain.Setup(sim_params, var = 't')
 f = DECSKS.lib.density.setup(sim_params, t, x)    # f = f(t^n, x_i)
 v = DECSKS.lib.velocityfields.Velocity('const',x)
 
-if sim_params['HOC'].lower == 'fd':
+if sim_params['HOC'] == 'FD':
     sim_params['W'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrices(sim_params,x)
 
-#Plot = DECSKS.lib.plots.PlotSetup(f, 0, t, x, v, sim_params)
-#Plot(n = 0)
+Plot = DECSKS.lib.plots.PlotSetup(f, 0, t, x, v, sim_params)
+Plot(n = 0)
 
 print 'simulation has started, next status update at 10% completion \n'
 
@@ -64,8 +64,8 @@ for n in t.stepnumbers:
         sim_params
         )
 
-    #    Plot = DECSKS.lib.plots.PlotSetup(f, n, t, x, v, sim_params)
-    #    Plot(n)
+    Plot = DECSKS.lib.plots.PlotSetup(f, n, t, x, v, sim_params)
+    Plot(n)
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat
@@ -77,7 +77,9 @@ L2 = DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,t.N,x,t)
 print "Nx%d L2 error =" % x.Ngridpoints
 print L2
 toc = time.clock()
-print "simulation completed in %g seconds" % (toc - tic)
-
+simtime = toc - tic
+print "simulation completed in %g seconds = %g minutes = %g hours " % (simtime,
+                                                                       simtime/60.,
+                                                                       simtime/3600.)
 # =============================================================================== #
 # END

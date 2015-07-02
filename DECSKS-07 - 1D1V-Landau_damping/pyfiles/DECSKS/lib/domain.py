@@ -15,51 +15,72 @@ class Setup:
     def __init__(self, sim_params, var, dim = None):
         if dim is not None and var.lower() != 't':
             # var = 'v', dim = 'x', 'y' or 'z'
-            self.N = sim_params['N' + var + dim]
+
+            # set up number of total gridpoints (self.Ngridpoints)
+            # vs. number of active gridpoints self.N (can be equal)
+            self.Ngridpoints = sim_params['N' + var + dim]
+            if sim_params['BC'].lower() == 'periodic':
+                self.N = self.Ngridpoints - 1
+            else:
+                self.N = self.Ngridpoints
+
             self.a = float(sim_params['a' + var + dim])
             self.b = float(sim_params['b' + var + dim])
             self.L = float(self.b - self.a)
-            self.width = self.L / self.N
-            self.str = var # + dim, if using multiple dims will need + dim
-            # self.gridpoints and self.prepoints are
-            # identical, but used in different loops in
-            # the implementation depending on which
-            # label is most suitable for a given context
-            self.gridpoints = np.array(range(self.N))
-            self.prepoints = np.array(range(self.N))
-            self.postpoints = np.zeros(self.N)
+            self.width = self.L / (self.Ngridpoints - 1)
+            self.str = var + dim
 
-            self.cells = self.generate_Eulerian_mesh(self.N)
-            self.MCs = np.zeros(self.N)
+            self.prepoints = np.array(range(self.N))
+            self.postpoints = np.zeros(self.N) # container, to be filled at each timestep
+            self.MCs = np.zeros(self.N) # container, to be filled at each timestep
+
+            # for convecting cells
+            self.prepointvalues = np.zeros(self.N)
+            self.prepointvalues = self.generate_Eulerian_mesh(self.N)
+
+            # for plots
+            self.gridpoints = np.array(range(self.Ngridpoints))
+            self.gridvalues = self.generate_Eulerian_mesh(self.Ngridpoints)
 
         elif var.lower() != 't':
             # var = 'x','y', or 'z'; dim = None
-            self.N = sim_params['N' + var]
+
+            # set up number of total gridpoints (self.Ngridpoints)
+            # vs. number of active gridpoints self.N (can be equal)
+            self.Ngridpoints = sim_params['N' + var]
+            if sim_params['BC'].lower() == 'periodic':
+                self.N = self.Ngridpoints - 1
+            else:
+                self.N = self.Ngridpoints
+
             self.a = float(sim_params['a' + var])
             self.b = float(sim_params['b' + var])
             self.L = float(self.b - self.a)
-            self.width = self.L / self.N
+            self.width = self.L / (self.Ngridpoints - 1)
             self.str = var
-            # self.gridpoints and self.prepoints are
-            # identical, but used in different loops in
-            # the implementation depending on which
-            # label is most suitable for a given context
-            self.gridpoints = np.array(range(self.N))
-            self.prepoints = np.array(range(self.N))
-            self.postpoints = np.zeros(self.N)
 
-            self.cells = self.generate_Eulerian_mesh(self.N)
-            self.MCs = np.zeros(self.N)
+            self.prepoints = np.array(range(self.N))
+            self.postpoints = np.zeros(self.N) # container, to be filled at each timestep
+            self.MCs = np.zeros(self.N) # container, to be filled at each timestep
+
+            # for convecting cells
+            self.prepointvalues = np.zeros(self.N)
+            self.prepointvalues = self.generate_Eulerian_mesh(self.N)
+
+            # for plots
+            self.gridpoints = np.array(range(self.Ngridpoints))
+            self.gridvalues = self.generate_Eulerian_mesh(self.Ngridpoints)
 
         else:
             # var = 't', dim = None
-            self.N = sim_params['N' + var]
+            self.N = sim_params['N' + var] # number of timesteps
+            self.Ngridpoints = self.N + 1 # total number of time grid points
             self.a = float(sim_params['a' + var])
             self.b = float(sim_params['b' + var])
             self.T = float(self.b - self.a)
             self.width = self.T / self.N
-            self.stepnumbers = np.array(range(1,self.N+1))
-            self.times = self.generate_Eulerian_mesh(self.N+1)
+            self.stepnumbers = np.array(range(1,self.Ngridpoints))
+            self.times = self.generate_Eulerian_mesh(self.Ngridpoints)
             self.str = var
 
     def generate_Eulerian_mesh(self, Num):

@@ -5,7 +5,7 @@
 # CURRENT SETUP: 1D1V, Vlasov-Poisson system with cold ion background         #
 #                                                                             #
 #     __author__     = David Sirajuddin                                       #
-#     __version__    = 1.1                                                    #
+#     __version__    = 1.2                                                    #
 #     __email__      = sirajuddin@wisc.edu                                    #
 #     __status__     = in development                                         #
 #                                                                             #

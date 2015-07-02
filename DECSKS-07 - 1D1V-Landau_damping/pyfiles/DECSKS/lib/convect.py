@@ -42,8 +42,7 @@ def advection_step(
     # f_new = collisions_step(f_old, z, n) Not implemented yet
     f_new = remap_step(f_old, CFL, z, n, sim_params)
 
-
-    return f_new 
+    return f_new
 #---------------------------------------------------------------------------  #
 class CourantNumber:
     """Returns a CFL number instance according to vel. of z passed
@@ -57,7 +56,8 @@ class CourantNumber:
     def __init__(self, z):
         """ """
         # z is a phase space variable instance from below Setup
-        self.numbers = (z.MCs - z.cells) / z.width
+        self.numbers = (z.MCs - z.prepointvalues) / z.width
+
         self.int = np.zeros(z.N)    # initialize
         if self.numbers.all >= 0:
             self.int = np.floor(self.numbers)
@@ -83,9 +83,16 @@ def remap_step(
     outputs:
     f_new -- (ndarray, dim=1) density with all MCs remapped at final z.postpoints
         final postpoints
-    """
-    f_new = np.zeros(z.N)
 
+    note: z.N MCs are evolved, for peroidic BCs, z.N = len(f_old) - 1
+                               and we enforce the BC: f[z.Ngridpoints-1] = f[0])
+                               at the conclusion of the timestep (this function)
+          for all other boundary problems, z.N = z.Ngridpoints = len(f_old)
+
+          hence, f_old[:z.N] is passed instead of f_old
+
+    """
+    f_new = np.zeros(z.Ngridpoints)
     beta = DECSKS.lib.HOC.beta_m(CFL.frac[0],
                                  sim_params['Bernoulli_numbers'],
                                  sim_params['N'])
@@ -93,17 +100,20 @@ def remap_step(
     c = np.zeros(sim_params['N']) # if FD, change 'N' to order of FD scheme
     for q in range(1, sim_params['N']):
         c[q] = (-1) ** q * beta[q]
-
     Uf = flux(
-        f_old,
+        f_old[:z.N],
         CFL,
         z, sim_params,
         c
         )
 
     for i in z.prepoints:
-        f_remapped_MC_container = remap_rule(f_old, Uf, CFL, z, i, n)
+        f_remapped_MC_container = remap_rule(f_old[:z.N], Uf, CFL, z, i, n)
         f_new += f_remapped_MC_container
+
+    if sim_params['BC'].lower() == 'periodic':
+        f_new[z.Ngridpoints - 1] = f_new[0]
+
     return f_new
 # ........................................................................... #
 def remap_rule(
@@ -127,8 +137,8 @@ def remap_rule(
                                  postpoints
     """
     Uf[i] = flux_limiter(i, f_old, CFL, Uf)
-    #    print "Uf[i] = %g" % Uf[i]
-    f_remapped_MC_container = np.zeros(z.N)
+
+    f_remapped_MC_container = np.zeros(z.Ngridpoints)
     k1, k2 = DECSKS.lib.boundaryconditions.periodic(z, i, Uf)
     # remap assignment
     if Uf[i] > 0:
@@ -172,7 +182,7 @@ def flux(
     # Compute any high order corrections c1*d1 + c2*d2 + ...
     if sim_params['HOC'] == 'FD':
         d = DECSKS.lib.derivatives.finite_differences_matrix_form(f_old, z, sim_params)
-        for q in range(1,sim_params['N']): 
+        for q in range(1,sim_params['N']):
             Uf += c[q]*d[:,q] # Flux = G + H.O.C.
 
     elif sim_params['HOC'] == 'FOURIER':
@@ -183,7 +193,6 @@ def flux(
         for q in range(1, sim_params['N']):
             d[:,q] = DECSKS.lib.derivatives.trigonometric(f_old,z,q,sim_params, K)
             Uf += c[q]*d[:,q] # Flux = G + H.O.C.
-
     return Uf
 # ........................................................................... #
 def flux_limiter(

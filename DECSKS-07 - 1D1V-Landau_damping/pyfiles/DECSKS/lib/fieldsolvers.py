@@ -18,7 +18,7 @@ def Poisson(ni, f, x, v, n):
     outputs:
     E -- (ndarray,dim=1) electric field, E(x) at time t^n
     """
-    ne = DECSKS.lib.density.single_integration(f[n,:,:], of = x, wrt = v)
+    ne = DECSKS.lib.density.single_integration(f[n,:x.N,:v.N], of = x, wrt = v)
 
     xi    = np.zeros(x.N)
     E_hat = np.zeros(x.N, dtype = complex) # container

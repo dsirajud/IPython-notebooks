@@ -10,9 +10,9 @@ class Plots:
         self.divider = '_-_'
         self.underscore = '_'
 
-        self.Nx_str = 'Nx%d' % x.N
-        self.Nv_str = 'Nv%d' % v.N
-        self.Nt_str = 'Nt%d' % sim_params['Nt']
+        self.Nx_str = 'Nx%d' % x.Ngridpoints
+        self.Nv_str = 'Nv%d' % v.Ngridpoints
+        self.Nt_str = 'Nt%d' % t.N
 
         if sim_params['HOC'] == 'FOURIER':
             self.N_str  = 'F%d'  % sim_params['N']
@@ -52,7 +52,7 @@ class PlotSetup(Plots):
               + self.N_str + self.Nx_str + self.Nv_str + self.Nt_str \
               + self.underscore + self.it_str + self.fileformat
 
-            self.X, self.V = np.meshgrid(self.x.cells,self.v.cells)
+            self.X, self.V = np.meshgrid(self.x.gridvalues,self.v.gridvalues)
             self.f = f
 
         elif len(f.shape) == 2:
@@ -85,7 +85,7 @@ class PlotSetup(Plots):
         if len(self.f.shape) == 2:
             # f = f[x], 1 dim in phase space
             ft = self.f[n,:]
-            pylab.plot(self.x.cells,ft,'ob')
+            pylab.plot(self.x.gridvalues,ft,'ob')
             pylab.grid()
             pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)

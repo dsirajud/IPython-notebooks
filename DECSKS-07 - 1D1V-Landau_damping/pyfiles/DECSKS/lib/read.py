@@ -20,8 +20,9 @@ def inputfile(filename):
 
     HOC = lines[6][lines[6].find('=')+1:].strip()
     HOC = HOC.upper()
-    print HOC
+
     N = eval(lines[7][lines[7].find('=')+1:].strip())
+    print "%s based high order corrections, LTE[CS] = %d" % (HOC, N+1)
 
     WindowedFilter = lines[8][lines[8].find('=')+1:].strip()
     WindowedFilter = WindowedFilter.upper()
@@ -61,6 +62,7 @@ def inputfile(filename):
 
     split_scheme = lines[64][lines[64].find('=')+1:].strip()
     split_scheme = split_scheme.upper()
+    print "using %s split scheme (note: only activated if more than 1D)" % split_scheme
 
     # splitting input filepath setup
     filename  = lines[65][lines[65].find(':')+1:].strip()
@@ -93,13 +95,11 @@ def inputfile(filename):
     else:
         outfiles = None
 
-    if HOC == 'FD': # if true, need to uncomment dictionary entry
-                    # below in sim_params store
+    if HOC == 'FD':                     
         FD_schemes = read_FD_schemes(N)
-
     else:
         FD_schemes = None
-        
+
     sim_params = dict(
         N = N, HOC = HOC,
         WindowedFilter = WindowedFilter,

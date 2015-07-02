@@ -31,7 +31,7 @@ def scheme(
         if s == 0: # on first pass, the previous time step (n - 1) needs to be
             if coeff[s] == 'a': # convect x
                 for j in v.prepoints:
-                    x.MCs   = x.generate_Lagrangian_mesh(x.cells, v.cells[j], split_coeff*t.width)
+                    x.MCs   = x.generate_Lagrangian_mesh(x.prepointvalues, v.prepointvalues[j], split_coeff*t.width)
                     f[n,:,j] = DECSKS.lib.convect.scheme(
                         f[n-1,:,j],
                         x,n,
@@ -41,7 +41,7 @@ def scheme(
                 E = DECSKS.lib.fieldsolvers.Poisson(sim_params['ni'], f, x, v, n-1) # calculate accelerations at time zero (n-1)
                 a = -E
                 for i in x.prepoints:
-                    v.MCs   = v.generate_Lagrangian_mesh(v.cells, a[i], split_coeff*t.width)
+                    v.MCs   = v.generate_Lagrangian_mesh(v.prepointvalues, a[i], split_coeff*t.width)
                     f[n,i,:] = DECSKS.lib.convect.scheme(
                         f[n-1,i,:],
                         v,n,
@@ -50,7 +50,7 @@ def scheme(
         else: # each subsequent steps overwrites the previous step, all at time n until all split steps complete
             if coeff[s] == 'a': # convect x
                 for j in v.prepoints:
-                    x.MCs   = x.generate_Lagrangian_mesh(x.cells, v.cells[j], split_coeff*t.width)
+                    x.MCs   = x.generate_Lagrangian_mesh(x.prepointvalues, v.prepointvalues[j], split_coeff*t.width)
                     f[n,:,j] = DECSKS.lib.convect.scheme(
                         f[n,:,j],
                         x,n,
@@ -60,7 +60,7 @@ def scheme(
                 E = DECSKS.lib.fieldsolvers.Poisson(sim_params['ni'], f, x, v, n)
                 a = -E
                 for i in x.prepoints:
-                    v.MCs   = v.generate_Lagrangian_mesh(v.cells, a[i], split_coeff*t.width)
+                    v.MCs   = v.generate_Lagrangian_mesh(v.prepointvalues, a[i], split_coeff*t.width)
                     f[n,i,:] = DECSKS.lib.convect.scheme(
                         f[n,i,:],
                         v,n,

@@ -5,7 +5,7 @@ Output filenames (read in from ./DECSKS)
 # I = "invariant"
 
 parent directory of directory for files to be written to: etc/
-directory name for files to be written to: outputs/Landau_--_Nx8Nv256F21_O6-4/
+directory name for files to be written to: outputs/Landau_--_Nx8Nv256F21_O6-4_2nd/
 
 L1 norm filename: out_I1
 L2 norm filename: out_I2
