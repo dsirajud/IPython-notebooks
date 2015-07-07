@@ -38,7 +38,7 @@ def scheme(
                         sim_params)
 
             elif coeff[s] == 'b': # convect v
-                E = DECSKS.lib.fieldsolvers.Poisson(sim_params['ni'], f, x, v, n-1) # calculate accelerations at time zero (n-1)
+                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, v, n-1) # calculate accelerations at time zero (n-1)
                 a = -E
                 for i in x.prepoints:
                     v.MCs   = v.generate_Lagrangian_mesh(v.prepointvalues, a[i], split_coeff*t.width)
@@ -57,7 +57,7 @@ def scheme(
                         sim_params)
 
             elif coeff[s] == 'b': # convect v
-                E = DECSKS.lib.fieldsolvers.Poisson(sim_params['ni'], f, x, v, n)
+                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, v, n)
                 a = -E
                 for i in x.prepoints:
                     v.MCs   = v.generate_Lagrangian_mesh(v.prepointvalues, a[i], split_coeff*t.width)
