@@ -124,9 +124,9 @@ def main(scheme = 'fourier', N = 21):
 
     fig, ax = plt.subplots()
     ax.semilogy(t_coarse, WE_coarse, 'o',
-                 label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
+                 label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^4)$, $N_x = 8,\, N_v = 256$')
     ax.semilogy(t_fine, WE_fine, '-g',
-                 label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+                 label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
     ax.semilogy(t_coarse, WE_linear, '--m', linewidth = 2, label = 'Linear theory')
 
     plt.grid()
