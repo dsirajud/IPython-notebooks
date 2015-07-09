@@ -38,7 +38,7 @@ def trigonometric(f, z, q, sim_params, K = None):
 
     return d
 
-def finite_differences_periodic_BCs(f,z):
+def finite_differences_periodic_BCs(f,z, sim_params):
     """Computes the derivative coefficients for FD methods in high order CS
     for periodic BCs (hence the use of np.mod())
 
@@ -54,8 +54,6 @@ def finite_differences_periodic_BCs(f,z):
 
     for i in z.prepoints:
         d[i,1] = (1/12.)*(f[np.mod(i-2,z.N)] - 8*f[np.mod(i-1,z.N)] + 8*f[np.mod(i+1,z.N)] - f[np.mod(i+2,z.N)])
-        if 50 < i < 100:
-            print "d[%d,1] = %g" % (i, d[i,1])
         d[i,2] = (1/12.)*(-f[np.mod(i-2,z.N)] + 16*f[np.mod(i-1,z.N)] - 30*f[np.mod(i,z.N)] + 16*f[np.mod(i+1,z.N)] - f[np.mod(i+2,z.N)])
         d[i,3] = (1/2.)*(-f[np.mod(i-2,z.N)] + 2*f[np.mod(i-1,z.N)] - 2*f[np.mod(i+1,z.N)] + f[np.mod(i+2,z.N)])
         d[i,4] = f[np.mod(i-2,z.N)] - 4*f[np.mod(i-1,z.N)] + 6*f[np.mod(i,z.N)] - 4*f[np.mod(i+1,z.N)] + f[np.mod(i+2,z.N)]
@@ -66,7 +64,7 @@ def finite_differences_matrix_form(f, z, sim_params):
     d = np.zeros([z.N, sim_params['N']])
     W = sim_params['W']
     Wz = W[z.str]
- 
+
     for dn in range(1,sim_params['N']):
         d[:,dn] = Wz[dn,:,:].dot(f)
     return d
@@ -249,7 +247,7 @@ def FD(f, z, FD_schemes,
     return d
 
 
-def assemble_finite_difference_weight_matrices(sim_params, x, v):
+def assemble_finite_difference_weight_matrices(sim_params, x):
     """Assembles the dictionary W that contains both finite diffference
     weight matrices for each phase space variable
 
@@ -267,7 +265,6 @@ def assemble_finite_difference_weight_matrices(sim_params, x, v):
 
     W = {}
     W['x'] = assemble_finite_difference_weight_matrix(sim_params, x)
-    W['vx'] = assemble_finite_difference_weight_matrix(sim_params, v)
 
     return W
 
@@ -287,21 +284,21 @@ def assemble_finite_difference_weight_matrix(sim_params, z):
     outputs:
     Wz -- (ndarray, ndim=3) Wz[dn, z.N, z.N] where each 2D matrix Wz[dn,:,:]
           is the weight matrix W corresponding to the dn-th derivative
+          for the phase space variable z
     """
     imax = z.N - 1
     Wz = np.zeros([sim_params['N'], z.N, z.N])
 
-    for dn in range(1,sim_params['N']):
-
+    for dn in range(1,sim_params['N']): # loop over all dn derivatives
         W_dn = np.zeros([z.N, z.N])
-        p = sim_params['N'] - dn     # LTE of scheme on dn-th derivative so that
-                                     #  LTE[z.width ** dn * dnf] = O(N)
+        p = sim_params['N'] - dn     #  LTE of scheme on dn-th derivative so that
+                                     #  LTE[z.width ** dn * dnf] = O(N+1)
 
         FD_schemes = sim_params['FD_schemes']['dn' + str(dn)]
         stencil_size = p + dn
         stencil_center = stencil_size // 2
 
-        for i in range(z.N):
+        for i in range(z.N): # loop over each gridpoint (row of W matrix)
 
             if i < stencil_center:
                 handedness = 'forward'
@@ -324,53 +321,7 @@ def assemble_finite_difference_weight_matrix(sim_params, z):
             W_dn[i, i + np.array(stencil)] = w # load all weights at once into W_dn
 
         Wz[dn,:,:] = W_dn
+        # TODO figure out what coefficients are in the Wz matrix, I might have
+        # TODO gotten confused and removed a normalization factor.
 
     return Wz
-
-def assemble_finite_difference_weight_matrix_single_derivative(sim_params, z, dn = 1, LTE = 6):
-    """Assembles a matrix corresponding to the weights of in
-    the finite difference computation of derivatives, i.e.
-    assembles the weight matrix W, in
-
-        Wf = df
-
-    where f and df are vectors of length z.N.
-
-    inputs:
-    sim_params -- (dict) simulation parameters
-    z -- (instance) phase space variable
-
-    outputs:
-    W -- (ndarray, ndim=3) Wz[dn, z.N, z.N] where each 2D matrix Wz[dn,:,:]
-          is the weight matrix W corresponding to the dn-th derivative
-    """
-    imax = z.N - 1
-    W = np.zeros([z.N, z.N])
-
-    FD_scheme = sim_params['FD_scheme_dn1']['dn' + str(dn)]['LTE' + str(LTE)]
-    stencil_size = LTE + dn
-    stencil_center = stencil_size // 2
-
-    for i in range(z.N):
-        if i < stencil_center:
-            handedness = 'forward'
-            asymmetry = str(i)
-        elif imax - i < stencil_center:
-            handedness = 'backward'
-            asymmetry = str(imax - i)
-        else:
-            if np.mod(stencil_size,2) == 1:
-                handedness = 'central'
-                asymmetry = str(0)
-            else:
-                handedness = 'forward'
-                asymmetry = str(stencil_center - 1)
-
-        w = FD_scheme[handedness][asymmetry]['w']
-        stencil = FD_scheme[handedness][asymmetry]['stencil']
-
-        W[i, i + np.array(stencil)] = w # load all weights at once into W_dn
-
-    return W
-
-

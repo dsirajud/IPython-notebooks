@@ -58,9 +58,9 @@
 #         i.e. for each dn, truncation error on dnf, p is related to the
 #         chosen LTE (N+1) or GE (N) of the CS scheme
 #
-#         p = LTE - dn = (GE + 1) - dn, or recalling GE = N
+#         p = LTE - dn = GE - dn, or recalling GE = N
 #
-#         p = N - (dn + 1) for each dn
+#         p = N - dn, for each dn
 
 def HighPrecisionE(number):
     """Converts a number into a string object
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     # generate schemes and write to tables (output files) for each dn
     for dn in range(1,N):
 
-        p = N - dn + 1 # LTE error p requirement decreases with each derivative
+        p = N - dn       # LTE error p requirement decreases with each derivative
                          # see notes in top matter
 
         # header for output

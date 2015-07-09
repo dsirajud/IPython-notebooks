@@ -32,7 +32,7 @@ import time
 rm_plots = int(raw_input('remove ALL plot files after simulation is done (1 = yes, 0 = no)?: '))
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_DECSKS-07_Nx8Nv256F21_O6-4.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_DECSKS-07_Nx16Nv512FD7_O11-6_Poisson6th.dat')
 sim_params['BC'] = 'periodic'
 x = DECSKS.lib.domain.Setup(sim_params, var = 'x')
 v = DECSKS.lib.domain.Setup(sim_params, var = 'v', dim = 'x')
@@ -44,6 +44,7 @@ sim_params['ni'] = DECSKS.lib.density.cold_background(f,x,v,sim_params)
 
 if sim_params['HOC'] == 'FD':
     sim_params['W'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrices(sim_params,x,v)
+    sim_params['W_dn1'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrix_single_derivative(sim_params,x,dn = 1, LTE = 6)
 
 DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,0,x,v)
 
@@ -54,7 +55,7 @@ print 'simulation has started, status updates are broadcasted after each timeste
 
 for n in t.stepnumbers:
 
-    f = DECSKS.lib.split.scheme(
+    f = DECSKS.lib.split_poisson.scheme(
         f,
         t,x,v,
         n,

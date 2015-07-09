@@ -1,5 +1,5 @@
-import numpy as np
 import DECSKS
+import numpy as np
 
 def scheme(
     f_old,

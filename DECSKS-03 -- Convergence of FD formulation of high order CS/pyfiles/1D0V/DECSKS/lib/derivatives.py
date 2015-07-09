@@ -292,7 +292,7 @@ def assemble_finite_difference_weight_matrix(sim_params, z):
     for dn in range(1,sim_params['N']): # loop over all dn derivatives
         W_dn = np.zeros([z.N, z.N])
         p = sim_params['N'] - dn     #  LTE of scheme on dn-th derivative so that
-                                     #  LTE[z.width ** dn * dnf] = O(N+1)
+                                     #  LTE[z.width ** dn * dnf] = O(N)
 
         FD_schemes = sim_params['FD_schemes']['dn' + str(dn)]
         stencil_size = p + dn
