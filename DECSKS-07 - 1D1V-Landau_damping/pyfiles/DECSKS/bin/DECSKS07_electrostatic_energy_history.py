@@ -69,6 +69,7 @@ def main(scheme = 'fourier', N = 21):
         outdir_coarse= outdir_parent + 'Landau_--_Nx8Nv256FD7_O6-4_Poisson6th/'
         outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512FD7_O11-6_Poisson6th/'
         outdir_Nx768 = outdir_parent + 'Landau_--_Nx768Nv256FD7_O6-4_Poisson6th/'
+        outdir_Nx768_F7 = outdir_parent + 'Landau_--_Nx16Nv256F7_O6-4/'
 
     # common filenames
     filename_WE = 'out_WE'
@@ -76,17 +77,20 @@ def main(scheme = 'fourier', N = 21):
     filepath_WE_coarse = outdir_coarse + filename_WE
     filepath_WE_fine = outdir_fine + filename_WE
     filepath_WE_Nx768 = outdir_Nx768 + filename_WE
+    filepath_WE_Nx768_F7 = outdir_Nx768_F7 + filename_WE
 
     # store arrays from dat files
     WE_coarse = dat2array(filepath_WE_coarse)
     WE_fine = dat2array(filepath_WE_fine)
     WE_Nx768 = dat2array(filepath_WE_Nx768)
+    WE_Nx768_F7 = dat2array(filepath_WE_Nx768_F7)
 
     # normalize each electrostatic energy by the time zero value
 
     WE_coarse /= WE_coarse[0]
     WE_fine /= WE_fine[0]
     WE_Nx768 /= WE_Nx768[0]
+    WE_Nx768_F7 /= WE_Nx768_F7[0]
 
     # plot specs
     T = 60.
@@ -113,6 +117,7 @@ def main(scheme = 'fourier', N = 21):
         t_fine[it] = 0 + it * dt_fine
 
     t_Nx768 = t_coarse
+    t_Nx768_F7 = t_coarse
 
     # plots
     # reset dictionary values for legend
@@ -146,12 +151,14 @@ def main(scheme = 'fourier', N = 21):
                      label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
 
     else:
-        plt.semilogy(t_coarse, WE_coarse, marker = 'o', color = tableau20[1], 
+        plt.semilogy(t_coarse, WE_coarse, marker = 'o', color = tableau20[1],
                      label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^2)$, $N_x = 384,\, N_v = 256$')
         plt.semilogy(t_fine, WE_fine, marker = 'D', color = tableau20[0], linestyle = 'None',
                      label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 512$')
         plt.semilogy(t_Nx768, WE_Nx768, marker = 'H', color = tableau20[2],
                      label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+        plt.semilogy(t_Nx768_F7, WE_Nx768_F7, marker = '<', color = tableau20[3],
+                     label = r'F7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 16,\, N_v = 256$')
 
     plt.semilogy(t_coarse, WE_linear, '--k', linewidth = 2, label = 'Linear theory')
 

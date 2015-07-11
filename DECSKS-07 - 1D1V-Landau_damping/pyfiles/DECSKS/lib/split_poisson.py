@@ -38,6 +38,7 @@ def scheme(
                         sim_params)
 
             elif coeff[s] == 'b': # convect v
+                subtic = time.time()
                 phi = DECSKS.lib.fieldsolvers.Poisson_PBC_6th(sim_params['ni'], f, x, v, n-1)
                 dphi = 1 / x.width ** 1 * sim_params['W_dn1'].dot(phi) # currently W_dn1 is a 6th order LTE matrix of FD coeffs for first derivative
 
@@ -48,21 +49,23 @@ def scheme(
                         f[n-1,i,:],
                         v,n,
                         sim_params)
-
-                print "(b) substep %d complete" % s
+                subtoc = time.time()
+                print "(b) substep %d complete in %g sec" % (s, subtoc - subtic)
 
         else: # each subsequent steps overwrites the previous step, all at time n until all split steps complete
             if coeff[s] == 'a': # convect x
+                subtic = time.time()
                 for j in v.prepoints:
                     x.MCs   = x.generate_Lagrangian_mesh(x.prepointvalues, v.prepointvalues[j], split_coeff*t.width)
                     f[n,:,j] = DECSKS.lib.convect.scheme(
                         f[n,:,j],
                         x,n,
                         sim_params)
-
-                print "(a) substep %d complete" % s
+                subtoc = time.time()
+                print "(a) substep %d complete in %g sec" % (s, subtoc - subtic)
 
             elif coeff[s] == 'b': # convect v
+                subtic = time.time()
                 phi = DECSKS.lib.fieldsolvers.Poisson_PBC_6th(sim_params['ni'], f, x, v, n)
                 dphi =  1 / x.width ** 1 * sim_params['W_dn1'].dot(phi) # currently W_dn1 is a 6th order LTE matrix of FD coeffs for first derivative
 
@@ -73,8 +76,8 @@ def scheme(
                         f[n,i,:],
                         v,n,
                         sim_params)
-
-                print "(b) substep %d complete" % s
+                subtoc = time.time()
+                print "(b) substep %d complete in %g sec" % (s, subtoc - subtic)
 
     toc = time.time()
     print "time step %d of %d completed in %g seconds" % (n,t.N, toc - tic)

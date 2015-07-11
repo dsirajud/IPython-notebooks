@@ -1,0 +1,9 @@
+FD
+
+LTE order = 8
+GE order = 7
+
+Nx = 384
+Nv = 512
+
+time splitter: O6-4

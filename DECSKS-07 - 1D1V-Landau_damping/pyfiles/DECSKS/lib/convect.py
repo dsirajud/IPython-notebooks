@@ -93,6 +93,7 @@ def remap_step(
 
     """
     f_new = np.zeros(z.Ngridpoints)
+
     beta = DECSKS.lib.HOC.beta_m(CFL.frac[0],
                                  sim_params['Bernoulli_numbers'],
                                  sim_params['N'])
@@ -100,6 +101,7 @@ def remap_step(
     c = np.zeros(sim_params['N']) # if FD, change 'N' to order of FD scheme
     for q in range(1, sim_params['N']):
         c[q] = (-1) ** q * beta[q]
+
     Uf = flux(
         f_old[:z.N],
         CFL,
