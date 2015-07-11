@@ -1,0 +1,220 @@
+import numpy as np
+import pylab as plt
+
+
+
+# Plot the electrostatic energy of the system
+
+# WE
+# FINE SOLUTION
+infile = open('out_WE','r')
+lines = infile.readlines()
+
+WE_fine = []
+for line in lines:
+    WE_fine.append(eval(line))
+
+WE_fine = np.array(WE_fine)
+WE_fine = WE_fine / WE_fine[0] # normalize
+print len(WE_fine)
+# WE
+# Fourier Fine solution
+infile = open('out_WE_F21_O6-4','r')
+lines = infile.readlines()
+
+WE_F21fine = []
+for line in lines:
+    WE_F21fine.append(eval(line))
+
+WE_F21fine = np.array(WE_F21fine)
+WE_F21fine = WE_F21fine / WE_F21fine[0] # normalize
+
+Nt_fine = 200
+T_fine = 60.
+dt_fine = T_fine / Nt_fine
+
+t_fine = np.zeros(Nt_fine+1)
+
+for it in range(Nt_fine+1):
+    t_fine[it] = 0 + it * dt_fine
+
+Nt_F21fine = 60
+T_F21fine = 60.
+dt_F21fine = T_F21fine / Nt_F21fine
+
+t_F21fine = np.zeros(Nt_F21fine+1)
+for it in range(Nt_F21fine+1):
+    t_F21fine[it] = 0 + it * dt_F21fine
+
+
+print len(t_fine)
+
+Nt_converged = 200
+dt_converged = .1
+T_converged = 60.
+
+t_converged = np.zeros(Nt_converged+1)
+
+for it in range(Nt_converged+1):
+    t_converged[it] = 0 + it * dt_converged
+
+# LINEAR THEORY, WE = WE[0] exp(-2*gamma*t), if
+#                E = E[0] exp(jw_r t) exp(-gamma t)
+#                normalize: WE / WE[0] = exp(-gamma*t)
+
+gamma = 0.153359 # damping constant
+
+WE_linear = np.exp(-2*gamma*t_fine)
+
+# plotting
+plt.figure(0)
+params = {'legend.fontsize': 10,
+          'legend.linewidth': 2}
+plt.rcParams.update(params)
+
+plt.semilogy(t_fine, WE_fine, '--o',
+             label = r'FD/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^2)$, $N_x = 384,\, N_v = 256$')
+plt.semilogy(t_F21fine, WE_F21fine, '--o',
+             label = r'Fourier $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^4)$, $N_x = 8,\, N_v = 256$')
+#plt.semilogy(t_converged, WE_converged, '-g',
+#             label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
+plt.semilogy(t_fine, WE_linear, '--m', linewidth = 2, label = 'Linear theory')
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Normalized electrostatic energy, $W_E/W_{E0}$', fontsize = 12)
+plt.legend(loc = 'lower left')
+#plt.savefig('Landau_WE.png')
+
+
+# IW
+# FINE SOLUTION
+infile = open('out_IW','r')
+lines = infile.readlines()
+
+IW_fine = []
+for line in lines:
+    IW_fine.append(eval(line))
+
+IW_fine = np.array(IW_fine)
+IW_fine_error = np.zeros(len(IW_fine))
+
+for i in range(len(IW_fine)):
+    IW_fine_error[i] = (IW_fine[i] - IW_fine[0]) / IW_fine[0]
+    IW_fine_error[i] = np.where(np.sign(IW_fine_error[i]) == -1, -IW_fine_error[i], IW_fine_error[i])
+
+
+plt.figure(1)
+params = {'legend.fontsize': 12,
+          'legend.linewidth': 1}
+plt.rcParams.update(params)
+
+plt.semilogy(t_fine, IW_fine_error, 'or',
+             label = r'FD/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^2)$, $N_x = 384,\, N_v = 256$')
+#plt.semilogy(t_converged, IW_converged_error, 'b',
+#             label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
+
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Relative error in total energy, $W$', fontsize = 12)
+plt.legend(loc = 'best')
+#plt.axis([0, 60, 1e-16, 1e-6])
+#plt.savefig('Landau_IW.png')
+
+
+# S
+# FINE SOLUTION
+infile = open('out_S','r')
+lines = infile.readlines()
+
+S_fine = []
+for line in lines:
+    S_fine.append(eval(line))
+
+S_fine = np.array(S_fine)
+S_fine_error = np.zeros(len(S_fine))
+
+for i in range(len(S_fine)):
+    S_fine_error[i] = (S_fine[i] - S_fine[0]) / S_fine[0]
+
+plt.figure(2)
+params = {'legend.fontsize': 12,
+          'legend.linewidth': 1}
+plt.rcParams.update(params)
+
+plt.semilogy(t_fine, np.abs(S_fine_error), 'or',
+             label = r'FD/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^2)$, $N_x = 384,\, N_v = 256$')
+#plt.semilogy(t_converged, np.abs(S_converged_error), 'b',
+#             label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
+
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Relative error in total entropy $S$', fontsize = 12)
+#plt.axis([0, 60, 1e-16, 1e-6])
+plt.legend(loc = 'best')
+#plt.savefig('Landau_S.png')
+
+
+# I2
+# FINE SOLUTION
+infile = open('out_I2','r')
+lines = infile.readlines()
+
+I2_fine = []
+for line in lines:
+    I2_fine.append(eval(line))
+
+I2_fine = np.array(I2_fine)
+I2_fine = np.sqrt(I2_fine)
+I2_fine_error = np.zeros(len(I2_fine))
+
+for i in range(len(I2_fine)):
+    I2_fine_error[i] = (I2_fine[i] - I2_fine[0]) / I2_fine[0]
+
+plt.figure(3)
+params = {'legend.fontsize': 12,
+          'legend.linewidth': 1}
+plt.rcParams.update(params)
+
+plt.semilogy(t_fine, np.abs(I2_fine_error), 'or',
+             label = r'FD/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^2)$, $N_x = 384,\, N_v = 256$')
+#plt.semilogy(t_converged, np.abs(I2_converged_error), 'b',
+#             label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
+
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Relative error in $L^2$ norm', fontsize = 12)
+plt.axis([0, 60, 1e-16, 1e-1])
+plt.legend(loc = 'best')
+#plt.savefig('Landau_I2.png')
+
+# I1
+# FINE SOLUTION
+infile = open('out_I1','r')
+lines = infile.readlines()
+
+I1_fine = []
+for line in lines:
+    I1_fine.append(eval(line))
+
+I1_fine = np.array(I1_fine)
+I1_fine_error = np.zeros(len(I1_fine))
+
+for i in range(len(I1_fine)):
+    I1_fine_error[i] = (I1_fine[i] - I1_fine[0]) / I1_fine[0]
+
+plt.figure(4)
+params = {'legend.fontsize': 12,
+          'legend.linewidth': 1}
+plt.rcParams.update(params)
+
+plt.semilogy(t_fine, np.abs(I1_fine_error), 'or',
+             label = r'FD/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^2)$, $N_x = 384,\, N_v = 256$')
+#plt.semilogy(t_converged, np.abs(I1_converged_error), 'b',
+#             label = r'$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
+
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Relative error in $L^1$ norm', fontsize = 12)
+plt.legend(loc = 'best')
+plt.axis([0, 60, 1e-16, 1e-6])
+#plt.savefig('Landau_I1.png')

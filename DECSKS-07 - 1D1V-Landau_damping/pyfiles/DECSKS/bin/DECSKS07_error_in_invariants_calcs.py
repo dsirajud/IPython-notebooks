@@ -61,19 +61,14 @@ def main(scheme = 'fourier', N = 21):
     """
     # directory strings
     outdir_parent = './../etc/outputs/'
-    outdir_coarse_str = 'Landau_--_Nx8Nv256'
-    outdir_fine_str = 'Landau_--_Nx16Nv512'
 
     if scheme.lower() == 'fourier':
-        scheme_str = 'F' + str(N)
+        outdir_coarse = outdir_parent + 'Landau_--_Nx8Nv256F21_O6-4_2nd/'
+        outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512F21_O11-6/'
     else:
-        scheme_str = 'FD' + str(N)
-
-    outdir_coarse_time_splitter_stem = '_O6-4/'
-    outdir_fine_time_splitter_stem = '_O11-6/'
-
-    outdir_coarse = outdir_parent + outdir_coarse_str + scheme_str + outdir_coarse_time_splitter_stem
-    outdir_fine = outdir_parent + outdir_fine_str + scheme_str + outdir_fine_time_splitter_stem
+        outdir_coarse= outdir_parent + 'Landau_--_Nx8Nv256FD7_O6-4_Poisson6th/'
+        outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512FD7_O11-6_Poisson6th/'
+        outdir_Nx768 = outdir_parent + 'Landau_--_Nx768Nv256FD7_O6-4_Poisson6th/'
 
     # common filenames
     filename_I1 = 'out_I1'
@@ -93,6 +88,13 @@ def main(scheme = 'fourier', N = 21):
     filepath_IW_fine = outdir_fine + filename_IW
     filepath_IS_fine = outdir_fine + filename_IS
 
+    # Nx768 FD simulation, Nv = 256, LF2, Nt = 60
+
+    filepath_I1_Nx768 = outdir_Nx768 + filename_I1
+    filepath_I2_Nx768 = outdir_Nx768 + filename_I2
+    filepath_IW_Nx768 = outdir_Nx768 + filename_IW
+    filepath_IS_Nx768 = outdir_Nx768 + filename_IS
+
     # store arrays from dat files
 
     # coarse simulation
@@ -106,6 +108,12 @@ def main(scheme = 'fourier', N = 21):
     I2_fine = dat2array(filepath_I2_fine)
     IW_fine = dat2array(filepath_IW_fine)
     IS_fine = dat2array(filepath_IS_fine)
+
+    # Nx768 FD simulation, Nv = 256, LF2, Nt = 60
+    I1_Nx768 = dat2array(filepath_I1_Nx768)
+    I2_Nx768 = dat2array(filepath_I2_Nx768)
+    IW_Nx768 = dat2array(filepath_IW_Nx768)
+    IS_Nx768 = dat2array(filepath_IS_Nx768)
 
     # compute fractional error arrays
 
@@ -121,25 +129,52 @@ def main(scheme = 'fourier', N = 21):
     IW_fine_error = fractional_error(IW_fine)
     IS_fine_error = fractional_error(IS_fine)
 
+
+    # Nx768 FD simulation, Nv = 256, LF2, Nt = 60
+    I1_Nx768_error = fractional_error(I1_Nx768)
+    I2_Nx768_error = fractional_error(I2_Nx768)
+    IW_Nx768_error = fractional_error(IW_Nx768)
+    IS_Nx768_error = fractional_error(IS_Nx768)
+
     # plot specs
 
     T = 60.
 
-    Nt_coarse = 60
-    dt_coarse = T / Nt_coarse
+    if scheme.lower() == 'fourier':
+        Nt_coarse = 60
+        dt_coarse = T / Nt_coarse
 
-    Nt_fine = 600
-    dt_fine = T / Nt_fine
+        Nt_fine = 600
+        dt_fine = T / Nt_fine
 
-    # abscissas
-    t_coarse = np.zeros(Nt_coarse + 1)
-    t_fine = np.zeros(Nt_fine + 1)
+        # abscissas
+        t_coarse = np.zeros(Nt_coarse + 1)
+        t_fine = np.zeros(Nt_fine + 1)
 
-    for it in range(Nt_coarse + 1):
-        t_coarse[it] = 0 + it * dt_coarse
+        for it in range(Nt_coarse + 1):
+            t_coarse[it] = 0 + it * dt_coarse
 
-    for it in range(Nt_fine + 1):
-        t_fine[it] = 0 + it * dt_fine
+        for it in range(Nt_fine + 1):
+            t_fine[it] = 0 + it * dt_fine
+
+    else:
+        Nt_coarse = 60
+        dt_coarse = T / Nt_coarse
+
+        Nt_fine = 200
+        dt_fine = T / Nt_fine
+
+        # abscissas
+        t_coarse = np.zeros(Nt_coarse + 1)
+        t_fine = np.zeros(Nt_fine + 1)
+
+        for it in range(Nt_coarse + 1):
+            t_coarse[it] = 0 + it * dt_coarse
+
+        for it in range(Nt_fine + 1):
+            t_fine[it] = 0 + it * dt_fine
+
+        t_Nx768 = t_coarse
 
     # reset dictionary values for legend
     params = {'legend.fontsize': 10,
@@ -147,10 +182,19 @@ def main(scheme = 'fourier', N = 21):
     plt.rcParams.update(params)
 
     plt.figure(0)
-    plt.semilogy(t_coarse, np.abs(I1_coarse_error), 'or',
-             label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-    plt.semilogy(t_fine, np.abs(I1_fine_error), 'b',
-             label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+
+    if scheme.lower() == 'fourier':
+        plt.semilogy(t_coarse, np.abs(I1_coarse_error), 'or',
+                 label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(I1_fine_error), 'b',
+                 label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+    else:
+        plt.semilogy(t_coarse, np.abs(I1_coarse_error), 'or',
+                 label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(I1_fine_error), 'b',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_Nx768, np.abs(I1_Nx768_error), 'xm',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
 
     plt.grid()
     plt.xlabel('time', fontsize = 14)
@@ -158,45 +202,93 @@ def main(scheme = 'fourier', N = 21):
     plt.title('Fractional error in the $L^1$ norm invariant (mass conservation)', fontsize = 14)
     plt.legend(loc = 'best')
     plt.axis([0, 60, 1e-16, 1e-6])
-
+    if scheme.lower() == 'fourier':
+        plt.savefig('I1_-_F21.png')
+    else:
+        plt.savefig('I1_-_FD7.png')
     plt.figure(1)
-    plt.semilogy(t_coarse, np.abs(I2_coarse_error), 'or',
-             label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-    plt.semilogy(t_fine, np.abs(I2_fine_error), 'b',
-             label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+
+    if scheme.lower() == 'fourier':
+        plt.semilogy(t_coarse, np.abs(I2_coarse_error), 'or',
+                 label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(I2_fine_error), 'b',
+                 label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+
+    else:
+        plt.semilogy(t_coarse, np.abs(I2_coarse_error), 'or',
+                 label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(I2_fine_error), 'ob',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_Nx768, np.abs(I2_Nx768_error), 'xm',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+
 
     plt.grid()
     plt.xlabel('time', fontsize = 14)
     plt.ylabel('Abs. value of fractional error in the $L^2$ norm', fontsize = 12)
     plt.title('Fractional error in the $L^2$ norm invariant', fontsize = 14)
     plt.legend(loc = 'best')
-    plt.axis([0, 60, 1e-16, 1e-6])
-
+    if scheme.lower() == 'fourier':
+        plt.axis([0, 60, 1e-16, 1e-6])
+        plt.savefig('I2_-_F21.png')
+    else:
+        plt.axis([0,60,1e-16, 1e-1])
+        plt.savefig('I2_-_FD7.png')
 
     plt.figure(2)
-    plt.semilogy(t_coarse, np.abs(IW_coarse_error), 'or',
-             label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-    plt.semilogy(t_fine, np.abs(IW_fine_error), 'b',
+    if scheme.lower() == 'fourier':
+        plt.semilogy(t_coarse, np.abs(IW_coarse_error), 'or',
+                 label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(IW_fine_error), 'b',
              label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+
+    else:
+        plt.semilogy(t_coarse, np.abs(IW_coarse_error), 'or',
+                 label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(IW_fine_error), 'ob',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_Nx768, np.abs(IW_Nx768_error), 'xm',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+
 
     plt.grid()
     plt.xlabel('time', fontsize = 14)
     plt.ylabel('Abs. value of fractional error in total energy, $W$', fontsize = 12)
     plt.title('Fractional error in the total energy invariant $W$', fontsize = 14)
     plt.legend(loc = 'best')
-    plt.axis([0, 60, 1e-16, 1e-6])
+    if scheme.lower() == 'fourier':
+        plt.axis([0, 60, 1e-16, 1e-6])
+        plt.savefig('IW_-_F21.png')
+    else:
+        plt.axis([0, 60, 1e-16, 1e-1])
+        plt.savefig('IW_-_FD7.png')
+
 
     plt.figure(3)
-    plt.semilogy(t_coarse, np.abs(IS_coarse_error), 'or',
-             label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-    plt.semilogy(t_fine, np.abs(IS_fine_error), 'b',
-             label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+    if scheme.lower() == 'fourier':
+        plt.semilogy(t_coarse, np.abs(IS_coarse_error), 'or',
+                 label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(IS_fine_error), 'b',
+                 label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
+
+    else:
+        plt.semilogy(t_coarse, np.abs(IS_coarse_error), 'or',
+                 label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_fine, np.abs(IS_fine_error), 'ob',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
+        plt.semilogy(t_Nx768, np.abs(IS_Nx768_error), 'xm',
+                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+
 
     plt.grid()
     plt.xlabel('time', fontsize = 14)
     plt.ylabel('Abs. value of fractional error in the entropy $S$ invariant', fontsize = 12)
     plt.title('Fractional error in the entropy invariant $S$', fontsize = 14)
     plt.legend(loc = 'best')
-    plt.axis([0, 60, 1e-16, 1e-6])
-
+    if scheme.lower() == 'fourier':
+        plt.axis([0, 60, 1e-16, 1e-6])
+        plt.savefig('IS_-_F21.png')
+    else:
+        plt.axis([0,60, 1e-16, 1e-1])
+        plt.savefig('IS_-_FD7.png')
     return None
