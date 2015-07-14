@@ -40,7 +40,7 @@ def fractional_error(data):
 
     return fractional_error_data
 
-def main(scheme = 'fourier', N = 21):
+def main(scheme = 'fourier'):
     """main routine for electrostatic energy  history calculations in Landau
     simulations, here we have conducted a 'coarse' and
     'fine' simulation and the errors for each invariant
@@ -63,13 +63,14 @@ def main(scheme = 'fourier', N = 21):
     outdir_parent = './../etc/outputs/'
 
     if scheme.lower() == 'fourier':
-        outdir_coarse = outdir_parent + 'Landau_--_Nx8Nv256F21_O6-4_2nd/'
-        outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512F21_O11-6/'
+        outdir_coarse = outdir_parent + 's7-01/'
+        outdir_fine = outdir_parent + 's7-02/'
     else:
-        outdir_coarse= outdir_parent + 'Landau_--_Nx8Nv256FD7_O6-4_Poisson6th/'
-        outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512FD7_O11-6_Poisson6th/'
-        outdir_Nx768 = outdir_parent + 'Landau_--_Nx768Nv256FD7_O6-4_Poisson6th/'
-        outdir_Nx768_F7 = outdir_parent + 'Landau_--_Nx16Nv256F7_O6-4/'
+        outdir_coarse= outdir_parent + 's7-03/'
+        outdir_fine = outdir_parent + 's7-04/'
+        outdir_Nx768 = outdir_parent + 's7-05/'
+        outdir_Nx768_F7 = outdir_parent + 's7-06/'
+        outdir_s7_07 = outdir_parent + 's7-07/'
 
     # common filenames
     filename_WE = 'out_WE'
@@ -78,12 +79,14 @@ def main(scheme = 'fourier', N = 21):
     filepath_WE_fine = outdir_fine + filename_WE
     filepath_WE_Nx768 = outdir_Nx768 + filename_WE
     filepath_WE_Nx768_F7 = outdir_Nx768_F7 + filename_WE
+    filepath_WE_s7_07 = outdir_s7_07 + filename_WE
 
     # store arrays from dat files
     WE_coarse = dat2array(filepath_WE_coarse)
     WE_fine = dat2array(filepath_WE_fine)
     WE_Nx768 = dat2array(filepath_WE_Nx768)
     WE_Nx768_F7 = dat2array(filepath_WE_Nx768_F7)
+    WE_s7_07 = dat2array(filepath_WE_s7_07)
 
     # normalize each electrostatic energy by the time zero value
 
@@ -91,6 +94,7 @@ def main(scheme = 'fourier', N = 21):
     WE_fine /= WE_fine[0]
     WE_Nx768 /= WE_Nx768[0]
     WE_Nx768_F7 /= WE_Nx768_F7[0]
+    WE_s7_07 /= WE_s7_07[0]
 
     # plot specs
     T = 60.
@@ -118,6 +122,7 @@ def main(scheme = 'fourier', N = 21):
 
     t_Nx768 = t_coarse
     t_Nx768_F7 = t_coarse
+    t_s7_07 = t_coarse
 
     # plots
     # reset dictionary values for legend
@@ -157,8 +162,11 @@ def main(scheme = 'fourier', N = 21):
                      label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 512$')
         plt.semilogy(t_Nx768, WE_Nx768, marker = 'H', color = tableau20[2],
                      label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
-        plt.semilogy(t_Nx768_F7, WE_Nx768_F7, marker = '<', color = tableau20[3],
-                     label = r'F7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 16,\, N_v = 256$')
+        #        plt.semilogy(t_Nx768_F7, WE_Nx768_F7, marker = '<', color = tableau20[3],
+        #                     label = r'F7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 16,\, N_v = 256$')
+        #        plt.semilogy(t_s7_07, WE_s7_07, marker = '>', color = tableau20[4],
+        #                     label = r'F7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 1536,\, N_v = 128$')
+
 
     plt.semilogy(t_coarse, WE_linear, '--k', linewidth = 2, label = 'Linear theory')
 

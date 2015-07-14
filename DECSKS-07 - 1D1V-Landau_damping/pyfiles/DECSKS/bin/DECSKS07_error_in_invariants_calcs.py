@@ -40,7 +40,7 @@ def fractional_error(data):
 
     return fractional_error_data
 
-def main(scheme = 'fourier', N = 21):
+def main(scheme = 'fourier'):
     """main routine for error history calculations in Landau
     simulations, here we have conducted a 'coarse' and
     'fine' simulation and the errors for each invariant
@@ -63,12 +63,13 @@ def main(scheme = 'fourier', N = 21):
     outdir_parent = './../etc/outputs/'
 
     if scheme.lower() == 'fourier':
-        outdir_coarse = outdir_parent + 'Landau_--_Nx8Nv256F21_O6-4_2nd/'
-        outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512F21_O11-6/'
+        outdir_coarse = outdir_parent + 's7-01/'
+        outdir_fine = outdir_parent + 's7-02/'
     else:
-        outdir_coarse= outdir_parent + 'Landau_--_Nx8Nv256FD7_O6-4_Poisson6th/'
-        outdir_fine = outdir_parent + 'Landau_--_Nx16Nv512FD7_O11-6_Poisson6th/'
-        outdir_Nx768 = outdir_parent + 'Landau_--_Nx768Nv256FD7_O6-4_Poisson6th/'
+        outdir_coarse= outdir_parent + 's7-03/'
+        outdir_fine = outdir_parent + 's7-04/'
+        outdir_Nx768 = outdir_parent + 's7-05/'
+        outdir_s7_07 = outdir_parent + 's7-07/'
 
     # common filenames
     filename_I1 = 'out_I1'
@@ -95,6 +96,12 @@ def main(scheme = 'fourier', N = 21):
     filepath_IW_Nx768 = outdir_Nx768 + filename_IW
     filepath_IS_Nx768 = outdir_Nx768 + filename_IS
 
+    # s7_07 FD simulation, Nv = 128, O6-4, Nt = 60
+    filepath_I1_s7_07 = outdir_s7_07 + filename_I1
+    filepath_I2_s7_07 = outdir_s7_07 + filename_I2
+    filepath_IW_s7_07 = outdir_s7_07 + filename_IW
+    filepath_IS_s7_07 = outdir_s7_07 + filename_IS
+
     # store arrays from dat files
 
     # coarse simulation
@@ -115,6 +122,12 @@ def main(scheme = 'fourier', N = 21):
     IW_Nx768 = dat2array(filepath_IW_Nx768)
     IS_Nx768 = dat2array(filepath_IS_Nx768)
 
+    # s7_07 FD simulation, Nv = 128, O6-4, Nt = 60
+    I1_s7_07 = dat2array(filepath_I1_s7_07)
+    I2_s7_07 = dat2array(filepath_I2_s7_07)
+    IW_s7_07 = dat2array(filepath_IW_s7_07)
+    IS_s7_07 = dat2array(filepath_IS_s7_07)
+
     # compute fractional error arrays
 
     # coarse simulation
@@ -129,13 +142,18 @@ def main(scheme = 'fourier', N = 21):
     IW_fine_error = fractional_error(IW_fine)
     IS_fine_error = fractional_error(IS_fine)
 
-
     # Nx768 FD simulation, Nv = 256, LF2, Nt = 60
     I1_Nx768_error = fractional_error(I1_Nx768)
     I2_Nx768_error = fractional_error(I2_Nx768)
     IW_Nx768_error = fractional_error(IW_Nx768)
     IS_Nx768_error = fractional_error(IS_Nx768)
 
+    # s7_07 FD simulation, Nv = 128, O6-4, Nt = 60
+    I1_s7_07_error = fractional_error(I1_s7_07)
+    I2_s7_07_error = fractional_error(I2_s7_07)
+    IW_s7_07_error = fractional_error(IW_s7_07)
+    IS_s7_07_error = fractional_error(IS_s7_07)
+    
     # plot specs
 
     T = 60.
@@ -175,26 +193,42 @@ def main(scheme = 'fourier', N = 21):
             t_fine[it] = 0 + it * dt_fine
 
         t_Nx768 = t_coarse
+        t_s7_07 = t_coarse
+
+
+    # plot tableau
+
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+             (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
+             (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+             (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+             (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+
+    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.
+    for i in range(len(tableau20)):
+        r, g, b = tableau20[i]
+        tableau20[i] = (r / 255., g / 255., b / 255.)
 
     # reset dictionary values for legend
     params = {'legend.fontsize': 10,
               'legend.linewidth': 2}
     plt.rcParams.update(params)
-
     plt.figure(0)
 
     if scheme.lower() == 'fourier':
-        plt.semilogy(t_coarse, np.abs(I1_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(I1_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(I1_fine_error), 'b',
+        plt.semilogy(t_fine, np.abs(I1_fine_error), color = tableau20[5],
                  label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
     else:
-        plt.semilogy(t_coarse, np.abs(I1_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(I1_coarse_error), 'o', color = tableau20[0],
                  label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(I1_fine_error), 'b',
+        plt.semilogy(t_fine, np.abs(I1_fine_error), color = tableau20[5],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_Nx768, np.abs(I1_Nx768_error), 'xm',
+        plt.semilogy(t_Nx768, np.abs(I1_Nx768_error), marker = 'H', color = tableau20[2],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+        #        plt.semilogy(t_s7_07, np.abs(I1_s7_07_error), '>g',
+        #                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 1536,\, N_v = 128$')
 
     plt.grid()
     plt.xlabel('time', fontsize = 14)
@@ -203,24 +237,26 @@ def main(scheme = 'fourier', N = 21):
     plt.legend(loc = 'best')
     plt.axis([0, 60, 1e-16, 1e-6])
     if scheme.lower() == 'fourier':
-        plt.savefig('I1_-_F21.png')
+        plt.savefig('../../../fig/I1_-_F21.png')
     else:
-        plt.savefig('I1_-_FD7.png')
+        plt.savefig('../../../fig/I1_-_FD7.png')
     plt.figure(1)
 
     if scheme.lower() == 'fourier':
-        plt.semilogy(t_coarse, np.abs(I2_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(I2_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(I2_fine_error), 'b',
+        plt.semilogy(t_fine, np.abs(I2_fine_error), color = tableau20[5],
                  label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
 
     else:
-        plt.semilogy(t_coarse, np.abs(I2_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(I2_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(I2_fine_error), 'ob',
+        plt.semilogy(t_fine, np.abs(I2_fine_error), marker = 'o', color = tableau20[5],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_Nx768, np.abs(I2_Nx768_error), 'xm',
+        plt.semilogy(t_Nx768, np.abs(I2_Nx768_error), marker = 'H', color = tableau20[2],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+        #        plt.semilogy(t_s7_07, np.abs(I2_s7_07_error), '>g',
+        #                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 1536,\, N_v = 128$')
 
 
     plt.grid()
@@ -230,25 +266,27 @@ def main(scheme = 'fourier', N = 21):
     plt.legend(loc = 'best')
     if scheme.lower() == 'fourier':
         plt.axis([0, 60, 1e-16, 1e-6])
-        plt.savefig('I2_-_F21.png')
+        plt.savefig('../../../fig/I2_-_F21.png')
     else:
         plt.axis([0,60,1e-16, 1e-1])
-        plt.savefig('I2_-_FD7.png')
+        plt.savefig('../../../fig/I2_-_FD7.png')
 
     plt.figure(2)
     if scheme.lower() == 'fourier':
-        plt.semilogy(t_coarse, np.abs(IW_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(IW_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(IW_fine_error), 'b',
+        plt.semilogy(t_fine, np.abs(IW_fine_error), color = tableau20[5],
              label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
 
     else:
-        plt.semilogy(t_coarse, np.abs(IW_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(IW_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(IW_fine_error), 'ob',
+        plt.semilogy(t_fine, np.abs(IW_fine_error), marker = 'o', color = tableau20[5],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_Nx768, np.abs(IW_Nx768_error), 'xm',
+        plt.semilogy(t_Nx768, np.abs(IW_Nx768_error), marker = 'H', color = tableau20[2],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+        #        plt.semilogy(t_s7_07, np.abs(IW_s7_07_error), '>g',
+        #                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 1536,\, N_v = 128$')
 
 
     plt.grid()
@@ -258,26 +296,28 @@ def main(scheme = 'fourier', N = 21):
     plt.legend(loc = 'best')
     if scheme.lower() == 'fourier':
         plt.axis([0, 60, 1e-16, 1e-6])
-        plt.savefig('IW_-_F21.png')
+        plt.savefig('../../../fig/IW_-_F21.png')
     else:
         plt.axis([0, 60, 1e-16, 1e-1])
-        plt.savefig('IW_-_FD7.png')
+        plt.savefig('../../../fig/IW_-_FD7.png')
 
 
     plt.figure(3)
     if scheme.lower() == 'fourier':
-        plt.semilogy(t_coarse, np.abs(IS_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(IS_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'Fourier/O6-4 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^5)$, $N_x = 8,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(IS_fine_error), 'b',
+        plt.semilogy(t_fine, np.abs(IS_fine_error), color = tableau20[5],
                  label = r'Fourier/O11-6 $LTE = \mathcal{O}(\Delta x^{22},\,\Delta v^{22}, \, \Delta t^7)$, $N_x = 16,\, N_v = 512$')
 
     else:
-        plt.semilogy(t_coarse, np.abs(IS_coarse_error), 'or',
+        plt.semilogy(t_coarse, np.abs(IS_coarse_error), marker = 'o', color = tableau20[0],
                  label = r'FD7/LF2 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^3)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_fine, np.abs(IS_fine_error), 'ob',
+        plt.semilogy(t_fine, np.abs(IS_fine_error), marker = 'o', color = tableau20[5],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 384,\, N_v = 256$')
-        plt.semilogy(t_Nx768, np.abs(IS_Nx768_error), 'xm',
+        plt.semilogy(t_Nx768, np.abs(IS_Nx768_error), marker = 'H', color = tableau20[2],
                  label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 768,\, N_v = 256$')
+        #        plt.semilogy(t_s7_07, np.abs(IS_s7_07_error), '>g',
+        #                 label = r'FD7/O6-4 $LTE = \mathcal{O}(\Delta x^{8},\,\Delta v^{8}, \, \Delta t^5)$, $N_x = 1536,\, N_v = 128$')
 
 
     plt.grid()
@@ -287,8 +327,8 @@ def main(scheme = 'fourier', N = 21):
     plt.legend(loc = 'best')
     if scheme.lower() == 'fourier':
         plt.axis([0, 60, 1e-16, 1e-6])
-        plt.savefig('IS_-_F21.png')
+        plt.savefig('../../../fig/IS_-_F21.png')
     else:
         plt.axis([0,60, 1e-16, 1e-1])
-        plt.savefig('IS_-_FD7.png')
+        plt.savefig('../../../fig/IS_-_FD7.png')
     return None

@@ -1,0 +1,124 @@
+dsirajud@K55A-ubuntu:~/Work/IPython-notebooks/DECSKS-07 - 1D1V-Landau_damping/pyfiles/DECSKS$ ./main.py
+remove ALL plot files after simulation is done (1 = yes, 0 = no)?: 0
+FOURIER based high order corrections, LTE[CS] = 8
+using O6-4 split scheme (note: only activated if more than 1D)
+initializing Landau profile
+simulation has started, status updates are broadcasted after each timestep
+time step 1 of 60 completed in 7.48695 seconds
+time step 2 of 60 completed in 7.93957 seconds
+time step 3 of 60 completed in 8.31216 seconds
+time step 4 of 60 completed in 9.0065 seconds
+time step 5 of 60 completed in 9.12571 seconds
+time step 6 of 60 completed in 9.04326 seconds
+10% done :         n = 6 of 60
+time step 7 of 60 completed in 7.63714 seconds
+time step 8 of 60 completed in 8.18391 seconds
+time step 9 of 60 completed in 8.11834 seconds
+time step 10 of 60 completed in 8.11465 seconds
+time step 11 of 60 completed in 8.07792 seconds
+time step 12 of 60 completed in 8.1185 seconds
+time step 13 of 60 completed in 8.01759 seconds
+time step 14 of 60 completed in 8.03788 seconds
+time step 15 of 60 completed in 8.61107 seconds
+25% done :         n = 15 of 60
+time step 16 of 60 completed in 8.36175 seconds
+time step 17 of 60 completed in 8.53116 seconds
+time step 18 of 60 completed in 8.47685 seconds
+time step 19 of 60 completed in 8.33392 seconds
+time step 20 of 60 completed in 8.36105 seconds
+time step 21 of 60 completed in 8.24167 seconds
+time step 22 of 60 completed in 8.24779 seconds
+time step 23 of 60 completed in 8.20413 seconds
+time step 24 of 60 completed in 8.26941 seconds
+time step 25 of 60 completed in 8.26144 seconds
+time step 26 of 60 completed in 8.24521 seconds
+time step 27 of 60 completed in 8.43375 seconds
+time step 28 of 60 completed in 8.52027 seconds
+time step 29 of 60 completed in 8.48498 seconds
+time step 30 of 60 completed in 8.46964 seconds
+50% done :         n = 30 of 60
+time step 31 of 60 completed in 8.20596 seconds
+time step 32 of 60 completed in 8.24773 seconds
+time step 33 of 60 completed in 7.59602 seconds
+time step 34 of 60 completed in 7.27 seconds
+time step 35 of 60 completed in 7.24814 seconds
+time step 36 of 60 completed in 7.22857 seconds
+time step 37 of 60 completed in 7.24736 seconds
+time step 38 of 60 completed in 7.24863 seconds
+time step 39 of 60 completed in 7.23198 seconds
+time step 40 of 60 completed in 7.26615 seconds
+time step 41 of 60 completed in 7.23123 seconds
+time step 42 of 60 completed in 7.23852 seconds
+time step 43 of 60 completed in 7.22901 seconds
+time step 44 of 60 completed in 7.67901 seconds
+time step 45 of 60 completed in 7.42556 seconds
+75% done :         n = 45 of 60
+time step 46 of 60 completed in 7.42549 seconds
+time step 47 of 60 completed in 7.62023 seconds
+time step 48 of 60 completed in 7.43389 seconds
+time step 49 of 60 completed in 7.4738 seconds
+time step 50 of 60 completed in 7.3727 seconds
+time step 51 of 60 completed in 7.51787 seconds
+time step 52 of 60 completed in 7.94533 seconds
+time step 53 of 60 completed in 8.90719 seconds
+time step 54 of 60 completed in 8.17972 seconds
+90% done :         n = 54 of 60
+time step 55 of 60 completed in 8.12839 seconds
+time step 56 of 60 completed in 8.14989 seconds
+time step 57 of 60 completed in 8.13364 seconds
+95% done :         n = 57 of 60
+time step 58 of 60 completed in 9.15408 seconds
+time step 59 of 60 completed in 7.98531 seconds
+time step 60 of 60 completed in 7.42116 seconds
+100% done :         end of simulation
+total time for simulation = 478.07 seconds 
+
+
+Cleanup started...
+
+
+removing .pyc files from (/home/dsirajud/Work/IPython-notebooks/DECSKS-07 - 1D1V-Landau_damping/pyfiles/DECSKS):
+-------------------------------------------------------
+
+_mypath.pyc
+__init__.pyc
+
+
+removing .pyc files from (/home/dsirajud/Work/IPython-notebooks/DECSKS-07 - 1D1V-Landau_damping/pyfiles/DECSKS/lib):
+-------------------------------------------------------
+
+density.pyc
+status.pyc
+HOC.pyc
+read.pyc
+split.pyc
+__init__.pyc
+derivatives.pyc
+diagnostics.pyc
+fieldsolvers.pyc
+boundaryconditions.pyc
+plots.pyc
+convect.pyc
+domain.pyc
+split_poisson.pyc
+
+
+removing .pyc files from (/home/dsirajud/Work/IPython-notebooks/DECSKS-07 - 1D1V-Landau_damping/pyfiles/DECSKS/bin):
+-------------------------------------------------------
+
+DECSKS07_error_in_invariants_calcs.pyc
+DECSKS07_electrostatic_energy_history.pyc
+
+
+removing temporary files from (/home/dsirajud/Work/IPython-notebooks/DECSKS-07 - 1D1V-Landau_damping/pyfiles/DECSKS/etc):
+-------------------------------------------------------
+
+params_DECSKS-07_Nx16Nv256F7_O6-4.dat~
+params_output_DECSKS-07_Nx16Nv256F7_O6-4.dat~
+
+
+=======================================================
+
+cleanup complete
+
+simulation completed in 478.07 seconds = 7.96783 minutes = 0.132797 hours 

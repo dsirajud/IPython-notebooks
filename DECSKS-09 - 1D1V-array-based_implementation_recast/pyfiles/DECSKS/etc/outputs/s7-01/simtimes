@@ -1,0 +1,71 @@
+initializing Landau profile
+simulation has started, next status update at 10% completion 
+
+time step 1 of 60 completed in 17.7866 seconds
+time step 2 of 60 completed in 17.9812 seconds
+time step 3 of 60 completed in 17.4842 seconds
+time step 4 of 60 completed in 17.1525 seconds
+time step 5 of 60 completed in 17.3803 seconds
+time step 6 of 60 completed in 17.7737 seconds
+10% done :         n = 6 of 60
+time step 7 of 60 completed in 17.007 seconds
+time step 8 of 60 completed in 17.8301 seconds
+time step 9 of 60 completed in 17.9808 seconds
+time step 10 of 60 completed in 17.3802 seconds
+time step 11 of 60 completed in 17.2219 seconds
+time step 12 of 60 completed in 17.2099 seconds
+time step 13 of 60 completed in 17.5904 seconds
+time step 14 of 60 completed in 17.6475 seconds
+time step 15 of 60 completed in 18.0071 seconds
+25% done :         n = 15 of 60
+time step 16 of 60 completed in 17.7129 seconds
+time step 17 of 60 completed in 17.6227 seconds
+time step 18 of 60 completed in 16.6021 seconds
+time step 19 of 60 completed in 20.1125 seconds
+time step 20 of 60 completed in 16.7288 seconds
+time step 21 of 60 completed in 16.2178 seconds
+time step 22 of 60 completed in 17.148 seconds
+time step 23 of 60 completed in 18.6194 seconds
+time step 24 of 60 completed in 19.4796 seconds
+time step 25 of 60 completed in 16.7992 seconds
+time step 26 of 60 completed in 16.4807 seconds
+time step 27 of 60 completed in 15.9033 seconds
+time step 28 of 60 completed in 16.5122 seconds
+time step 29 of 60 completed in 16.0648 seconds
+time step 30 of 60 completed in 16.0794 seconds
+50% done :         n = 30 of 60
+time step 31 of 60 completed in 16.2221 seconds
+time step 32 of 60 completed in 16.1855 seconds
+time step 33 of 60 completed in 16.3158 seconds
+time step 34 of 60 completed in 16.3709 seconds
+time step 35 of 60 completed in 16.6456 seconds
+time step 36 of 60 completed in 16.548 seconds
+time step 37 of 60 completed in 16.5868 seconds
+time step 38 of 60 completed in 16.0761 seconds
+time step 39 of 60 completed in 16.312 seconds
+time step 40 of 60 completed in 15.5871 seconds
+time step 41 of 60 completed in 16.3586 seconds
+time step 42 of 60 completed in 16.9205 seconds
+time step 43 of 60 completed in 16.1939 seconds
+time step 44 of 60 completed in 15.3672 seconds
+time step 45 of 60 completed in 15.8156 seconds
+75% done :         n = 45 of 60
+time step 46 of 60 completed in 17.2516 seconds
+time step 47 of 60 completed in 15.4212 seconds
+time step 48 of 60 completed in 15.4961 seconds
+time step 49 of 60 completed in 15.5241 seconds
+time step 50 of 60 completed in 15.4281 seconds
+time step 51 of 60 completed in 15.9113 seconds
+time step 52 of 60 completed in 17.2654 seconds
+time step 53 of 60 completed in 16.1296 seconds
+time step 54 of 60 completed in 19.9433 seconds
+90% done :         n = 54 of 60
+time step 55 of 60 completed in 16.5972 seconds
+time step 56 of 60 completed in 16.3997 seconds
+time step 57 of 60 completed in 19.5406 seconds
+95% done :         n = 57 of 60
+time step 58 of 60 completed in 17.3749 seconds
+time step 59 of 60 completed in 18.1426 seconds
+time step 60 of 60 completed in 18.3212 seconds
+100% done :         end of simulation
+total time for simulation = 1044.48 seconds 
