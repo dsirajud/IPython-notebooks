@@ -32,25 +32,28 @@ class Setup:
             self.str = var + dim
 
             self.prepoints = np.array(range(self.N))
-            self.postpoints = np.zeros(self.N) # container, to be filled at each timestep
+            self.prepointvalues = self.generate_Eulerian_mesh(self.N)
 
-            numdims = len(sim_params['phasespace_vars'])
-            if numdims == 1:
+            if sim_params['numdims'] == 1:
                 self.MCs = np.zeros(self.N) # container, to be filled at each timestep
+                self.prepointvaluemesh = self.prepointvalues
+                self.prepointmesh = self.prepoints
+                self.postpointmesh = np.zeros(self.N) # container, to be filled at each timestep
 
-            elif numdims == 2:
-                N1_str = 'N' + sim_params['phasespace_vars'][0]
-                N2_str = 'N' + sim_params['phasespace_vars'][1]
+            elif sim_params['numdims'] == 2:
+                N1_str = 'N' + sim_params['phasespace_vars'][0] # Nx, Ny, or Nz
+                N2_str = 'N' + sim_params['phasespace_vars'][1] # Nvx, Nvy, or Nvz
 
                 N1, N2 = sim_params[N1_str], sim_params[N2_str]
                 if sim_params['BC'].lower() == 'periodic':
-                    self.MCs = np.zeros([N1 - 1,N2 - 1])
-                else:
-                    self.MCs = np.zeros([N1,N2])
+                    N1 -= 1
+                    N2 -= 1
+                self.MCs = np.zeros([N1,N2])
+                self.postpointmesh = np.zeros([N1, N2]) # container, to be filled at each timestep
 
-            # for convecting cells
-            self.prepointvalues = np.zeros(self.N)
-            self.prepointvalues = self.generate_Eulerian_mesh(self.N)
+                # prepointvaluemesh is of dimensions (N1, N2), self = x, y, or z, self.N = N1
+                self.prepointvaluemesh = np.outer( np.ones([N1, 1]), self.prepointvalues)
+                self.prepointmesh = np.outer( np.ones([N1, 1]), self.prepoints)
 
             # for plots
             self.gridpoints = np.array(range(self.Ngridpoints))
@@ -75,25 +78,28 @@ class Setup:
             self.str = var
 
             self.prepoints = np.array(range(self.N))
-            self.postpoints = np.zeros(self.N) # container, to be filled at each timestep
+            self.prepointvalues = self.generate_Eulerian_mesh(self.N)
 
-            numdims = len(sim_params['phasespace_vars'])
-            if numdims == 1:
+            if sim_params['numdims'] == 1:
                 self.MCs = np.zeros(self.N) # container, to be filled at each timestep
+                self.prepointvaluemesh = self.prepointvalues
+                self.prepointmesh = self.prepoints
+                self.postpointmesh = np.zeros(self.N) # container, to be filled at each timestep
 
-            elif numdims == 2:
-                N1_str = 'N' + sim_params['phasespace_vars'][0]
-                N2_str = 'N' + sim_params['phasespace_vars'][1]
+            elif sim_params['numdims'] == 2:
+                N1_str = 'N' + sim_params['phasespace_vars'][0] # Nx, Ny, or Nz on params.dat
+                N2_str = 'N' + sim_params['phasespace_vars'][1] # Nvx, Nvy, or Nvz on params.dat
 
                 N1, N2 = sim_params[N1_str], sim_params[N2_str]
                 if sim_params['BC'].lower() == 'periodic':
-                    self.MCs = np.zeros([N1 - 1,N2 - 1])
-                else:
-                    self.MCs = np.zeros([N1,N2])
+                    N1 -= 1
+                    N2 -= 1
+                self.MCs = np.zeros([N1,N2]) # container, to be filled at each timestep
 
-            # for convecting cells
-            self.prepointvalues = np.zeros(self.N)
-            self.prepointvalues = self.generate_Eulerian_mesh(self.N)
+                # prepointvaluemesh is of dimensions (N1, N2), self = x, y, or z, self.N = N1
+                self.prepointvaluemesh = np.outer( self.prepointvalues, np.ones([1, N2]))
+                self.prepointmesh = np.outer( self.prepoints, np.ones([1, N2]) )
+                self.postpointmesh = np.zeros([N1, N2]) # container, to be filled at each timestep
 
             # for plots
             self.gridpoints = np.array(range(self.Ngridpoints))
@@ -120,18 +126,40 @@ class Setup:
             w[i] = self.a + i*self.width
         return w
 
-    def generate_Lagrangian_mesh(self, z, vz, dt):
-        """Advects all MCs one time step for a phase space variable z.
+    def generate_Lagrangian_mesh(self, v, dt):
+        """Advects all MCs one time step for a phase space variable z (self)
+        according for all velocities vz in the grid and timestep dt.
 
         inputs:
-        z -- (ndarray, dim=1) phase space variable mesh
-        vz -- (ndarray, dim=1) velocity vector whose entries pair with each MC
+        self -- (instance) phase space variable being convected
+        v -- (instance or ndarray[, ndim = 1]) velocity instance
+               or vector whose entries pair with each MC
         dt -- (float) time step taken
 
+        generates:
+        self.MCs --
+
+                if 1D
+                (ndarray, ndim=1) 1D array of raw positions of each MC after
+                acvection by v*dt for v = constant
+
+                if 2D
+                (ndarray, dim=2) 2D array of raw positions of each MC after
+                advection by vz*dt for all vz in mesh.
+
+                for 1D1V, the shape is (x.N, v.N) always
+
+                if self.str = 'x', then z_MC[:,j] gives the postpoints of
+                z_MCs after advection by vz[j]*dt
+
+                if self.str = 'vx', then z_MC[i,:] gives the postpoints of
+                z_MCS after advection by a[i]*dt
+
         outputs:
-        z_MC -- (ndarray, dim=1) array of raw positions of each MC after push
+        None -- the purpose of this function is to store values in the attribute
+                self.MCs
         """
 
-        z_MC = z + vz*dt
+        self.MCs = self.prepointvaluemesh + v*dt
 
-        return z_MC
+        return None

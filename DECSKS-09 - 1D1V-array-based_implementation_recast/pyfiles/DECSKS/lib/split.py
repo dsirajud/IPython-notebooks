@@ -1,9 +1,10 @@
 import DECSKS
+import numpy as np
 import time
 
 def scheme(
         f,
-        t,x,v,
+        t,x,vx,
         n,
         sim_params
         ):
@@ -20,7 +21,6 @@ def scheme(
     outputs:
     f -- (ndarray, dim=3) f(n+1,x,v)
     """
-
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']
     coeff = splitting['order']['coeffs']
@@ -30,40 +30,38 @@ def scheme(
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if s == 0: # on first pass, the previous time step (n - 1) needs to be
             if coeff[s] == 'a': # convect x
-                for j in v.prepoints:
-                    x.MCs   = x.generate_Lagrangian_mesh(x.prepointvalues, v.prepointvalues[j], split_coeff*t.width) 
-                    f[n,:,j] = DECSKS.lib.convect.scheme(
-                        f[n-1,:,j],
+                x.generate_Lagrangian_mesh(vx.prepointvaluemesh, split_coeff*t.width)
+                f[n,:,:] = DECSKS.lib.convect.scheme(
+                        f[n-1,:,:],
                         x,n,
                         sim_params)
 
             elif coeff[s] == 'b': # convect v
-                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, v, n-1) # calculate accelerations at time zero (n-1)
+                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n-1) # calculate accelerations at time zero (n-1)
                 a = -E
-                for i in x.prepoints:
-                    v.MCs   = v.generate_Lagrangian_mesh(v.prepointvalues, a[i], split_coeff*t.width)
-                    f[n,i,:] = DECSKS.lib.convect.scheme(
-                        f[n-1,i,:],
-                        v,n,
-                        sim_params)
+
+                vx.generate_Lagrangian_mesh(a, split_coeff*t.width)
+                f[n,:,:] = DECSKS.lib.convect.scheme(
+                    f[n-1,:,:],
+                    vx,n,
+                    sim_params)
 
         else: # each subsequent steps overwrites the previous step, all at time n until all split steps complete
             if coeff[s] == 'a': # convect x
-                for j in v.prepoints:
-                    x.MCs   = x.generate_Lagrangian_mesh(x.prepointvalues, v.prepointvalues[j], split_coeff*t.width)
-                    f[n,:,j] = DECSKS.lib.convect.scheme(
-                        f[n,:,j],
+                x.generate_Lagrangian_mesh(vx.prepointvaluemesh, split_coeff*t.width)
+                f[n,:,:] = DECSKS.lib.convect.scheme(
+                        f[n,:,:],
                         x,n,
                         sim_params)
 
             elif coeff[s] == 'b': # convect v
-                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, v, n)
+                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n)
                 a = -E
-                for i in x.prepoints:
-                    v.MCs   = v.generate_Lagrangian_mesh(v.prepointvalues, a[i], split_coeff*t.width)
-                    f[n,i,:] = DECSKS.lib.convect.scheme(
-                        f[n,i,:],
-                        v,n,
+
+                vx.generate_Lagrangian_mesh(a, split_coeff*t.width)
+                f[n,:,:] = DECSKS.lib.convect.scheme(
+                        f[n,:,:],
+                        vx,n,
                         sim_params)
 
     toc = time.time()

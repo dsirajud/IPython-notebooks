@@ -63,6 +63,7 @@ def inputfile(filename):
     for var in range(len(phasespace_vars)):
         phasespace_vars[var] = phasespace_vars[var].strip()
 
+    numdims = len(phasespace_vars)
     density = lines[45][lines[45].find('=')+1:].strip()
     density = density.lower()
 
@@ -119,6 +120,7 @@ def inputfile(filename):
         # Nvz = Nvz, avz = avz, bvz = bvz,
         Nt = Nt, at = at, bt = bt, T = T,
         phasespace_vars = phasespace_vars,
+        numdims = numdims,
         density = density,
         split_scheme = split_scheme,
         splitting = splitting,

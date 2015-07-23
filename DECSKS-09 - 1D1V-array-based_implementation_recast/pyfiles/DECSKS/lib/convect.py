@@ -6,8 +6,21 @@ def scheme(
     z,n,
     sim_params
     ):
-    """Solve a 1D advection (in z) equation by Convected Scheme"""
+    """Solve a 1D advection (in z) equation by Convected Scheme
 
+    inputs:
+    f_old -- (ndarray, ndim = 1 or 2) f[n-1,:] or f[n-1,:,:] if first
+             substep in a splitting algorithm or if none
+             else, f[n,:] or f[n,:]
+    z -- (instance) phase space variable
+    n -- (int) time step
+    sim_params -- (dict) simulation parameters
+
+    outputs:
+    f_new -- (ndarray, ndim = 1 or 2) f[n,:] or f[n,:,:] updated
+    """
+
+    f_new = np.zeros(f_old.shape)
     f_new = advection_step(
         f_old,
         z,n,
@@ -34,37 +47,40 @@ def advection_step(
     outputs:
     f_new -- (ndarray, dim=1) density after time step has been taken completely
     """
-    # ballistic step and apply BCs
+    # advection step
     CFL = CourantNumber(z)  # instance with attr. CFL.int, CFL.frac
-    z.postpoints = z.prepoints + CFL.int
-    z.postpoints = DECSKS.lib.boundaryconditions.periodic(z)
+    z.postpointmesh = z.prepointmesh + CFL.int
 
-    # f_new = collisions_step(f_old, z, n) Not implemented yet
+    # apply boundary conditions
+    z.postpointmesh = DECSKS.lib.boundaryconditions.periodic(z)
+
+    # collision step (Not yet implemented), e.g. collisiontype = Coulomb, ...
+    # f_new = DECSKS.lib.collisions.collisiontype(f_old, z, n)
+
     f_new = remap_step(f_old, CFL, z, n, sim_params)
 
     return f_new
 #---------------------------------------------------------------------------  #
 class CourantNumber:
-    """Returns a CFL number instance according to vel. of z passed
+    """Returns a CFL number instance of the phasespace variable z
 
     inputs:
-    z -- (instance) phase space variable from class Setup below
+    z -- (instance) phase space variable from class lib.domain.Setup
 
     outputs:
     self -- (instance) CFL number ascribed to variable z convection
+
+    Note: broadcasting ensures self.numbers is the same shape as z.MCs
     """
     def __init__(self, z):
-        """ """
-        # z is a phase space variable instance from below Setup
-        self.numbers = (z.MCs - z.prepointvalues) / z.width
 
-        self.int = np.zeros(z.N)    # initialize
-        if self.numbers.all >= 0:
-            self.int = np.floor(self.numbers)
-        else:
-            self.int = np.ceil(self.numbers)
+        self.numbers = (z.MCs - z.prepointvaluemesh) / z.width
+
+        # if >= 0 , self.int = floor(self.numbers), else ceil(self.numbers)
+        self.int = np.where(self.numbers >=0, np.floor(self.numbers),
+                            np.ceil(self.numbers))
+
         self.frac = self.numbers - self.int
-        self.HOC = np.zeros(z.N)    # initialize High Order Corrections
 #---------------------------------------------------------------------------  #
 def remap_step(
         f_old,
@@ -92,9 +108,9 @@ def remap_step(
           hence, f_old[:z.N] is passed instead of f_old
 
     """
-    f_new = np.zeros(z.Ngridpoints)
+    f_new = np.zeros(f_old.shape)
 
-    beta = DECSKS.lib.HOC.beta_m(CFL.frac[0],
+    beta = DECSKS.lib.HOC.beta_m(CFL,
                                  sim_params['Bernoulli_numbers'],
                                  sim_params['N'])
 
@@ -103,14 +119,14 @@ def remap_step(
         c[q] = (-1) ** q * beta[q]
 
     Uf = flux(
-        f_old[:z.N],
+        f_old,
         CFL,
         z, sim_params,
         c
         )
 
     for i in z.prepoints:
-        f_remapped_MC_container = remap_rule(f_old[:z.N], Uf, CFL, z, i, n)
+        f_remapped_MC_container = remap_rule(f_old, Uf, CFL, z, sim_params, i, n)
         f_new += f_remapped_MC_container
 
     if sim_params['BC'].lower() == 'periodic':
@@ -122,7 +138,8 @@ def remap_rule(
         f_old,
         Uf,
         CFL,
-        z,i,n,
+        z, sim_params,
+        i,n,
         ):
     """Remaps the iz_th MC to Eulerian mesh at indices k1 and k2
 
@@ -138,10 +155,14 @@ def remap_rule(
     f_remapped_MC_container -- (ndarray, dim=1) density container with remapped MCs at final
                                  postpoints
     """
+    # active gridpoints only
+    f_old = f_old[0:eval(sim_params['phasespace_vars'][0]).N,
+                  0:eval(sim_params['phasespace_vars'][1]).N]
+
     Uf[i] = flux_limiter(i, f_old, CFL, Uf)
 
     f_remapped_MC_container = np.zeros(z.Ngridpoints)
-    k1, k2 = DECSKS.lib.boundaryconditions.periodic(z, i, Uf)
+    k1, k2 = DECSKS.lib.boundaryconditions.periodic_old(z, i, Uf)
     # remap assignment
     if Uf[i] > 0:
         f_remapped_MC_container[k1] = f_old[ z.prepoints[i] ] - Uf[ z.prepoints[i] ]
@@ -175,7 +196,11 @@ def flux(
     outputs:
     Uf -- (ndarray, dim=1) Normalized fluxes for every z.prepoints[i]
     """
-    Uf = np.zeros(z.N)
+    # active gridpoints only
+    f_old = f_old[:eval(sim_params['phasespace_vars'][0]).N,
+                  :eval(sim_params['phasespace_vars'][1]).N]
+
+    Uf = np.zeros(f_old.shape)
     d = np.zeros([z.N,sim_params['N']])
 
     # Compute uncorrected fluxes

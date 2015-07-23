@@ -13,7 +13,7 @@ Domain specifications:
 Enter the number of cells as int or None
 Enter the dimensions as float or None
 
-Number of cells, x = 32
+Number of cells, x = 12
 lower boundary ax = -10*np.pi/3
 upper boundary bx = 10*np.pi/3
 
@@ -25,7 +25,7 @@ Number of cells, z = None
 lower boundary az = None
 upper boundary bz = None
 
-Number of cells, vx = 64
+Number of cells, vx = 13
 lower boundary avx = -8.0
 upper boundary bvx =  8.0
 

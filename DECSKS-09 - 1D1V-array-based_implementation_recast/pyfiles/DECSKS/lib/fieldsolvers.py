@@ -55,7 +55,7 @@ def Gauss(ni, f, x, v, n):
 
 
     E = np.real(np.fft.ifft(E_hat))    # Electric field in configurational space
-
+    E = np.outer(E, np.ones([1, v.N]))
 
     return E
 
