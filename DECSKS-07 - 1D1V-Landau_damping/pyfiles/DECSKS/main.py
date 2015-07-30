@@ -32,7 +32,7 @@ import time
 rm_plots = int(raw_input('remove ALL plot files after simulation is done (1 = yes, 0 = no)?: '))
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s7-07.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s7-07_performance_test.dat')
 sim_params['BC'] = 'periodic'
 x = DECSKS.lib.domain.Setup(sim_params, var = 'x')
 v = DECSKS.lib.domain.Setup(sim_params, var = 'v', dim = 'x')

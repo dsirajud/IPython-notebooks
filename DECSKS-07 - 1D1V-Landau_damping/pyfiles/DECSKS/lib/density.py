@@ -111,7 +111,7 @@ def conservation_check(f_new, f_old, i, n):
     None
     """
     eps = 1.0e-14
-    mass_difference = np.abs( sum(f_new) - f_old[i])
+    mass_difference = np.abs( np.sum(f_new) - f_old[i])
     if mass_difference > eps:
         print 'mass difference = %.40e, density is not conserved \
         locally at time step = %d, from prepoint %i' % (mass_difference, n, i)
