@@ -118,8 +118,6 @@ def remap_step(
     for q in range(1, sim_params['N']):
         c[q] = (-1) ** q * beta[q]
 
-
-    return 
     Uf = flux(
         f_old,
         CFL,
@@ -202,26 +200,23 @@ def flux(
     f_old = f_old[:eval(sim_params['phasespace_vars'][0]).N,
                   :eval(sim_params['phasespace_vars'][1]).N]
 
+    # initialize derivatives container and fill zeroeth derivative slot
+    d = np.zeros([sim_params['N'], eval(sim_params['phasespace_vars'][0]).N,
+                  eval(sim_params['phasespace_vars'][1]).N])
+
+    d[0,:,:] = f_old
     Uf = np.zeros(f_old.shape)
-    d = np.zeros([z.N,sim_params['N']])
 
-    # Compute uncorrected fluxes
-    Uf = f_old * CFL.frac
+    # assemble string name of chosen derivative function
+    derivative_method = '.'.join(('DECSKS.lib.derivatives', sim_params['HOC'].lower))
 
-    # Compute any high order corrections c1*d1 + c2*d2 + ...
-    if sim_params['HOC'] == 'FD':
-        d = DECSKS.lib.derivatives.finite_differences_matrix_form(f_old, z, sim_params)
-        for q in range(1,sim_params['N']):
-            Uf += c[q]*d[:,q] # Flux = G + H.O.C.
+    # call routine to compute all derivatives
+    d = eval(derivative_method)(f_old, z, sim_params)
 
-    elif sim_params['HOC'] == 'FOURIER':
-        if sim_params['WindowedFilter'] == 'YES':
-            K = DECSKS.lib.HOC.kernel(z)
-        else:
-            K = None
-        for q in range(1, sim_params['N']):
-            d[:,q] = DECSKS.lib.derivatives.trigonometric(f_old,z,q,sim_params, K)
-            Uf += c[q]*d[:,q] # Flux = G + H.O.C.
+    # TODO figure out a way to do this without looping
+    for q in range(1,sim_params['N']):
+            Uf += c[q]*d[:,q] # Flux = Uf + H.O.C. [High Order Corrections]
+
     return Uf
 # ........................................................................... #
 def flux_limiter(

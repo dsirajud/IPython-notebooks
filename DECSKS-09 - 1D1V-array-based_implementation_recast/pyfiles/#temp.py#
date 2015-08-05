@@ -1,0 +1,68 @@
+    dims = (sim_params['N'], eval(sim_params['phasespace_vars'][0]).N, 
+                     eval(sim_params['phasespace_vars'][1]).N )
+
+    dims_2D = (eval(sim_params['phasespace_vars'][0]).N, 
+                     eval(sim_params['phasespace_vars'][1]).N)
+
+    ones_2D = np.ones(dims_2D)
+
+    Q_1D = np.arange(dims[0])
+    Q_3D, xi_3D, f_3D = np.zeros(dims), np.zeros(dims), np.zeros(dims)
+
+    # assemble xi_3D
+    z = x
+    wave_index = np.arange(z.N)
+    xi_1D = np.where(wave_index <= z.N / 2, 2*np.pi*wave_index / z.L, 2*np.pi*(wave_index - z.N) / z.L)
+    xi_2D = np.outer(xi_1D, np.ones(eval(sim_params['phasespace_vars'][1]).N)).reshape(1,
+                                                                              eval(sim_params['phasespace_vars'][0]).N, 
+                                                                              eval(sim_params['phasespace_vars'][1]).N)
+
+    for q in Q_1D:
+        xi_3D[q,:,:] = xi_2D
+        Q_3D[q,:,:] = q*ones_2D
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+xi_1D = np.where(wave_index <= z.N / 2, 2*np.pi*wave_index / z.L, 2*np.pi*(wave_index - z.N) / z.L)
+xi_2D = np.outer(xi_1D, eval(sim_params['phasespace_vars'][1]).N).reshape(1,
+                                                                          eval(sim_params['phasespace_vars'][0]).N, 
+                                                                          eval(sim_params['phasespace_vars'][1]).N)
+
+# how to automate this?
+xi_3D = np.dstack(xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D,
+                 xi_2D, # N = 21 copies
+                 )
