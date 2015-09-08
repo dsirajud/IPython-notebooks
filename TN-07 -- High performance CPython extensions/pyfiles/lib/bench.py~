@@ -1,0 +1,4 @@
+import sim
+
+w = sim.World(101)
+sim.evolve(w, 4096)
