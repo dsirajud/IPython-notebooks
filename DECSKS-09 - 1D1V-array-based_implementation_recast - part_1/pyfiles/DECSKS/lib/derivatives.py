@@ -2,23 +2,6 @@ import numpy as np
 from math import factorial
 
 def fourier(d, f, z, sim_params):
-    for q in range(1,sim_params['N']):
-        d[q,:,:] = trigonometric2D(f, z, q, sim_params)
-
-def trigonometric2D(f, z, q, sim_params):
-    """Computes derivatives of density for derivative coeffs d in FN methods
-
-    inputs:
-    f -- (ndarray, dim=1) f(z1,z2=const,z3=const,..., t = n-1)
-    z -- (instance) phase space variable being convected
-    q -- (int) order of desired derivative
-    sim_params -- (dict) simulation parameters
-    K -- (ndarray, ndim=1) Windowed Fourier transform kernel
-
-    outputs:
-    d -- (ndarray, dim=1) qth derivative coefficient for all z.prepoints
-    """
-
     wave_index = np.arange(z.N)
     xi = np.where(wave_index <= z.N / 2,
                   2*np.pi*wave_index / z.L,
@@ -28,6 +11,29 @@ def trigonometric2D(f, z, q, sim_params):
     if z.str == 'x':
         # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
         xi = np.outer(xi, np.ones(eval(sim_params['phasespace_vars'][1]).N))
+
+    elif z.str[0] == 'v':
+        # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
+        xi = np.outer(xi, np.ones(eval(sim_params['phasespace_vars'][0]).N))
+
+    for q in range(1,sim_params['N']):
+        d[q,:,:] = trigonometric2D(f, z, q, xi)
+
+def trigonometric2D(f, z, q, xi):
+    """Computes derivatives of density for derivative coeffs d in FN methods
+
+    inputs:
+    f -- (ndarray, dim=1) f(z1,z2=const,z3=const,..., t = n-1)
+    z -- (instance) phase space variable being convected
+    q -- (int) order of desired derivative
+    xi -- (ndarray, dim=2) 1D wave numbers stacked in columns for column-wise
+          fourier transform.
+    sim_params -- (dict) simulation parameters
+    K -- (ndarray, ndim=1) Windowed Fourier transform kernel
+
+    outputs:
+    d -- (ndarray, dim=1) qth derivative coefficient for all z.prepoints
+    """
 
     Ff = np.fft.fft(f)
 
@@ -101,14 +107,12 @@ def finite_differences_6th_order_periodic_BCs(f,z):
         d[i,4] = f[np.mod(i-2,z.N)] - 4*f[np.mod(i-1,z.N)] + 6*f[np.mod(i,z.N)] - 4*f[np.mod(i+1,z.N)] + f[np.mod(i+2,z.N)]
     return d
 
-def fd(f, z, sim_params):
-
-    d = np.zeros([z.N, sim_params['N']])
+def fd(d, f, z, sim_params):
     W = sim_params['W']
     Wz = W[z.str]
 
     for dn in range(1,sim_params['N']):
-        d[:,dn] = Wz[dn,:,:].dot(f)
+        d[dn,:,:] = Wz[dn,:,:].dot(f)
     return d
 
 def finite_differences(f, z, sim_params):

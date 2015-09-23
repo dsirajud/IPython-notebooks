@@ -1,6 +1,11 @@
 import numpy as np
 from scipy.misc import factorial
 
+def correctors(sim_params, B):
+    I_alternating = np.diag( (-np.ones(sim_params['N']))  ** np.arange(sim_params['N']) ) 
+    c = I_alternating.dot(B)
+    return c
+
 def beta(p,a):
     """Returns the pth coefficient beta.
 
