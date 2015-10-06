@@ -30,6 +30,7 @@ class Setup:
             self.L = float(self.b - self.a)
             self.width = self.L / (self.Ngridpoints - 1)
             self.str = var + dim
+            self.v_str = 'a' + dim
 
             self.prepoints = np.array(range(self.N))
             self.prepointvalues = self.generate_Eulerian_mesh(self.N)
@@ -76,6 +77,7 @@ class Setup:
             self.L = float(self.b - self.a)
             self.width = self.L / (self.Ngridpoints - 1)
             self.str = var
+            self.v_str = 'v' + var
 
             self.prepoints = np.array(range(self.N))
             self.prepointvalues = self.generate_Eulerian_mesh(self.N)

@@ -26,11 +26,12 @@
 #=============================================================================#
 import _mypath     # adds relative path to sys.path for flexible deployment
 import DECSKS
+import numpy as np
 import time
 # =========================================================================== #
 
-rm_plots = int(raw_input('remove ALL plot files after simulation is done (1 = yes, 0 = no)?: '))
-tic = time.clock()
+#rm_plots = int(raw_input('remove ALL plot files after simulation is done (1 = yes, 0 = no)?: '))
+#tic = time.clock()
 
 sim_params = DECSKS.lib.read.inputfile('./etc/params.dat')
 sim_params['BC'] = 'periodic'
@@ -38,6 +39,9 @@ x = DECSKS.lib.domain.Setup(sim_params, var = 'x')
 vx = DECSKS.lib.domain.Setup(sim_params, var = 'v', dim = 'x')
 t = DECSKS.lib.domain.Setup(sim_params, var = 't')
 f = DECSKS.lib.density.setup(sim_params, t, x, vx)    # f = f(x_i, v_j, t^n)
+
+# store total mass for conservation checks
+sim_params['m_0'] = np.sum(DECSKS.lib.convect.extract_active_grid(x, vx, f[0,:,:]))
 
 # Current case: uniform background (cold) density of ions,
 sim_params['ni'] = DECSKS.lib.density.cold_background(f,x,vx,sim_params)

@@ -29,8 +29,8 @@ def scheme(
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if s == 0: # on first pass, the previous time step (n - 1) needs to be
-            if coeff[s] == 'a': # convect x
-                x.generate_Lagrangian_mesh(vx.prepointvaluemesh, split_coeff*t.width)
+            if coeff[s] == 'a': # advect x
+                x.CFL.compute_numbers(x, vx, split_coeff*t.width)
                 f[n,:,:] = DECSKS.lib.convect.scheme(
                         f[n-1,:,:],
                         n,
@@ -38,21 +38,22 @@ def scheme(
                         z = x,
                         vz = vx)
 
-            elif coeff[s] == 'b': # convect v
-                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n-1) # calculate accelerations at time zero (n-1)
-                a = -E
+            elif coeff[s] == 'b': # advect v
+                Ex = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n-1) # calculate accelerations at time zero (n-1)
+                ax = DECSKS.lib.domain.Setup(sim_params, 'a', 'x')
+                ax.prepointvaluemesh = -Ex
 
-                vx.generate_Lagrangian_mesh(a, split_coeff*t.width)
+                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
                 f[n,:,:] = DECSKS.lib.convect.scheme(
                     f[n-1,:,:],
                     n,
-                    sim_params
+                    sim_params,
                     z = vx,
-                    vz = a)
+                    vz = ax)
 
         else: # each subsequent steps overwrites the previous step, all at time n until all split steps complete
-            if coeff[s] == 'a': # convect x
-                x.generate_Lagrangian_mesh(vx.prepointvaluemesh, split_coeff*t.width)
+            if coeff[s] == 'a': # advect x
+                x.CFL.compute_numbers(x, vx, split_coeff*t.width)
                 f[n,:,:] = DECSKS.lib.convect.scheme(
                         f[n,:,:],
                         n,
@@ -60,17 +61,17 @@ def scheme(
                         z = x,
                         vz = vx)
 
-            elif coeff[s] == 'b': # convect v
-                E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n)
-                a = -E
+            elif coeff[s] == 'b': # advect v
+                Ex = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n)
+                ax.prepointvaluemesh = -Ex
 
-                vx.generate_Lagrangian_mesh(a, split_coeff*t.width)
+                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
                 f[n,:,:] = DECSKS.lib.convect.scheme(
                         f[n,:,:],
                         n,
                         sim_params,
                         z = vx,
-                        vz = a)
+                        vz = ax)
 
     toc = time.time()
     print "time step %d of %d completed in %g seconds" % (n,t.N, toc - tic)

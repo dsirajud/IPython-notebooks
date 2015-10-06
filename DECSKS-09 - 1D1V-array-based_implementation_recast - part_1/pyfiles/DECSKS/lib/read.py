@@ -1,5 +1,6 @@
 import numpy as np
 import linecache
+import scipy
 
 def inputfile(filename):
     """Reads the input file and returns a dictionary containing
@@ -28,56 +29,66 @@ def inputfile(filename):
     WindowedFilter = lines[8][lines[8].find('=')+1:].strip()
     WindowedFilter = WindowedFilter.upper()
 
-    Nx = eval(lines[15][lines[15].find('=')+1:].strip())
-    ax = eval(lines[16][lines[16].find('=')+1:].strip())
-    bx = eval(lines[17][lines[17].find('=')+1:].strip())
+    Nx = eval(lines[16][lines[16].find('=')+1:].strip())
+    ax = eval(lines[17][lines[17].find('=')+1:].strip())
+    bx = eval(lines[18][lines[18].find('=')+1:].strip())
 
-    #Ny = eval(lines[10][lines[10].find('=')+1:].strip())
-    #ay = eval(lines[10][lines[10].find('=')+1:].strip())
-    #by = eval(lines[11][lines[11].find('=')+1:].strip())
+    Ny = eval(lines[22][lines[22].find('=')+1:].strip())
+    ay = eval(lines[23][lines[23].find('=')+1:].strip())
+    by = eval(lines[24][lines[24].find('=')+1:].strip())
 
-    #Nz = eval(lines[11][lines[11].find('=')+1:].strip())
-    #az = eval(lines[10][lines[10].find('=')+1:].strip())
-    #bz = eval(lines[11][lines[11].find('=')+1:].strip())
+    Nz = eval(lines[28][lines[28].find('=')+1:].strip())
+    az = eval(lines[29][lines[29].find('=')+1:].strip())
+    bz = eval(lines[30][lines[30].find('=')+1:].strip())
 
-    Nvx = eval(lines[27][lines[27].find('=')+1:].strip())
-    avx = eval(lines[28][lines[28].find('=')+1:].strip())
-    bvx = eval(lines[29][lines[29].find('=')+1:].strip())
+    Nvx = eval(lines[34][lines[34].find('=')+1:].strip())
+    avx = eval(lines[35][lines[35].find('=')+1:].strip())
+    bvx = eval(lines[36][lines[36].find('=')+1:].strip())
 
-    #Nvy = eval(lines[14][lines[14].find('=')+1:].strip())
-    #ax = eval(lines[10][lines[10].find('=')+1:].strip())
-    #bx = eval(lines[11][lines[11].find('=')+1:].strip())
+    Nvy = eval(lines[40][lines[40].find('=')+1:].strip())
+    avy = eval(lines[41][lines[41].find('=')+1:].strip())
+    bvy = eval(lines[42][lines[42].find('=')+1:].strip())
 
-    #Nvz = eval(lines[15][lines[15].find('=')+1:].strip())
-    #ax = eval(lines[10][lines[10].find('=')+1:].strip())
-    #bx = eval(lines[11][lines[11].find('=')+1:].strip())
+    Nvz = eval(lines[46][lines[46].find('=')+1:].strip())
+    avz = eval(lines[47][lines[47].find('=')+1:].strip())
+    bvz = eval(lines[48][lines[48].find('=')+1:].strip())
 
-    Nt = eval(lines[39][lines[39].find('=')+1:].strip())
-    at = eval(lines[40][lines[40].find('=')+1:].strip())
-    bt = eval(lines[41][lines[41].find('=')+1:].strip())
-    T = eval(lines[42][lines[42].find('=')+1:].strip())
+    Nt = eval(lines[52][lines[52].find('=')+1:].strip())
+    at = eval(lines[53][lines[53].find('=')+1:].strip())
+    bt = eval(lines[54][lines[54].find('=')+1:].strip())
+    T = eval(lines[55][lines[55].find('=')+1:].strip())
+
+
+    # Boundary condition dictionary storage
+    # BC['z']['LBC'] and BC['z']['RBC'] give the BC for phase space var z
+    BC = read_boundary_conditions(lines) # pass already read-in lines from params.dat
 
     # the following list contains strings identifying all evolved phase
     # space variables, a subset of ['x', 'y', 'z', 'vx', 'vy', 'vz']
-    phasespace_vars = lines[44][lines[44].find(':')+1:].strip().split(',')
+    phasespace_vars = lines[57][lines[57].find(':')+1:].strip().split(',')
 
-    dims = []
+    total_dims = []
+    active_dims = []
     # strip all whitespace in each entry
     for var in range(len(phasespace_vars)):
         phasespace_vars[var] = phasespace_vars[var].strip()
-        dims.append(eval('N' + phasespace_vars[var]))
+        total_dims.append(eval('N' + phasespace_vars[var]))
 
-    dims = tuple(dims)
+        if ( (BC[phasespace_vars[var]]['lower'] == 'periodic') and (BC[phasespace_vars[var]]['upper'] == 'periodic') ):
+            active_dims.append(eval('N' + phasespace_vars[var]) - 1)
+        else:
+            active_dims.append(eval('N' + phasespace_vars[var]))
+
     numdims = len(phasespace_vars)
-    density = lines[45][lines[45].find('=')+1:].strip()
+    density = lines[58][lines[58].find('=')+1:].strip()
     density = density.lower()
 
-    split_scheme = lines[64][lines[64].find('=')+1:].strip()
+    split_scheme = lines[77][lines[77].find('=')+1:].strip()
     split_scheme = split_scheme.upper()
     print "using %s split scheme (note: only activated if more than 1D)" % split_scheme
 
     # splitting input filepath setup
-    filename  = lines[65][lines[65].find(':')+1:].strip()
+    filename  = lines[78][lines[78].find(':')+1:].strip()
     filepath = rel_path + filename
 
     # get splitting coefficients for chosen scheme
@@ -86,22 +97,19 @@ def inputfile(filename):
     else:
         splitting = None
 
-    self_consistent_fields = lines[77][lines[77].find(':')+1:].strip()
-    self_consistent_fields = self_consistent_fields.lower()
-
-    plot_params = plot_parameters(lines) # pass lines from params.dat
+    plot_params = plot_parameters(lines) # pass already read-in lines of params.dat
 
     # Table of Bernoulli numbers dat filepath setup
     filename = 'Table_of_Bernoulli_numbers.dat'
     filepath = rel_path + filename
     Bernoulli_numbers = Bernoulli(filepath)
 
-    record_outputs = lines[88][lines[88].find(':')+1:].strip()
+    record_outputs = lines[97][lines[97].find(':')+1:].strip()
     record_outputs = record_outputs.lower()
 
     if record_outputs == 'yes':
         # output filepath setup
-        filename = lines[90][lines[90].find(':')+1:].strip()
+        filename = lines[99][lines[99].find(':')+1:].strip()
         filepath = rel_path + filename
         outfiles = output_files(filepath) # dictionary of opened files
     else:
@@ -109,25 +117,55 @@ def inputfile(filename):
 
     if HOC == 'FD':
         FD_schemes = read_FD_schemes(N)
-        FD_scheme_dn1 = read_FD_scheme(1,6) # LTE = 6 currently
+        FD_scheme_dn1 = read_FD_scheme(1,6) # LTE = 6 currently, usage is
+                                            # for 6th order FD Poisson
+                                            # solver
     else:
         FD_schemes = None
         FD_scheme_dn1 = None
+
+    # MISC STORAGE
+
+    # for correctors c, need I_alternating = the negative of identity
+    # matrix where each row is raised to the power of its row
+
+    I_alternating = np.diag( (-np.ones(N))  ** np.arange(N) )
+
+    # A matrices for Bernoulli number storage and matrix HOC application
+
+    A_pos, A_neg = np.zeros([N,N]), np.zeros([N,N])
+    for i in range(N):
+        for j in range(i+1):
+            A_pos[i,j] = Bernoulli_numbers[i-j] / scipy.misc.factorial(i-j)
+            if (i - j) == 1:
+                A_neg[i,j] = -A_pos[i,j]
+            else:
+                A_neg[i,j] = A_pos[i,j]
+
+    A_matrix = {}
+    # dictionary container
+    # allow dictionary access to relevant matrix of Bernoulli numbers
+    # by operating with str(int(np.sign(CFL.frac)))
+
+    A_matrix['1'] = A_pos
+    A_matrix['0'] = A_pos
+    A_matrix['-1'] = A_neg
 
     sim_params = dict(
         N = N, HOC = HOC,
         derivative_method = derivative_method,
         WindowedFilter = WindowedFilter,
         Nx = Nx, ax = ax, bx = bx,
-        # Ny = Ny, ay = ay, by = by,
-        # Nz = Nz, az = az, bz = bz,
+        Ny = Ny, ay = ay, by = by,
+        Nz = Nz, az = az, bz = bz,
         Nvx = Nvx, avx = avx, bvx = bvx,
-        # Nvy = Nvy, avy = avy, bvy = bvy,
-        # Nvz = Nvz, avz = avz, bvz = bvz,
+        Nvy = Nvy, avy = avy, bvy = bvy,
+        Nvz = Nvz, avz = avz, bvz = bvz,
         Nt = Nt, at = at, bt = bt, T = T,
         phasespace_vars = phasespace_vars,
         numdims = numdims,
-        dims = dims,
+        active_dims = active_dims,
+        total_dims = total_dims,
         density = density,
         split_scheme = split_scheme,
         splitting = splitting,
@@ -136,7 +174,10 @@ def inputfile(filename):
         record_outputs = record_outputs,
         outfiles = outfiles,
         FD_schemes = FD_schemes,
-        FD_scheme_dn1 = FD_scheme_dn1
+        FD_scheme_dn1 = FD_scheme_dn1,
+        BC = BC,
+        I_alternating = I_alternating,
+        A_matrix = A_matrix
         )
 
     infile.close()
@@ -281,10 +322,10 @@ def plot_parameters(lines):
     """
 
     # lines from filename = 'input_params.dat' in Input(*args) method
-    xmin = eval(lines[82][lines[82].find('=')+1:].strip())
-    xmax = eval(lines[83][lines[83].find('=')+1:].strip())
-    ymin = eval(lines[85][lines[86].find('=')+1:].strip())
-    ymax = eval(lines[86][lines[86].find('=')+1:].strip())
+    xmin = eval(lines[91][lines[91].find('=')+1:].strip())
+    xmax = eval(lines[92][lines[92].find('=')+1:].strip())
+    ymin = eval(lines[94][lines[94].find('=')+1:].strip())
+    ymax = eval(lines[95][lines[95].find('=')+1:].strip())
 
     plot_params = dict(xmin = xmin, xmax = xmax,
                        ymin = ymin, ymax = ymax)
@@ -605,3 +646,50 @@ def store_FD_scheme(infilename,
             pass
 
     return FD_scheme
+
+def read_boundary_conditions(lines):
+    """Assembles a dictionary permitting access to strings
+    indicating the type of boundary condition on each
+    phase space variable
+
+        e.g. BC['z']['upper'] gives the string specified in
+             etc/params.dat under the upper boundary condition
+             for the variable z
+
+    inputs:
+    lines -- (list of strings) the read-in lines from etc/params.dat
+
+    outputs:
+    BC -- (dict) boundary conditions for every phase space variable
+          at every boundary, see access example above
+
+    """
+    BC = {}
+
+    BC['x'] = {}
+    BC['y'] = {}
+    BC['z'] = {}
+
+    BC['vx'] = {}
+    BC['vy'] = {}
+    BC['vz'] = {}
+
+    BC['x']['lower'] = lines[19][lines[19].find('=')+1:].strip()
+    BC['x']['upper'] = lines[20][lines[20].find('=')+1:].strip()
+
+    BC['y']['lower'] = lines[25][lines[25].find('=')+1:].strip()
+    BC['y']['upper'] = lines[26][lines[26].find('=')+1:].strip()
+
+    BC['z']['lower'] = lines[31][lines[31].find('=')+1:].strip()
+    BC['z']['upper'] = lines[32][lines[32].find('=')+1:].strip()
+
+    BC['vx']['lower'] = lines[37][lines[37].find('=')+1:].strip()
+    BC['vx']['upper'] = lines[38][lines[38].find('=')+1:].strip()
+
+    BC['vy']['lower'] = lines[43][lines[43].find('=')+1:].strip()
+    BC['vy']['upper'] = lines[44][lines[44].find('=')+1:].strip()
+
+    BC['vz']['lower'] = lines[49][lines[49].find('=')+1:].strip()
+    BC['vz']['upper'] = lines[50][lines[50].find('=')+1:].strip()
+
+    return BC

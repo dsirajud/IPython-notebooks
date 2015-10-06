@@ -1,0 +1,109 @@
+import _mypath
+import numpy as np
+import DECSKS
+
+def trigonometric2D(f, z, q, xi):
+    """Computes derivatives of density for derivative coeffs d in FN methods
+
+    inputs:
+    f -- (ndarray, dim=1) f(z1,z2=const,z3=const,..., t = n-1)
+    z -- (instance) phase space variable being convected
+    q -- (int) order of desired derivative
+    xi -- (ndarray, dim=2) 1D wave numbers stacked in columns for column-wise
+          fourier transform.
+    sim_params -- (dict) simulation parameters
+    K -- (ndarray, ndim=1) Windowed Fourier transform kernel
+
+    outputs:
+    d -- (ndarray, dim=1) qth derivative coefficient for all z.prepoints
+    """
+
+    Ff = np.fft.fft(f)
+
+    # zero out negligible contributions
+    #A = max(Ff) note these will not work anymore because we need column-wise maxes, no ufunc available
+    #Ff_min = A*(2.0e-15)
+    #Ff = np.where(Ff < Ff_min, 0, Ff)
+
+    D = (1j*xi*z.width) ** q * Ff
+    d = np.real(np.fft.ifft(D))
+
+    return d
+
+def fourier(d, f, z, sim_params):
+    wave_index = np.arange(z.N)
+    xi = np.where(wave_index <= z.N / 2,
+                  2*np.pi*wave_index / z.L,
+                  2*np.pi*(wave_index - z.N) / z.L)
+
+    # for x advection
+    if z.str == 'x':
+        # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
+        xi = np.outer(xi, np.ones(eval(sim_params['phasespace_vars'][1]).N))
+
+    elif z.str[0] == 'v':
+        # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
+        xi = np.outer(xi, np.ones(eval(sim_params['phasespace_vars'][0]).N))
+
+    for q in range(1,sim_params['N']):
+        d[q,:,:] = trigonometric2D(f, z, q, xi)
+
+def setup():
+
+    class phasespace_var:
+        def __init__(self, Nz, az, bz, name = 'x'):
+            self.N = Nz
+            self.az = az
+            self.bz = bz
+            self.L = float(bz - az)
+            self.width = self.L / (self.N - 1)
+            self.gridvalues = np.linspace(az, bz, Nz)
+
+            self.str = name
+
+    import numpy as np
+
+    # constants
+    epsi = 0.04
+    k = 0.3
+    vT1 = 2.
+    mu1 = 0.
+    vT2 = 1/4.
+    mu2 = 4.5
+    A = 1 / np.sqrt(2*np.pi)
+    B = 0.9
+    C = 0.2
+
+    N = 21
+
+    Nx, Nv = 768, 1536
+    ax, bx = -2*np.pi / k, 2*np.pi / k
+    av, bv = -8., 8.
+
+    x = phasespace_var(Nx, ax, bx, name = 'x')
+    vx = phasespace_var(Nv, av, bv, name = 'v')
+    X,V = np.meshgrid(x.gridvalues,vx.gridvalues)
+
+    f = np.zeros([x.N,vx.N])
+    f = A*(1 + epsi*np.cos(k*X))*(B*np.exp( -(V - mu1) ** 2 / vT1) + C*np.exp( -(V - mu2) ** 2 / vT2))
+
+    f = f.T
+
+    sim_params = DECSKS.lib.read.inputfile('./etc/params.dat')
+
+    if sim_params['HOC'] == 'FD':
+        sim_params['W'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrices(sim_params,x,vx)
+        sim_params['W_dn1'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrix_single_derivative(sim_params,x,dn = 1, LTE = 6)
+
+    z = x
+
+    return f, sim_params, x
+
+    # timeit setup
+
+    # import timeit
+    #stmt = "fourier(d, f, x, sim_params)"
+    #setup = "import _mypath; import DECSKS; from fourier_timeit import setup, fourier, trigonometric2D; f, sim_params, x = setup(); import numpy as np; d = np.zeros([21, 768, 1536])"
+    #print(timeit.timeit(stmt, setup, number = 1))
+
+

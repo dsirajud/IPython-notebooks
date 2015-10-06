@@ -13,14 +13,25 @@ class Setup:
     self -- (instance) time or phase space variable
     """
     def __init__(self, sim_params, var, dim = None):
-        if dim is not None and var.lower() != 't':
+        if var[0] == 'a':
+            self.prepointvaluemesh = np.zeros(sim_params['active_dims'])
+            self.Ngridpoints = sim_params['N' + dim] # Nx, Ny, or Nz
+            self.str = var + dim # string label ax, ay, or az
+
+            if ((sim_params['BC'][dim]['lower'] == 'periodic') and sim_params['BC'][dim]['upper'] == 'periodic'):
+                # if the instance eval('a' + dim), e.g. ax, ay, az has a periodic boundary condition on the dimension
+                self.N = self.Ngridpoints - 1
+            else:
+                self.N = self.Ngridpoints
+
+        elif dim is not None and var.lower() != 't':
             # var = 'v', dim = 'x', 'y' or 'z'
             # instantiates vx, vy, or vz
 
             # set up number of total gridpoints (self.Ngridpoints)
             # vs. number of active gridpoints self.N (can be equal)
             self.Ngridpoints = sim_params['N' + var + dim]
-            if sim_params['BC'].lower() == 'periodic':
+            if (sim_params['BC'][var + dim]['lower'] == 'periodic' and sim_params['BC'][var + dim]['upper']) == 'periodic':
                 self.N = self.Ngridpoints - 1
             else:
                 self.N = self.Ngridpoints
@@ -30,35 +41,20 @@ class Setup:
             self.L = float(self.b - self.a)
             self.width = self.L / (self.Ngridpoints - 1)
             self.str = var + dim
-            self.v_str = 'a' + dim
 
-            self.prepoints = np.array(range(self.N))
+            self.prepoints = np.arange(self.N)
             self.prepointvalues = self.generate_Eulerian_mesh(self.N)
+            self.postpointmesh = np.zeros(sim_params['active_dims']) # container, to be filled at each timestep
 
-            if sim_params['numdims'] == 1:
-                self.MCs = np.zeros(self.N) # container, to be filled at each timestep
-                self.prepointvaluemesh = self.prepointvalues
-                self.prepointmesh = self.prepoints
-                self.postpointmesh = np.zeros(self.N) # container, to be filled at each timestep
-
-            elif sim_params['numdims'] == 2:
-                N1_str = 'N' + sim_params['phasespace_vars'][0] # Nx, Ny, or Nz
-                N2_str = 'N' + sim_params['phasespace_vars'][1] # Nvx, Nvy, or Nvz
-
-                N1, N2 = sim_params[N1_str], sim_params[N2_str]
-                if sim_params['BC'].lower() == 'periodic':
-                    N1 -= 1
-                    N2 -= 1
-                self.MCs = np.zeros([N1,N2])
-                self.postpointmesh = np.zeros([N1, N2]) # container, to be filled at each timestep
-
-                # prepointvaluemesh is of dimensions (N1, N2), self = x, y, or z, self.N = N1
-                self.prepointvaluemesh = np.outer( np.ones([N1, 1]), self.prepointvalues)
-                self.prepointmesh = np.outer( np.ones([N1, 1]), self.prepoints)
+            self.prepointvaluemesh = np.outer( np.ones([sim_params['active_dims'][0], 1]), self.prepointvalues)
+            self.prepointmesh = np.array(np.outer( np.ones([sim_params['active_dims'][0], 1]), self.prepoints), dtype = int)
 
             # for plots
             self.gridpoints = np.array(range(self.Ngridpoints))
             self.gridvalues = self.generate_Eulerian_mesh(self.Ngridpoints)
+
+            # sub-instantiation of CFL parameter class
+            self.CFL = CourantNumber(self)
 
         elif var.lower() != 't':
             # var = 'x','y', or 'z'; dim = None
@@ -67,7 +63,7 @@ class Setup:
             # set up number of total gridpoints (self.Ngridpoints)
             # vs. number of active gridpoints self.N (can be equal)
             self.Ngridpoints = sim_params['N' + var]
-            if sim_params['BC'].lower() == 'periodic':
+            if (sim_params['BC'][var]['lower'] == 'periodic' and sim_params['BC'][var]['upper']) == 'periodic':
                 self.N = self.Ngridpoints - 1
             else:
                 self.N = self.Ngridpoints
@@ -77,35 +73,20 @@ class Setup:
             self.L = float(self.b - self.a)
             self.width = self.L / (self.Ngridpoints - 1)
             self.str = var
-            self.v_str = 'v' + var
 
-            self.prepoints = np.array(range(self.N))
+            self.prepoints = np.arange(self.N)
             self.prepointvalues = self.generate_Eulerian_mesh(self.N)
+            self.postpointmesh = np.zeros(sim_params['active_dims']) # container, to be filled at each timestep
 
-            if sim_params['numdims'] == 1:
-                self.MCs = np.zeros(self.N) # container, to be filled at each timestep
-                self.prepointvaluemesh = self.prepointvalues
-                self.prepointmesh = self.prepoints
-                self.postpointmesh = np.zeros(self.N) # container, to be filled at each timestep
-
-            elif sim_params['numdims'] == 2:
-                N1_str = 'N' + sim_params['phasespace_vars'][0] # Nx, Ny, or Nz on params.dat
-                N2_str = 'N' + sim_params['phasespace_vars'][1] # Nvx, Nvy, or Nvz on params.dat
-
-                N1, N2 = sim_params[N1_str], sim_params[N2_str]
-                if sim_params['BC'].lower() == 'periodic':
-                    N1 -= 1
-                    N2 -= 1
-                self.MCs = np.zeros([N1,N2]) # container, to be filled at each timestep
-
-                # prepointvaluemesh is of dimensions (N1, N2), self = x, y, or z, self.N = N1
-                self.prepointvaluemesh = np.outer( self.prepointvalues, np.ones([1, N2]))
-                self.prepointmesh = np.outer( self.prepoints, np.ones([1, N2]) )
-                self.postpointmesh = np.zeros([N1, N2]) # container, to be filled at each timestep
+            self.prepointvaluemesh = np.outer( self.prepointvalues, np.ones([1, sim_params['active_dims'][1]] ) )
+            self.prepointmesh = np.array(np.outer( self.prepoints, np.ones([1, sim_params['active_dims'][1]]) ), dtype = int)
 
             # for plots
             self.gridpoints = np.array(range(self.Ngridpoints))
             self.gridvalues = self.generate_Eulerian_mesh(self.Ngridpoints)
+
+            # sub-instantiation of CFL parameter class
+            self.CFL = CourantNumber(self)
 
         else:
             # var = 't', dim = None
@@ -122,46 +103,74 @@ class Setup:
             self.str = var
 
     def generate_Eulerian_mesh(self, Num):
-        """Mesh generator for domain cells, w = {x,y,z,vx,vy,vz,t}"""
+        """Mesh generator for domain cells, w = {x,y,z,vx,vy,vz,t}
+
+        Num is included in general since t contains t.N + 1 cells
+        whereas x, ..., vx, ... contain x.N, y.N, etc."""
         w = np.zeros(Num)
         for i in range(Num):
             w[i] = self.a + i*self.width
         return w
 
-    def generate_Lagrangian_mesh(self, v, dt):
-        """Advects all MCs one time step for a phase space variable z (self)
-        according for all velocities vz in the grid and timestep dt.
+class CourantNumber:
+    """Returns a CFL number instance of the phasespace variable z
+
+    inputs:
+    z -- (instance) phase space variable from class lib.domain.Setup
+
+    outputs:
+    self -- (instance) CFL number ascribed to variable z convection
+
+    Note: broadcasting ensures self.numbers is the same shape as z.MCs
+    """
+    def __init__(self, z):
+
+        self.numbers = np.zeros_like(z.prepointmesh)
+        self.frac = np.zeros_like(z.prepointmesh)
+        self.int = np.zeros_like(z.prepointmesh)
+
+
+    def compute_numbers(self, z, vz, dt):
+        """Calculates the CFL numbers and corresponding integer and fractional
+        parts for each col of z.prepointmesh and stores in the 2D stack
+
+            z.CFL.compute_numbers(z,vz,dt)
+
+        note that each number corresponds to advection in 1D for each 1D problem
+        whose subdomain is the column, and whose column space constitutes the entire
+        grid.
+
+        Hence, we implement the indicial displacement of each gridpoint according
+        to the velocity values in each column by shifting from prepoints
+
+            (i,j) --> (i,j+ CFL.numbers[j])
+
+        where the index i is not explicitly referenced given it is obvious.n
 
         inputs:
-        self -- (instance) phase space variable being convected
-        v -- (instance or ndarray[, ndim = 1]) velocity instance
-               or vector whose entries pair with each MC
-        dt -- (float) time step taken
+        self -- (lib.domain.CourantNumber instance) CFL instance with attribute containers
+                containers CFL.numbers, CFL.int, CFL.frac.
 
-        generates:
-        self.MCs --
+                NOTE: the method is an attribute belonging to the subinstance z.CFL
+                hence, self refers to z.CFL, not z.
 
-                if 1D
-                (ndarray, ndim=1) 1D array of raw positions of each MC after
-                acvection by v*dt for v = constant
-
-                if 2D
-                (ndarray, dim=2) 2D array of raw positions of each MC after
-                advection by vz*dt for all vz in mesh.
-
-                for 1D1V, the shape is (x.N, v.N) always
-
-                if self.str = 'x', then z_MC[:,j] gives the postpoints of
-                z_MCs after advection by vz[j]*dt
-
-                if self.str = 'vx', then z_MC[i,:] gives the postpoints of
-                z_MCS after advection by a[i]*dt
+        z -- (lib.domain.Setup instance) phasespace instance being advected
+        vz -- (lib.domain.Setup instance) velocity for self, e.g. vx, ..., ax, ..
+        dt -- (float) width of time step, can be a fraction of t.width for split
+              methods
 
         outputs:
-        None -- the purpose of this function is to store values in the attribute
-                self.MCs
+        None -- updates attributes
         """
+        self.numbers = vz.prepointvaluemesh * dt / z.width
 
-        self.MCs = self.prepointvaluemesh + v*dt
+        # if >= 0 , self.int = floor(self.numbers), else ceil(self.numbers)
+        # i.e. the sign of CFL.frac agrees with the sign of vz
+        self.int = np.where(self.numbers >=0, np.floor(self.numbers),
+                            np.ceil(self.numbers))
 
-        return None
+        # remaining portion is the fractional CFL number
+        self.frac = self.numbers - self.int
+
+        # format dtype as int
+        self.int = np.array(self.int, dtype = int)

@@ -1,0 +1,30 @@
+
+\left( \begin{array}{ccccc}
+x_0  & x_0 x_0 & x_0 & x_0 \\
+x_1  & x_1 x_1 & x_1 & x_1 \\
+x_2  & x_2 x_2 & x_2 & x_2 \\
+x_3  & x_3 x_3 & x_3 & x_3 \\
+x_4  & x_4 x_4 & x_4 & x_4 \\
+\end{array}
+\right)
+
+
+
+
+\left( \begin{array}{ccccc}
+v_0  & v_1 & v_2 & v_3 & v_4 \\
+v_0  & v_1 & v_2 & v_3 & v_4 \\
+v_0  & v_1 & v_2 & v_3 & v_4 \\
+v_0  & v_1 & v_2 & v_3 & v_4 \\
+\end{array}
+\right)
+$$
+
+
+a_0  & a_0 & a_0 & a_0 & a_0 \\
+a_1  & a_1 & a_1 & a_1 & a_1 \\
+a_2  & a_2 & a_2 & a_2 & a_2 \\
+a_3  & a_3 & a_3 & a_3 & a_3 \\
+
+
+

@@ -292,7 +292,6 @@ def FD(f, z, FD_schemes,
 
     return d
 
-
 def assemble_finite_difference_weight_matrices(sim_params, x, v):
     """Assembles the dictionary W that contains both finite diffference
     weight matrices for each phase space variable
@@ -320,9 +319,12 @@ def assemble_finite_difference_weight_matrix(sim_params, z):
     the finite difference computation of derivatives, i.e.
     assembles the weight matrix W, in
 
-        Wf = df
+        1 / x.width * Wf =  df,     i.e. W are the difference
+                                    coefficients, which do not
+                                    contain the width of the
+                                    abscissa value, e.g. x.width
 
-    where f and df are vectors of length z.N.
+    where f and df are vectors of length z.N in the 1D case.
 
     inputs:
     sim_params -- (dict) simulation parameters

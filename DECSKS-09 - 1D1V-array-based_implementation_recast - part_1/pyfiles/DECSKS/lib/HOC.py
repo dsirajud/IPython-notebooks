@@ -2,61 +2,69 @@ import numpy as np
 import scipy
 import numpy.ma as ma
 
-def Beta_matrix(sim_params,
-                alpha,
-                z):
+def Beta_matrix_x(sim_params, z, vz):
     """constructs the B matrix, whose columns are
     the beta vectors (shape = N x 1) for each value
     of the generalized velocity for the advecting
     variable z.
 
+    See DECSKS-09 part 1 for details of this calculation
+
     inputs:
     sim_params -- (dict) simulation parameters
-    alpha -- (ndarray, ndim=2) CFL.frac matrix, shape = (z1.N, z2.N)"""
+    z.CFL.frac -- (ndarray, ndim=2) contains the fractional CFL numbers
+                  for every [i,j]
+    """
 
     # local copies of A matrices
     A_neg = sim_params['A_matrix']['-1']
     A_pos = sim_params['A_matrix']['1']
 
-    N_arr = np.outer(np.arange(1,sim_params['N']+1), np.ones([1,sim_params['N' + z.v_str]]))
+    N_arr = np.outer(np.arange(1,sim_params['N']+1), np.ones([1,vz.N]))
 
-    # for broadcasting operations below to an N x v.N ("v" is the generalized velocity),
+    # for broadcasting operations below to an N x vz.N array
     # we require an identically dimensioned matrix. Hence, we slice the rows up to N values.
-    # There is no loss of information here given that every row entry in a given column is constant.
-    
-    alpha_hat = alpha[:sim_params['N'],:sim_params['N' + z.v_str]]
+    # There is no loss of information here given that every row entry in the z.CFL.frac matrix
+    # is constant, given z.CFL.frac = z.CFL.frac (vz.prepointvaluemesh)
+
+    # Naming per DECSKS-09 notebook:
+    #
+    #        alpha = z.CFL.frac, shape: (z.N, vz.N)
+    #        alpha_hat = truncated z.CFL.frac[:N, :vz.N], vz.N = z.CFL.frac.shape[1]
+    #        alpha_tilde : alpha_tilde[q,j] = alpha_hat ** q,q = 0, 1, ... N-1
+    #
+
+    alpha_hat = z.CFL.frac[:sim_params['N'],:z.CFL.frac.shape[1]]
     alpha_tilde = ma.array(alpha_hat ** N_arr / scipy.misc.factorial(N_arr))
 
-    # mask negative values
-    alpha_tilde[alpha_hat < 0] = ma.masked
+    mask_neg = (alpha_hat < 0)
+    mask_pos = np.logical_not(mask_neg)
 
-    # operate on only positive values
-    beta_neg = ma.dot(A_pos, alpha_tilde)
+    # mask out negative values, leave only positives (>= 0)
+    alpha_tilde.mask = mask_neg
 
-    # invert mask to mask all nonnegative values
-    alpha_tilde.mask = np.logical_not(alpha_tilde.mask)
+    # operate on only positive vlaues (>= 0)
+    beta_pos = ma.dot(A_pos, alpha_tilde)
+
+    # mask out positive (>= 0), leave only negatives
+    alpha_tilde.mask = mask_pos
 
     # operate on only negative values
-    beta_pos = ma.dot(A_neg, alpha_tilde)
+    beta_neg = ma.dot(A_neg, alpha_tilde)
 
     # consolidate all columns in a single matrix
-    B = np.zeros([sim_params['N'], sim_params['N' + z.v_str]])
+    B = np.zeros([sim_params['N'], sim_params['N' + vz.str]])
 
     # wherever beta_neg.mask is False (i.e. unmasked value), assign beta_neg, otherwise beta_pos
-    B = np.where(beta_neg.mask == False, beta_neg.data, beta_pos.data)
+    B = np.where(mask_neg == True, beta_neg.data, beta_pos.data)
 
     return B
 
-def correctors(sim_params, CFL, z):
-    """computes the correction coefficients c
+def correctors(sim_params, z, vz):
+    """computes the correction coefficients c for every [i,j]
 
     inputs:
     sim_params -- (dict) simulation parameters
-    B -- (ndarray, ndim=2) matrix containing column
-         vectors for each beta = beta(z_opp)
-         in DECSKS-09 these are given symbols Bx and Bv
-
-         shape = (N, z_adv.N)
 
     outputs:
     c -- (ndarray, ndim=2) correction coefficients
@@ -64,14 +72,24 @@ def correctors(sim_params, CFL, z):
          where z_notadv means the not advecting phase
          space variable in the scope of a 2D advection
          implementation
+
+         per DECSKS-09 notation, the tensor c is given by
+
+             c = I_alternating.dot(B)
+
+        where I_alternating.shape = (N,N), and the entries
+
+             I_alternating[i,i] = (-1) ** i
+             I_alternating[i,j] = 0 for all i != j
+
+        and the matrix B.shape = (N,vz.N) is the vectors
+        of beta correctors (shape = (N,1)) for each value
+        of vz.prepointvaluemesh[:,j]
     """
-    I_alternating = np.diag( (-np.ones(sim_params['N']))  ** np.arange(sim_params['N']) )
+    Beta_func_handle = "%s%s" % ("Beta_matrix_", z.str[0])
 
-    B = Beta_matrix(sim_params,
-                     CFL.frac,
-                     z)
-
-    c = I_alternating.dot(B)
+    B = eval(Beta_func_handle)(sim_params, z, vz)
+    c = sim_params['I_alternating'].dot(B)
     return c
 
 def beta(p,a):
@@ -86,7 +104,7 @@ def beta(p,a):
     beta_p -- pth beta coefficient for given vel. or accel.
     """
 
-    beta_p = a ** (p+1) / factorial(p+1)
+    beta_p = a ** (p+1) / scipy.misc.factorial(p+1)
 
     if p > 0:
 
@@ -94,11 +112,11 @@ def beta(p,a):
 
             if a >= 0:
 
-                beta_p -= beta(q,a) / factorial(p + 1 - q)
+                beta_p -= beta(q,a) / scipy.misc.factorial(p + 1 - q)
 
             else: # a < 0
 
-                beta_p -= (-1) ** (p+q) * beta(q,a) / factorial(p + 1 - q)
+                beta_p -= (-1) ** (p+q) * beta(q,a) / scipy.misc.factorial(p + 1 - q)
 
     return beta_p
 # ........................................................................... #
@@ -108,9 +126,9 @@ def beta_m(a, B, N):
     A = np.zeros([N,N])
     alpha = np.zeros([N,1])
     for i in range(N):
-        alpha[i,0] = a ** (i+1) / factorial(i+1)
+        alpha[i,0] = a ** (i+1) / scipy.misc.factorial(i+1)
         for j in range(i+1):
-            A[i,j] = B[i-j]/factorial(i-j)
+            A[i,j] = B[i-j] / scipy.misc.factorial(i-j)
     return A.dot(alpha)
 # ........................................................................... #
 def kernel(z):

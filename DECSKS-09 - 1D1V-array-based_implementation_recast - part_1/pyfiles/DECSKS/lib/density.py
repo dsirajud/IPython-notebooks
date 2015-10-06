@@ -96,6 +96,30 @@ def initial_profile(f0, sim_params, z1, z2 = None):
         f0[:] = 0.5*np.exp(-((z1.gridvalues + 0.2) / 0.03)**2) + np.exp(-((z1.gridvalues) / 0.06)**2) + 0.5*np.exp(-((z1.gridvalues - 0.2) / 0.03)**2)
         return f0
 
+def global_conservation_check(sim_params, f_new, n):
+    """Checks if mass is conserved over the remapping procedure
+
+    NOTE: something is very very wrong if it isn't.
+
+    inputs:
+    f_new -- (ndarray, ndim = 2) container with remapped MC density
+    f_old -- (ndarray, ndim = 2) density from previous time step
+    n -- (int) current time step that f_new pertains to, used
+         to alert user to which time step any non-conservation occurred
+
+    outputs:
+    None
+    """
+
+    TOL = 1.0e-14
+
+    # the key/value pair sim_params['m_0'] is assigned in main.py after
+    # the density profile f is instantiated
+    mass_difference = np.abs( sim_params['m_0'] - np.sum(f_new))
+    if mass_difference > TOL:
+        print 'mass difference = %.40e, density is not conserved \
+        globally at time step = %d' % (mass_difference, n)
+    return None
 
 def conservation_check(f_new, f_old, i, n):
     """Checks if mass is conserved from the remap step from one
