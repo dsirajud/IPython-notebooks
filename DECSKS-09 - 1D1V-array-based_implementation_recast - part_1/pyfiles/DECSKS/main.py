@@ -10,7 +10,7 @@
 #     __status__     = in development                                         #
 #                                                                             #
 # Python code is crafted with some attention to PEP8 style standards          #
-# for Python 2.7.3                                                            #
+# for Python 2.7.3 / NumPy 1.10.0                                             #
 #                                                                             #
 #     https://www.python.org/dev/peps/pep-0008/                               #
 #                                                                             #

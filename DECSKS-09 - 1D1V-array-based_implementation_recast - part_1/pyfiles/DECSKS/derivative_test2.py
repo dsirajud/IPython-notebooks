@@ -25,7 +25,9 @@ if sim_params['HOC'] == 'FD':
     sim_params['W'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrices(sim_params,x,vx)
     sim_params['W_dn1'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrix_single_derivative(sim_params,x,dn = 1, LTE = 6)
 
-f = np.zeros([99,10]) # ad-hoc fix for construction above which does active gridpoints 100 - 1, of no consequence
+
+Nx = 768 - 1
+f = np.zeros([Nx,10]) # ad-hoc fix for construction above which does active gridpoints 100 - 1, of no consequence
 
 # n_total = 10, dn = 1, 2, 3, 4, 5, x.N = 99
 # f.shape = (x.N, n_total)
@@ -34,9 +36,8 @@ f = np.zeros([99,10]) # ad-hoc fix for construction above which does active grid
 # dn = derivative number, n = function label
 dn_max = 5
 df = np.zeros([dn_max + 1, f.shape[0], f.shape[1]])
-df_approx = np.zeros_like(df)
-x.prepointvalues = np.linspace(0,2*np.pi, 99)
-x.width = 2 * np.pi / 99.
+x.prepointvalues = np.linspace(-2 * np.pi / .3, 2*np.pi / .3, Nx)
+x.width = 1 / .3 * 4 * np.pi / Nx
 
 dn = 0
 for n in range(f.shape[1]):
@@ -67,22 +68,38 @@ import matplotlib.pyplot as plt
 W = sim_params['W']
 Wx = W['x']
 
-for dn in range(dn_max):
+df_approx = np.zeros_like(df)
+for dn in range(1,dn_max + 1):
     df_approx[dn,:,:] = Wx[dn,:,:].dot(f)
     df_approx[dn,:,:] /= x.width ** dn
 
-for dn in range(dn_max):
+for dn in range(1, dn_max):
     print "plotting dn - %d, all columns" % dn
-    for n in range(6):
+    for n in range(1,6):
         #    plt.plot(x.prepointvalues, f[:,n], linewidth = 2, label = "f, n = %d" % n)
         plt.plot(x.prepointvalues, df_approx[dn, :,n], 'o', linewidth = 2, label = "approx, n = %d, dn = %d" % (n,dn))
-        plt.plot(x.prepointvalues, df[dn, :, n], linewidth = 2, label = "approx, n = %d, dn = %d" % (n,dn))
+        plt.plot(x.prepointvalues, df[dn, :, n], linewidth = 2, label = "exact, n = %d, dn = %d" % (n,dn))
     plt.legend(loc = 'best')
-    plt.title('dn = %d' % dn)
+    plt.title('looping: dn = %d' % dn)
     plt.grid()
     plt.figure()
 
-plt.show()
+df_approx2 = np.zeros_like(df)
+df_approx2 = Wx.dot(f)
+for dn in range(1,dn_max):
+    print "plotting dn - %d, all columns" % dn
+    for n in range(6):
+        #    plt.plot(x.prepointvalues, f[:,n], linewidth = 2, label = "f, n = %d" % n)
+        plt.plot(x.prepointvalues, df_approx2[dn, :,n] / x.width ** dn, 'o', linewidth = 2, label = "approx, n = %d, dn = %d" % (n,dn))
+        plt.plot(x.prepointvalues, df[dn, :, n], linewidth = 2, label = "exact, n = %d, dn = %d" % (n,dn))
+    plt.legend(loc = 'best')
+    plt.title('single dot: dn = %d' % dn)
+    plt.grid()
+    if dn != dn_max-1:
+        plt.figure()
+
+for dn in range(1, dn_max):
+    print df_approx[dn,:,:] / x.width ** dn == df_approx[dn,:,:] / x.width ** dn
 
 
 

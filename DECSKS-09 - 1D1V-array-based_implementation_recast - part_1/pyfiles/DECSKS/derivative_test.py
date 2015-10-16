@@ -25,10 +25,11 @@ if sim_params['HOC'] == 'FD':
     sim_params['W'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrices(sim_params,x,vx)
     sim_params['W_dn1'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrix_single_derivative(sim_params,x,dn = 1, LTE = 6)
 
-f = np.zeros([99,10]) # ad-hoc fix for construction above which does active gridpoints 100 - 1, of no consequence
+    Nx = 768 - 1 # this is an ad-hoc fix to the fact that we are reading params.dat and it has PBCs, hence Nx -= 1 in the end
+f = np.zeros([Nx,10]) 
 df = np.zeros_like(f)
-x.prepointvalues = np.linspace(0,2*np.pi, 99)
-x.width = 2 * np.pi / 99.
+x.prepointvalues = np.linspace(-2*np.pi / .3,2*np.pi / .3, Nx)
+x.width = 1 / .3 * 4 * np.pi / Nx
 
 for n in range(f.shape[1]):
     f[:,n] = np.sin(x.prepointvalues) + n*x.prepointvalues

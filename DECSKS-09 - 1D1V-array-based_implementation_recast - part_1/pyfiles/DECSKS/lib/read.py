@@ -1,6 +1,6 @@
 import numpy as np
 import linecache
-import scipy
+import scipy.misc
 
 def inputfile(filename):
     """Reads the input file and returns a dictionary containing

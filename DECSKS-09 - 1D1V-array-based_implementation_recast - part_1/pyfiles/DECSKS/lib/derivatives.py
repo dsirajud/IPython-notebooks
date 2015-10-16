@@ -7,6 +7,9 @@ def fourier(d, f, z, sim_params):
                   2*np.pi*wave_index / z.L,
                   2*np.pi*(wave_index - z.N) / z.L)
 
+
+    #TODO this won't work by just evaluating phasespace_vars, need to pass the actual
+    # generalized velocity and access its .N attribute
     # for x advection
     if z.str == 'x':
         # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
@@ -84,35 +87,31 @@ def trigonometric(f, z, q, sim_params, K = None):
 
     return d
 
-def finite_differences_6th_order_periodic_BCs(f,z):
-    """Computes the derivative coefficients for FD methods in high order CS
-    for periodic BCs (hence the use of np.mod())
+def fd(d, f, z, sim_params):
+    """computes the derivative coefficient tensor d (shape = (N, z.N, z.N)).
+
+    Note, the below is difficult to read but has been adopted to not needlessly store local
+    copies of large arrays. The dictionary Wz = sim_params['W'][z.str] (shape = (N, x.N, v.N))
+    contains each Wz[dn,:,:] 2D array of difference coefficients for the dn-th derivative.
+
+    The np.dot product can creep to a snail pace for large enough arrays if no care is taken.
+    Here, we bypass the internal looping (hence, reshaping) mechanics by manually reshaping it
+    once and performing the dot product by falling back on the 2D GEMM routine.
+
+    this implementation was chosen based on consult of the stackoverflow community:
+
+        http://stackoverflow.com/questions/33004551/why-is-b-numpy-dota-x-so-much-slower-looping-through-doing-bi-numpy
+
 
     inputs:
-    f -- (ndarray, ndim=1) f(z1,z2=const,z3=const,..., t = n-1)
-    z -- (instance) phase space variable being convected
-
-    outputs:
-    d -- (ndarray, ndim=2) d[:,q] is the qth derivative for all points i
-        weighted by a power (z.width ** q) per CS correction prescription
+    d -- (ndarray, ndim=3), shape = (N, x.N, v.N). Derivative coefficient container. Previously assigned
     """
-    d = np.zeros([z.N,5])
 
-    for i in z.prepoints:
-        d[i,1] = (1/12.)*(f[np.mod(i-2,z.N)] - 8*f[np.mod(i-1,z.N)] + 8*f[np.mod(i+1,z.N)] - f[np.mod(i+2,z.N)])
-        if 50 < i < 100:
-            print "d[%d,1] = %g" % (i, d[i,1])
-        d[i,2] = (1/12.)*(-f[np.mod(i-2,z.N)] + 16*f[np.mod(i-1,z.N)] - 30*f[np.mod(i,z.N)] + 16*f[np.mod(i+1,z.N)] - f[np.mod(i+2,z.N)])
-        d[i,3] = (1/2.)*(-f[np.mod(i-2,z.N)] + 2*f[np.mod(i-1,z.N)] - 2*f[np.mod(i+1,z.N)] + f[np.mod(i+2,z.N)])
-        d[i,4] = f[np.mod(i-2,z.N)] - 4*f[np.mod(i-1,z.N)] + 6*f[np.mod(i,z.N)] - 4*f[np.mod(i+1,z.N)] + f[np.mod(i+2,z.N)]
-    return d
+    d = np.dot( sim_params['W'][z.str].reshape(-1,sim_params['W'][z.str].shape[-1]), f).reshape(
+        sim_params['W'][z.str].shape[0],
+        sim_params['W'][z.str].shape[1],
+        sim_params['W'][z.str].shape[2])
 
-def fd(d, f, z, sim_params):
-    W = sim_params['W']
-    Wz = W[z.str]
-
-    for dn in range(1,sim_params['N']):
-        d[dn,:,:] = Wz[dn,:,:].dot(f)
     return d
 
 def finite_differences(f, z, sim_params):
