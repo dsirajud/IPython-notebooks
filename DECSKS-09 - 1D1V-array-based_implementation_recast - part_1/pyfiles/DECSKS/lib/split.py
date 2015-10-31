@@ -4,7 +4,7 @@ import time
 
 def scheme(
         f,
-        t,x,vx,
+        t,x,vx,ax,
         n,
         sim_params
         ):
@@ -39,10 +39,9 @@ def scheme(
                         vz = vx)
 
             elif coeff[s] == 'b': # advect v
-                Ex = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n-1) # calculate accelerations at time zero (n-1)
-                ax = DECSKS.lib.domain.Setup(sim_params, 'a', 'x')
+                Ex = DECSKS.lib.fieldsolvers.Gauss1D1V(sim_params['ni'], f, x, vx, n-1, sim_params) # calculate accelerations at time zero (n-1)
                 ax.prepointvaluemesh = -Ex
-
+ 
                 vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
                 f[n,:,:] = DECSKS.lib.convect.scheme(
                     f[n-1,:,:],
@@ -62,7 +61,7 @@ def scheme(
                         vz = vx)
 
             elif coeff[s] == 'b': # advect v
-                Ex = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, vx, n)
+                Ex = DECSKS.lib.fieldsolvers.Gauss1D1V(sim_params['ni'], f, x, vx, n, sim_params)
                 ax.prepointvaluemesh = -Ex
 
                 vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)

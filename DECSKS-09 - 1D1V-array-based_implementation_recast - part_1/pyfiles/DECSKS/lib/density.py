@@ -99,7 +99,9 @@ def initial_profile(f0, sim_params, z1, z2 = None):
 def global_conservation_check(sim_params, f_new, n):
     """Checks if mass is conserved over the remapping procedure
 
-    NOTE: something is very very wrong if it isn't.
+    NOTE: mass conservation is intrinsic to the algorithm. If you
+    see mass being lost or added, the implemenetation was not done
+    correctly.
 
     inputs:
     f_new -- (ndarray, ndim = 2) container with remapped MC density
@@ -115,7 +117,7 @@ def global_conservation_check(sim_params, f_new, n):
 
     # the key/value pair sim_params['m_0'] is assigned in main.py after
     # the density profile f is instantiated
-    mass_difference = np.abs( sim_params['m_0'] - np.sum(f_new))
+    mass_difference = np.abs( sim_params['m_0'] - np.sum(np.abs(f_new)))
     if mass_difference > TOL:
         print 'mass difference = %.40e, density is not conserved \
         globally at time step = %d' % (mass_difference, n)

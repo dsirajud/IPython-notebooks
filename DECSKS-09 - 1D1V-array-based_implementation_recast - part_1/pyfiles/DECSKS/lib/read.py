@@ -124,6 +124,12 @@ def inputfile(filename):
         FD_schemes = None
         FD_scheme_dn1 = None
 
+        # Xi[q,i,j] = spectral differentiation matrix = (1j * xi[i,j]) ** q
+        # xi = wave number vector = (x.N,)
+        Xi, xi = assemble_spectral_derivative_operator(total_dims, active_dims,
+                                                       ax, bx, avx, bvx,
+                                                       N)
+
     # MISC STORAGE
 
     # for correctors c, need I_alternating = the negative of identity
@@ -151,6 +157,11 @@ def inputfile(filename):
     A_matrix['0'] = A_pos
     A_matrix['-1'] = A_neg
 
+    # 6th order FD PBC Poisson solver matrices dictionary
+    # (stored as keys 'D' [difference matrix] and 'B' [inhomogeneity])
+
+    Poisson_6th_order_PBC_FD_solver_matrices = assemble_Poisson_6th_order_PBC_FD_solver_matrices(Nx, BC)
+
     sim_params = dict(
         N = N, HOC = HOC,
         derivative_method = derivative_method,
@@ -175,9 +186,12 @@ def inputfile(filename):
         outfiles = outfiles,
         FD_schemes = FD_schemes,
         FD_scheme_dn1 = FD_scheme_dn1,
-        BC = BC,
-        I_alternating = I_alternating,
-        A_matrix = A_matrix
+        BC = BC,    # boundary conditions on all phase space variables
+        I_alternating = I_alternating, # identity matrix with alternating signs according to row, used in computing correctors c
+        A_matrix = A_matrix,     # Matrices of Bernoulli numbers for HOC
+        Xi = Xi, # spectral differentiation operator matrix (1j*xi[i,j]) ** q
+        xi = xi, # wave number vector
+        Poisson_6th_order_PBC_FD_solver_matrices = Poisson_6th_order_PBC_FD_solver_matrices
         )
 
     infile.close()
@@ -693,3 +707,128 @@ def read_boundary_conditions(lines):
     BC['vz']['upper'] = lines[50][lines[50].find('=')+1:].strip()
 
     return BC
+
+def assemble_spectral_derivative_operator(total_dims, active_dims,
+                                          ax, bx, avx, bvx,
+                                          N):
+    """Returns a dictionary Xi with key/value pairs:
+
+        Xi['x'] -- (ndarray, ndim=3, dtype=complex)
+        Xi['vx'] -- (ndarray, ndim=3, dtype=complex)
+
+    Each of these matrices correspond to a matrix with entries
+
+      $$Xi = ((Xi)_{q,i,j}) = 1j * (Delta z xi_{i,j})^q$$
+
+    USAGE NOTE: computing Xi * Ff, where Ff is numpy.fft.fft(f)
+    and f.shape = (x.N, vx.N) produces the Fourier transform
+    of the derivative coefficients $F[d] equiv D$, where
+    D[q,i,j] corresponds to the qth order derivative coefficient
+    at a phase space location [i,j]. The method
+    lib.derivatives.trigonometric3D takes the row-wise inverse
+    transform so that the tensor d[q,i,j] is generated.
+    """
+
+    Xi = {}
+    xi = {}
+
+    Lx = float(bx - ax)
+    xwidth = float((bx - ax) / (total_dims[0] - 1))
+
+    Lvx = float(bvx - avx)
+    vxwidth = float((bvx - avx) / (total_dims[1] - 1))
+
+    # build x-advection objects
+    N_xi, N_cols = active_dims[0], active_dims[1]
+    wave_index = np.arange(N_xi)
+    xi_x = np.where(wave_index <= N_xi / 2,
+              2*np.pi*wave_index / Lx,
+              2*np.pi*(wave_index - N_xi) / Lx)
+
+    xi['x'] = xi_x
+    xi_2D = np.outer(xi_x, np.ones(N_cols)) # wavenumbers enumerated by row, copies in Nv columns
+
+    dn = np.arange(1,N).reshape(N-1,1,1)
+    Xi['x'] = (1j * xwidth * xi_2D) ** dn
+
+    # build v-advection objects
+    N_xi, N_rows = active_dims[1], active_dims[0]
+    wave_index = np.arange(N_xi)
+    xi_vx = np.where(wave_index <= N_xi / 2,
+              2*np.pi*wave_index / Lvx,
+              2*np.pi*(wave_index - N_xi) / Lvx)
+
+    xi['vx'] = xi_vx
+    xi_2D = np.outer(np.ones(N_rows), xi_vx) # wavenumbers enumerated by row, copies in Nv columns
+
+    xi_2D = np.transpose (xi_2D) # dimensions are (vx.N, x.N) now to match v-advection cases
+    dn = np.arange(1,N).reshape(N-1,1,1)
+    Xi['vx'] = (1j * vxwidth * xi_2D) ** dn
+
+    return Xi, xi
+
+def assemble_Poisson_6th_order_PBC_FD_solver_matrices(Nx, BC):
+
+    # Nx is the number of active nodes in configuration
+    if ( (BC['x']['lower'] == 'periodic') and (BC['x']['upper'] == 'periodic') ):
+        Nx -= 1
+
+    Poisson_6th_order_PBC_FD_solver_matrices = {}
+    D = np.zeros([Nx,Nx])
+    for i in range(Nx):
+        if i == 0:         # first row
+            D[i,i] = -2
+            D[i,i+1] = 1
+            D[i,-1] = 1
+
+        elif i == Nx - 1: # last row
+            D[i,i] = -2
+            D[i,i-1] = 1
+            D[i,0] = 1
+        else:              # interior rows
+            D[i,i-1] = 1
+            D[i,i] = -2
+            D[i,i+1] = 1
+
+    # Assemble FD matrix B
+    B = np.zeros([Nx, Nx])
+    for i in range(Nx):
+        if i == 0:             # first row
+            B[i,-2] = -1/240.
+            B[i,-1] = 1/10.
+            B[i,i] = 97/120.
+            B[i,i+1] = 1/10.
+            B[i,i+2] = -1/240.
+
+        elif i == 1:           # second row
+            B[i,-1] = -1/240.
+            B[i,i-1] = 1/10.
+            B[i,i] = 97/120.
+            B[i,i+1] = 1/10.
+            B[i,i+2] = -1/240.
+
+        elif 1 < i < (Nx - 2): # 2 <= row < = third before last
+            B[i,i-2] = -1/240.
+            B[i,i-1] = 1/10.
+            B[i,i] = 97/120.
+            B[i,i+1] = 1/10.
+            B[i,i+2] = -1/240.
+
+        elif i == (Nx - 2): # second before last row
+            B[i,i-2] = -1/240.
+            B[i,i-1] = 1/10.
+            B[i,i] = 97/120.
+            B[i,i+1] = 1/10.
+            B[i,0] = -1/240.
+
+        elif i == (Nx - 1): # last row
+            B[i,i-2] = -1/240.
+            B[i,i-1] = 1/10.
+            B[i,i] = 97/120.
+            B[i,0] = 1/10.
+            B[i,1] = -1/240.
+
+    Poisson_6th_order_PBC_FD_solver_matrices['D'] = D
+    Poisson_6th_order_PBC_FD_solver_matrices['B'] = B
+
+    return Poisson_6th_order_PBC_FD_solver_matrices

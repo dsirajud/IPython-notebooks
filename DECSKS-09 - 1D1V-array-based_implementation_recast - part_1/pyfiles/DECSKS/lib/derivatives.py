@@ -1,26 +1,57 @@
 import numpy as np
 from math import factorial
 
-def fourier(d, f, z, sim_params):
-    wave_index = np.arange(z.N)
-    xi = np.where(wave_index <= z.N / 2,
-                  2*np.pi*wave_index / z.L,
-                  2*np.pi*(wave_index - z.N) / z.L)
+def fourier(f_old, z, vz, sim_params):
+    """Orchestrates the computation of sim_params['N'] - 1 fourier
+    derivatives and stores these in a matrix of derivative
+    coefficients d. The zeroeth entry contains the zereoth
+    derivative, i.e. the density itself
 
+    inputs:
+    f_old -- (ndarray, ndim=2) density from previous time substep
+    z -- (instance) phase space variable being advected, here
+         we are taking d/dz
 
-    #TODO this won't work by just evaluating phasespace_vars, need to pass the actual
-    # generalized velocity and access its .N attribute
-    # for x advection
-    if z.str == 'x':
-        # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
-        xi = np.outer(xi, np.ones(eval(sim_params['phasespace_vars'][1]).N))
+    vz -- (instance) generalized velocity for z
+    sim_params -- (dict) simulation parameters dictionary
 
-    elif z.str[0] == 'v':
-        # generate a 2D matrix appropriate for numpy multiplication with the 2D array Ff below
-        xi = np.outer(xi, np.ones(eval(sim_params['phasespace_vars'][0]).N))
+    outputs:
+    d -- (ndarray, ndim=3), shape = (N, x.N, v.N), the
+         entry d[q,i,j] gives the qth derivative coefficient
+         at a point [i,j]
+    """
+    d = np.zeros([sim_params['N'], z.N, vz.N])
 
-    for q in range(1,sim_params['N']):
-        d[q,:,:] = trigonometric2D(f, z, q, xi)
+    # zeroeth derivative coefficient is the density itself
+    d[0,:,:] = f_old
+
+    # if corrections indicated in etc/params.dat, need higher order terms
+    if sim_params['N'] > 1:
+        d[1:,:,:] = trigonometric3D(f_old, z, sim_params)
+
+    return d
+
+def trigonometric3D(f, z, sim_params):
+    """Computes derivatives of density for derivative coeffs d in FN methods
+
+    inputs:
+    f -- (ndarray, ndim=2) density at a given time step
+    sim_params['Xi']['x' or 'vx'] -- (ndarray, ndim=3) Xi = (1j*dz*xi) ** [[[1,2,3,...,N-1]]], where xi.shape (x.N, v.N)
+          is assembled in sim_params in lib.read as np.outer(dz * xi, np.ones((1,v.N))).
+
+    outputs:
+    d -- (ndarray, ndim=3) d[q,i,j], gives the qth derivative for each point (i,j)
+          for q >= 1, the zeroeth derivative d[0,:,:] = f_old is assigned prior to this function call
+          i.e. the assignment is for d[1:, :, :] below, d[1:,:,:].shape = (N-1, x.N, v.N)
+    """
+
+    # need to specify the axis in numpy v1.11.0.dev0+fe64f97, has opposite default axis
+    # as prior versions!
+    Ff = np.fft.fft(f, axis = 0)
+    D = sim_params['Xi'][z.str] * Ff # selects the Xi matrix based on 'x' or 'vx'
+    d = np.real(np.fft.ifft(D, axis = 1)) # or for v-advection if rows are maintained can toggle axis = 2 here
+
+    return d
 
 def trigonometric2D(f, z, q, xi):
     """Computes derivatives of density for derivative coeffs d in FN methods
@@ -87,30 +118,53 @@ def trigonometric(f, z, q, sim_params, K = None):
 
     return d
 
-def fd(d, f, z, sim_params):
+def fd(f, z, vz, sim_params):
     """computes the derivative coefficient tensor d (shape = (N, z.N, z.N)).
 
     Note, the below is difficult to read but has been adopted to not needlessly store local
     copies of large arrays. The dictionary Wz = sim_params['W'][z.str] (shape = (N, x.N, v.N))
     contains each Wz[dn,:,:] 2D array of difference coefficients for the dn-th derivative.
 
-    The np.dot product can creep to a snail pace for large enough arrays if no care is taken.
+    The np.dot product can lumber signnificantly for large enough arrays (100x+ slower) if no care is taken.
     Here, we bypass the internal looping (hence, reshaping) mechanics by manually reshaping it
     once and performing the dot product by falling back on the 2D GEMM routine.
 
     this implementation was chosen based on consult of the stackoverflow community:
 
-        http://stackoverflow.com/questions/33004551/why-is-b-numpy-dota-x-so-much-slower-looping-through-doing-bi-numpy
-
+        http://stackoverflow.com/questions/33004551/
+            why-is-b-numpy-dota-x-so-much-slower-looping-through-doing-bi-numpy
 
     inputs:
-    d -- (ndarray, ndim=3), shape = (N, x.N, v.N). Derivative coefficient container. Previously assigned
-    """
+    f -- (ndarray, ndim=2) density from previous time substep, 
+         shape = (x.N, vx.N) if advecting in configuration
+         shape = (vx.N, x.N) if advecting in velocity
+         
+    z -- (instance) phase space variable being advected, here
+         we are taking d/dz
 
-    d = np.dot( sim_params['W'][z.str].reshape(-1,sim_params['W'][z.str].shape[-1]), f).reshape(
-        sim_params['W'][z.str].shape[0],
-        sim_params['W'][z.str].shape[1],
-        sim_params['W'][z.str].shape[2])
+    vz -- (instance) generalized velocity for z
+    sim_params -- (dict) simulation parameters dictionary
+
+    outputs:
+    d -- (ndarray, ndim=3), shape = (N, z.N, vz.N), the
+         entry d[q,i,j] gives the qth derivative coefficient
+         at a point [i,j]
+
+         for x-advection, the ordering is [q, x[i,j], vx[i,j]]
+         for v-advection, the ordering is [q, vx[i,j], x[i,j]] (transpose in axes (0,2,1))
+
+    """
+    d = np.zeros([sim_params['N'], z.N, vz.N])
+
+    # zeroeth derivative coefficient is the density itself
+    d[0,:,:] = f
+
+    # if corrections indicated in etc/params.dat, need higher order terms
+    if sim_params['N'] > 1:
+        d[1:,:,:] = np.dot( sim_params['W'][z.str].reshape(-1,sim_params['W'][z.str].shape[-1]), f).reshape(
+            sim_params['W'][z.str].shape[0] - 1, # we are computing derivatives 1, 2, ... , first index 0 not included
+            sim_params['W'][z.str].shape[1],
+            sim_params['W'][z.str].shape[2])
 
     return d
 

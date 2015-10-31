@@ -1,0 +1,17 @@
+    """Returns a dictionary Xi with key/value pairs:
+
+        Xi['x'] -- (ndarray, ndim=3, dtype=complex)
+        Xi['vx'] -- (ndarray, ndim=3, dtype=complex)
+
+    Each of these matrices correspond to a matrix with entries
+
+      $$Xi = ((Xi)_{q,i,j}) = 1j * (\Delta z \xi_{i,j})^q$$
+
+    USAGE NOTE: computing Xi * Ff, where Ff is numpy.fft.fft(f)
+    and f.shape = (x.N, vx.N) produces the Fourier transform
+    of the derivative coefficients $F[d] \equiv D$, where
+    D[q,i,j] corresponds to the qth order derivative coefficient
+    at a phase space location [i,j]. The method
+    lib.derivatives.trigonometric3D takes the row-wise inverse
+    transform so that the tensor d[q,i,j] is generated.
+    """

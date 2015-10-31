@@ -19,11 +19,15 @@ class Setup:
             self.str = var + dim # string label ax, ay, or az
 
             if ((sim_params['BC'][dim]['lower'] == 'periodic') and sim_params['BC'][dim]['upper'] == 'periodic'):
-                # if the instance eval('a' + dim), e.g. ax, ay, az has a periodic boundary condition on the dimension
+                # if the instance eval('a' + dim), e.g. ax, ay, az has a periodic boundary condition on the
+                # underlying affiliated dimension x, y, or z
                 self.N = self.Ngridpoints - 1
             else:
                 self.N = self.Ngridpoints
 
+            self.prepoints = np.arange(self.N)
+            self.prepointmesh = np.array(np.outer( self.prepoints, np.ones([1, sim_params['active_dims'][1]]) ), dtype = int)
+            
         elif dim is not None and var.lower() != 't':
             # var = 'v', dim = 'x', 'y' or 'z'
             # instantiates vx, vy, or vz
@@ -44,7 +48,12 @@ class Setup:
 
             self.prepoints = np.arange(self.N)
             self.prepointvalues = self.generate_Eulerian_mesh(self.N)
-            self.postpointmesh = np.zeros(sim_params['active_dims']) # container, to be filled at each timestep
+
+            postpointmesh_dims = [2]
+            for dim in sim_params['active_dims']:
+                postpointmesh_dims.append(dim)
+            # container, to be filled at each timestep with postpoint index map
+            self.postpointmesh = np.zeros(postpointmesh_dims, dtype = int)
 
             self.prepointvaluemesh = np.outer( np.ones([sim_params['active_dims'][0], 1]), self.prepointvalues)
             self.prepointmesh = np.array(np.outer( np.ones([sim_params['active_dims'][0], 1]), self.prepoints), dtype = int)
@@ -76,7 +85,12 @@ class Setup:
 
             self.prepoints = np.arange(self.N)
             self.prepointvalues = self.generate_Eulerian_mesh(self.N)
-            self.postpointmesh = np.zeros(sim_params['active_dims']) # container, to be filled at each timestep
+
+            postpointmesh_dims = [2]
+            for dim in sim_params['active_dims']:
+                postpointmesh_dims.append(dim)
+            # container, to be filled at each timestep with postpoint index map for each [i,j]
+            self.postpointmesh = np.zeros(postpointmesh_dims, dtype = int)
 
             self.prepointvaluemesh = np.outer( self.prepointvalues, np.ones([1, sim_params['active_dims'][1]] ) )
             self.prepointmesh = np.array(np.outer( self.prepoints, np.ones([1, sim_params['active_dims'][1]]) ), dtype = int)
@@ -125,9 +139,9 @@ class CourantNumber:
     """
     def __init__(self, z):
 
-        self.numbers = np.zeros_like(z.prepointmesh)
-        self.frac = np.zeros_like(z.prepointmesh)
-        self.int = np.zeros_like(z.prepointmesh)
+        self.numbers = np.zeros(z.prepointmesh.shape)
+        self.frac = np.zeros(z.prepointmesh.shape)
+        self.int = np.zeros(z.prepointmesh.shape)
 
 
     def compute_numbers(self, z, vz, dt):
@@ -167,10 +181,106 @@ class CourantNumber:
         # if >= 0 , self.int = floor(self.numbers), else ceil(self.numbers)
         # i.e. the sign of CFL.frac agrees with the sign of vz
         self.int = np.where(self.numbers >=0, np.floor(self.numbers),
-                            np.ceil(self.numbers))
+                            np.ceil(self.numbers)).astype(int)
 
         # remaining portion is the fractional CFL number
         self.frac = self.numbers - self.int
 
         # format dtype as int
         self.int = np.array(self.int, dtype = int)
+
+
+def velocity_advection_prep(f_final, f_initial, z, vz):
+    """
+    When advecting physical velocity variables, the implementation
+    requires several transpositions. This method performs those
+    operations
+
+    inputs:
+    f_initial -- (ndarray, ndim=2) shape = (x.N, vx.N)
+    z -- (instance) phase space variable being evolved
+
+        z.prepointmesh -- (ndarray, ndim=2)
+        z.postpointmesh -- (ndarray, ndim=3), shape = (2, x.N, vx.N)
+
+        z.CFL.frac -- (ndarray, ndim=2) shape = (x.N, vx.N)
+        z.CFL.int -- (ndarray, ndim=2) shape = (x.N, vx.N)
+
+    vz -- (instance) generalized velocity, here vz = acceleration since z = vel.
+
+        z.prepointmesh -- (ndarray, ndim=2) shape = (x.N, vx.N)
+
+    outputs:
+
+    f_initial -- (ndarray, ndim=2) shape = (vx.N, x.N)
+    z -- (instance) phase space variable being evolved
+
+        z.prepointmesh -- (ndarray, ndim=2) shape = (vx.N, x.N)
+        z.postpointmesh -- (ndarray, ndim=3), shape = (2, vx.N, x.N)
+
+        z.CFL.frac -- (ndarray, ndim=2) shape = (vx.N, x.N)
+        z.CFL.int -- (ndarray, ndim=2) shape = (vx.N, x.N)
+
+    vz -- (instance) generalized velocity, here vz = acceleration since z = vel.
+
+        z.prepointmesh -- (ndarray, ndim=2) shape = (vx.N, x.N)
+
+
+
+    reverting to the appropriate dimensions for f_initial --> f_final
+    is done at the final step of lib.convect in the function call
+    lib.convect.finalize_density (also, where periodic BCs are applied
+    if specified)
+    """
+
+    f_initial = np.transpose(f_initial)
+    f_final = np.transpose(f_final)
+
+    z.prepointmesh = np.transpose(z.prepointmesh)
+    z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
+
+    z.CFL.frac = np.transpose(z.CFL.frac)
+    z.CFL.int = np.transpose(z.CFL.int)
+
+    vz.prepointmesh = np.transpose(vz.prepointmesh)
+
+    return f_initial, z, vz
+
+def extract_active_grid(f_total_grid, z, sim_params):
+    """We evolve the density from the previous time step, f_old
+    only on the gridpoints that are 'active' (cf. DECSKS-09 notebook)
+    We distinguish, e.g. in 1D, the two attributes of a phase space
+    variable z:
+
+        z.Ngridpoints -- (int) total number of gridpoints
+        z.N           -- (int) total number of 'active' gridpoints
+
+    The total grid indices  : 0, 1, ... , z.Ngridpoints - 1
+    The active grid indices : 0, 1, ... , z.N - 1
+
+    For all but periodic boundary conditions (PBCs), these are the same.
+    That is, for periodic boundary conditions (PBCs):
+
+        z.N = z.Ngridpoints - 1
+
+    so we evolve f_old[:z.N] -> f_new[:z.N]
+
+    and we complete by the density by periodicity:
+
+        f_new[z.Ngridpoints - 1] = f_new[0]
+
+    for all other BCs: z.N = z.Ngridpoints and this function has no
+    effect.
+
+    inputs:
+    f_total_grid -- (ndarray, ndim=2) 2D density constituting total grid
+
+    outputs:
+    f_active_grid -- (ndarray, ndim=2) 2D density containing all
+                     active gridpoints
+
+    """
+
+    f_active_grid = f_total_grid[0:sim_params['active_dims'][0], 0:sim_params['active_dims'][1]]
+
+    return f_active_grid

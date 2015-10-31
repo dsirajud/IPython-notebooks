@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 import numpy.ma as ma
 
-def Beta_matrix_x(sim_params, z, vz):
+def Beta_matrix(sim_params, z, vz):
     """constructs the B matrix, whose columns are
     the beta vectors (shape = N x 1) for each value
     of the generalized velocity for the advecting
@@ -14,6 +14,14 @@ def Beta_matrix_x(sim_params, z, vz):
     sim_params -- (dict) simulation parameters
     z.CFL.frac -- (ndarray, ndim=2) contains the fractional CFL numbers
                   for every [i,j]
+
+
+    outputs:
+
+    B -- (ndarray, ndim=2), shape = (N, vz.N)
+
+            for x-advection: B.shape = (N, vx.N)
+            for v-advection: B.shape = (N, x.N), note that vz.N = ax.N = x.N here
     """
 
     # local copies of A matrices
@@ -32,6 +40,24 @@ def Beta_matrix_x(sim_params, z, vz):
     #        alpha = z.CFL.frac, shape: (z.N, vz.N)
     #        alpha_hat = truncated z.CFL.frac[:N, :vz.N], vz.N = z.CFL.frac.shape[1]
     #        alpha_tilde : alpha_tilde[q,j] = alpha_hat ** q,q = 0, 1, ... N-1
+    #
+
+    # CRASH NOTICE: if the number of rows is not at least of size N
+    # this will crash the simulation since python permits
+    # indexing ranges beyond the final index in this limited case,
+    # e.g. if A.shape = (5,), indexing A[:9] returns the entire
+    # vector of size 5 without any error thrown. This is easily
+    # corrected, but requires including conditional checks
+    #
+    #     if z.CFL.frac.shape[0] < N:
+    #        alpha_hat = np.zeros((N, z.CFL.frac.shape[1]))
+    #        alpha_hat[:z.CFL.frac.shape[0], :] = z.CFL.frac
+    #
+    #        # create duplicates for the extra rows needed
+    #
+    #        N_extra_rows = sim_params['N'] - z.CFL.frac.shape[0]
+    #        alpha_hat[z.CFL.frac.shape[0]:N_extra_rows, :] = \
+    #            z.CFL.frac[:N_extra_rows, :]
     #
 
     alpha_hat = z.CFL.frac[:sim_params['N'],:z.CFL.frac.shape[1]]
@@ -53,7 +79,7 @@ def Beta_matrix_x(sim_params, z, vz):
     beta_neg = ma.dot(A_neg, alpha_tilde)
 
     # consolidate all columns in a single matrix
-    B = np.zeros([sim_params['N'], sim_params['N' + vz.str]])
+    B = np.zeros([sim_params['N'], vz.N])
 
     # wherever beta_neg.mask is False (i.e. unmasked value), assign beta_neg, otherwise beta_pos
     B = np.where(mask_neg == True, beta_neg.data, beta_pos.data)
@@ -86,9 +112,7 @@ def correctors(sim_params, z, vz):
         of beta correctors (shape = (N,1)) for each value
         of vz.prepointvaluemesh[:,j]
     """
-    Beta_func_handle = "%s%s" % ("Beta_matrix_", z.str[0])
-
-    B = eval(Beta_func_handle)(sim_params, z, vz)
+    B = Beta_matrix(sim_params, z, vz)
     c = sim_params['I_alternating'].dot(B)
     return c
 
