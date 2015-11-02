@@ -1,0 +1,9 @@
+Fourier
+
+LTE order = 8
+GE order = 7
+
+Nx = 16
+Nv = 256
+
+time splitter: O11-6

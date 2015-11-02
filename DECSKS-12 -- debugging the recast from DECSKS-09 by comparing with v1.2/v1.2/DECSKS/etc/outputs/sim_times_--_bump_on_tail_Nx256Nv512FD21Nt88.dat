@@ -1,0 +1,142 @@
+dsirajud@K55A-ubuntu:~/Work/DECSKS/1D1V/DECSKS$ ./main.py
+remove ALL plot files after simulation is done (1 = yes, 0 = no)?: 0
+simulation has started, next status update at 10% completion 
+
+time step 1 of 88 completed in 98.1466 seconds
+time step 2 of 88 completed in 97.028 seconds
+time step 3 of 88 completed in 94.3508 seconds
+time step 4 of 88 completed in 95.2973 seconds
+time step 5 of 88 completed in 96.3449 seconds
+time step 6 of 88 completed in 93.8264 seconds
+time step 7 of 88 completed in 96.3103 seconds
+time step 8 of 88 completed in 93.7218 seconds
+10% done :         n = 8 of 88
+time step 9 of 88 completed in 95.3092 seconds
+time step 10 of 88 completed in 93.4684 seconds
+time step 11 of 88 completed in 93.8665 seconds
+time step 12 of 88 completed in 93.6488 seconds
+time step 13 of 88 completed in 93.4757 seconds
+time step 14 of 88 completed in 94.3773 seconds
+time step 15 of 88 completed in 94.3024 seconds
+time step 16 of 88 completed in 93.3722 seconds
+time step 17 of 88 completed in 93.9897 seconds
+time step 18 of 88 completed in 93.6475 seconds
+time step 19 of 88 completed in 93.5351 seconds
+time step 20 of 88 completed in 93.442 seconds
+time step 21 of 88 completed in 93.5586 seconds
+time step 22 of 88 completed in 93.5483 seconds
+25% done :         n = 22 of 88
+time step 23 of 88 completed in 93.7289 seconds
+time step 24 of 88 completed in 93.7958 seconds
+time step 25 of 88 completed in 93.5848 seconds
+time step 26 of 88 completed in 93.3405 seconds
+time step 27 of 88 completed in 92.9262 seconds
+time step 28 of 88 completed in 93.131 seconds
+time step 29 of 88 completed in 92.9679 seconds
+time step 30 of 88 completed in 93.3484 seconds
+time step 31 of 88 completed in 92.9088 seconds
+time step 32 of 88 completed in 92.8736 seconds
+time step 33 of 88 completed in 93.4772 seconds
+time step 34 of 88 completed in 92.9672 seconds
+time step 35 of 88 completed in 92.6791 seconds
+time step 36 of 88 completed in 93.0298 seconds
+time step 37 of 88 completed in 93.2807 seconds
+time step 38 of 88 completed in 92.9206 seconds
+time step 39 of 88 completed in 93.2281 seconds
+time step 40 of 88 completed in 93.0123 seconds
+time step 41 of 88 completed in 92.9746 seconds
+time step 42 of 88 completed in 92.9057 seconds
+time step 43 of 88 completed in 92.878 seconds
+time step 44 of 88 completed in 93.2006 seconds
+50% done :         n = 44 of 88
+time step 45 of 88 completed in 93.1648 seconds
+time step 46 of 88 completed in 93.0218 seconds
+time step 47 of 88 completed in 93.2238 seconds
+time step 48 of 88 completed in 92.837 seconds
+time step 49 of 88 completed in 93.0616 seconds
+time step 50 of 88 completed in 93.1028 seconds
+time step 51 of 88 completed in 93.0528 seconds
+time step 52 of 88 completed in 93.5742 seconds
+time step 53 of 88 completed in 92.9019 seconds
+time step 54 of 88 completed in 92.8684 seconds
+time step 55 of 88 completed in 93.0307 seconds
+time step 56 of 88 completed in 93.0139 seconds
+time step 57 of 88 completed in 92.9705 seconds
+time step 58 of 88 completed in 93.0098 seconds
+time step 59 of 88 completed in 93.1879 seconds
+time step 60 of 88 completed in 92.9128 seconds
+time step 61 of 88 completed in 93.0779 seconds
+time step 62 of 88 completed in 93.0593 seconds
+time step 63 of 88 completed in 93.0337 seconds
+time step 64 of 88 completed in 93.4389 seconds
+time step 65 of 88 completed in 93.3879 seconds
+time step 66 of 88 completed in 93.325 seconds
+75% done :         n = 66 of 88
+time step 67 of 88 completed in 93.326 seconds
+time step 68 of 88 completed in 92.9159 seconds
+time step 69 of 88 completed in 92.8133 seconds
+time step 70 of 88 completed in 93.0748 seconds
+time step 71 of 88 completed in 92.8344 seconds
+time step 72 of 88 completed in 93.2314 seconds
+time step 73 of 88 completed in 93.0889 seconds
+time step 74 of 88 completed in 92.8477 seconds
+time step 75 of 88 completed in 93.0657 seconds
+time step 76 of 88 completed in 93.377 seconds
+time step 77 of 88 completed in 92.9335 seconds
+time step 78 of 88 completed in 93.0191 seconds
+time step 79 of 88 completed in 93.4924 seconds
+90% done :         n = 79 of 88
+time step 80 of 88 completed in 93.6007 seconds
+time step 81 of 88 completed in 92.8999 seconds
+time step 82 of 88 completed in 92.9812 seconds
+time step 83 of 88 completed in 93.3818 seconds
+time step 84 of 88 completed in 93.1051 seconds
+time step 85 of 88 completed in 92.9419 seconds
+time step 86 of 88 completed in 93.2066 seconds
+time step 87 of 88 completed in 93.1352 seconds
+time step 88 of 88 completed in 93.0798 seconds
+100% done :         end of simulation
+total time for simulation = 9179.44 seconds 
+
+
+Cleanup started...
+
+
+removing .pyc files from (/home/dsirajud/Work/DECSKS/1D1V/DECSKS):
+-------------------------------------------------------
+
+_mypath.pyc
+__init__.pyc
+
+
+removing .pyc files from (/home/dsirajud/Work/DECSKS/1D1V/DECSKS/lib):
+-------------------------------------------------------
+
+density.pyc
+status.pyc
+HOC.pyc
+read.pyc
+split.pyc
+__init__.pyc
+derivatives.pyc
+diagnostics.pyc
+fieldsolvers.pyc
+boundaryconditions.pyc
+plots.pyc
+convect.pyc
+domain.pyc
+
+
+
+
+removing temporary files from (/home/dsirajud/Work/DECSKS/1D1V/DECSKS/etc):
+-------------------------------------------------------
+
+domain_setups~
+
+
+=======================================================
+
+cleanup complete
+
+simulation completed in 9179.44 seconds

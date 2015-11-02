@@ -1,0 +1,74 @@
+FOURIER based high order corrections, LTE[CS] = 22
+using O6-4 split scheme (note: only activated if more than 1D)
+initializing Landau profile
+simulation has started, status updates are broadcasted after each timestep
+time step 1 of 60 completed in 0.26769 seconds
+time step 2 of 60 completed in 0.265389 seconds
+time step 3 of 60 completed in 0.282172 seconds
+time step 4 of 60 completed in 0.283689 seconds
+time step 5 of 60 completed in 0.300152 seconds
+time step 6 of 60 completed in 0.325703 seconds
+10% done :         n = 6 of 60
+time step 7 of 60 completed in 0.322845 seconds
+time step 8 of 60 completed in 0.287631 seconds
+time step 9 of 60 completed in 0.289223 seconds
+time step 10 of 60 completed in 0.330811 seconds
+time step 11 of 60 completed in 0.267033 seconds
+time step 12 of 60 completed in 0.279352 seconds
+time step 13 of 60 completed in 0.353159 seconds
+time step 14 of 60 completed in 0.275918 seconds
+time step 15 of 60 completed in 0.389464 seconds
+25% done :         n = 15 of 60
+time step 16 of 60 completed in 0.413253 seconds
+time step 17 of 60 completed in 0.47425 seconds
+time step 18 of 60 completed in 0.508909 seconds
+time step 19 of 60 completed in 0.428822 seconds
+time step 20 of 60 completed in 0.336444 seconds
+time step 21 of 60 completed in 0.459644 seconds
+time step 22 of 60 completed in 0.357216 seconds
+time step 23 of 60 completed in 0.271709 seconds
+time step 24 of 60 completed in 0.257061 seconds
+time step 25 of 60 completed in 0.293197 seconds
+time step 26 of 60 completed in 0.325846 seconds
+time step 27 of 60 completed in 0.455537 seconds
+time step 28 of 60 completed in 0.2968 seconds
+time step 29 of 60 completed in 0.495195 seconds
+time step 30 of 60 completed in 0.302654 seconds
+50% done :         n = 30 of 60
+time step 31 of 60 completed in 0.286061 seconds
+time step 32 of 60 completed in 0.29374 seconds
+time step 33 of 60 completed in 0.471726 seconds
+time step 34 of 60 completed in 0.329299 seconds
+time step 35 of 60 completed in 0.317171 seconds
+time step 36 of 60 completed in 0.333959 seconds
+time step 37 of 60 completed in 0.430866 seconds
+time step 38 of 60 completed in 0.27548 seconds
+time step 39 of 60 completed in 0.258003 seconds
+time step 40 of 60 completed in 0.282076 seconds
+time step 41 of 60 completed in 0.261972 seconds
+time step 42 of 60 completed in 0.284296 seconds
+time step 43 of 60 completed in 0.308748 seconds
+time step 44 of 60 completed in 0.302143 seconds
+time step 45 of 60 completed in 0.263345 seconds
+75% done :         n = 45 of 60
+time step 46 of 60 completed in 0.277728 seconds
+time step 47 of 60 completed in 0.268256 seconds
+time step 48 of 60 completed in 0.278219 seconds
+time step 49 of 60 completed in 0.285621 seconds
+time step 50 of 60 completed in 0.306142 seconds
+time step 51 of 60 completed in 0.287535 seconds
+time step 52 of 60 completed in 0.285279 seconds
+time step 53 of 60 completed in 0.29055 seconds
+time step 54 of 60 completed in 0.283 seconds
+90% done :         n = 54 of 60
+time step 55 of 60 completed in 0.290407 seconds
+time step 56 of 60 completed in 0.279952 seconds
+time step 57 of 60 completed in 0.312919 seconds
+95% done :         n = 57 of 60
+time step 58 of 60 completed in 0.31352 seconds
+time step 59 of 60 completed in 0.268228 seconds
+time step 60 of 60 completed in 0.308486 seconds
+100% done :         end of simulation
+total time for simulation = 59.71 seconds <--- simtmie not computed correctly again,
+
+At most, this is 0.5 * 60 = 30 seconds.
