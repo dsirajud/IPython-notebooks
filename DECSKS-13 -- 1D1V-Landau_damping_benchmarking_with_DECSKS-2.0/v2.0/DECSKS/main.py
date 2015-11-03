@@ -34,7 +34,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s13-07.dat')
 x = DECSKS.lib.domain.Setup(sim_params, var = 'x')
 vx = DECSKS.lib.domain.Setup(sim_params, var = 'v', dim = 'x')
 ax = DECSKS.lib.domain.Setup(sim_params, 'a', 'x')
@@ -53,14 +53,14 @@ if sim_params['HOC'] == 'FD':
 
 DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,0,x,vx)
 
-    #Plot = DECSKS.lib.plots.PlotSetup(f, 0, t, x, vx, sim_params)
-    #Plot(n = 0)
+#Plot = DECSKS.lib.plots.PlotSetup(f, 0, t, x, vx, sim_params)
+#Plot(n = 0)
 
 print 'simulation has started, status updates are broadcasted after each timestep'
 
 for n in t.stepnumbers:
 
-    f = DECSKS.lib.split.scheme(
+    f = eval(sim_params['split_function_handle'])(
         f,
         t, x, vx, ax,
         n,

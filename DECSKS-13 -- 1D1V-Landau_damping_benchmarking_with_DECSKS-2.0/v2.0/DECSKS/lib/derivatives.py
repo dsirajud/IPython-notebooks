@@ -135,10 +135,10 @@ def fd(f, z, vz, sim_params):
             why-is-b-numpy-dota-x-so-much-slower-looping-through-doing-bi-numpy
 
     inputs:
-    f -- (ndarray, ndim=2) density from previous time substep, 
+    f -- (ndarray, ndim=2) density from previous time substep,
          shape = (x.N, vx.N) if advecting in configuration
          shape = (vx.N, x.N) if advecting in velocity
-         
+
     z -- (instance) phase space variable being advected, here
          we are taking d/dz
 
@@ -155,16 +155,16 @@ def fd(f, z, vz, sim_params):
 
     """
     d = np.zeros([sim_params['N'], z.N, vz.N])
-
+    dim1, dim2, dim3 = d.shape
     # zeroeth derivative coefficient is the density itself
     d[0,:,:] = f
 
     # if corrections indicated in etc/params.dat, need higher order terms
     if sim_params['N'] > 1:
-        d[1:,:,:] = np.dot( sim_params['W'][z.str].reshape(-1,sim_params['W'][z.str].shape[-1]), f).reshape(
-            sim_params['W'][z.str].shape[0] - 1, # we are computing derivatives 1, 2, ... , first index 0 not included
-            sim_params['W'][z.str].shape[1],
-            sim_params['W'][z.str].shape[2])
+        d[1:,:,:] = np.dot( sim_params['W'][z.str][1:,:,:].reshape(-1,sim_params['W'][z.str].shape[2]), f).reshape(
+            dim1 - 1, # zeroeth derivative entry not included
+            dim2,
+            dim3)
 
     return d
 
@@ -345,7 +345,7 @@ def FD(f, z, FD_schemes,
 
     return d
 
-def assemble_finite_difference_weight_matrices(sim_params, x, v):
+def assemble_finite_difference_weight_matrices(sim_params, x, vx):
     """Assembles the dictionary W that contains both finite diffference
     weight matrices for each phase space variable
 
@@ -363,16 +363,19 @@ def assemble_finite_difference_weight_matrices(sim_params, x, v):
 
     W = {}
     W['x'] = assemble_finite_difference_weight_matrix(sim_params, x)
-    W['vx'] = assemble_finite_difference_weight_matrix(sim_params, v)
+    W['vx'] = assemble_finite_difference_weight_matrix(sim_params, vx)
 
     return W
 
 def assemble_finite_difference_weight_matrix(sim_params, z):
     """Assembles a matrix corresponding to the weights of in
     the finite difference computation of derivatives, i.e.
-    assembles the weight matrix W, in
+    assembles the weight matrix W, giving the difference matrix d
+    for the q-th derivative:
 
-        1 / x.width * Wf =  df,     i.e. W are the difference
+        1 / x.width ** q W[q,:,:].dot(f) =  d[q,:,:]
+
+                                    i.e. W are the difference
                                     coefficients, which do not
                                     contain the width of the
                                     abscissa value, e.g. x.width
@@ -388,7 +391,8 @@ def assemble_finite_difference_weight_matrix(sim_params, z):
           is the weight matrix W corresponding to the dn-th derivative
     """
     imax = z.N - 1
-    Wz = np.zeros([sim_params['N'], z.N, z.N])
+    Wz = np.zeros([sim_params['N'], z.N, z.N]) # includes zeroeth order derivative container (not used)
+    # i.e. Wz[q,:,:] is for the q-th derivative with this dummy zero index created
 
     for dn in range(1,sim_params['N']):
 

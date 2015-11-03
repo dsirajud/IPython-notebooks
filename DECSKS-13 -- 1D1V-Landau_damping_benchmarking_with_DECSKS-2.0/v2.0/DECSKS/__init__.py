@@ -9,6 +9,7 @@ import lib.HOC
 import lib.plots
 import lib.read
 import lib.status
-import lib.split
-import lib.split_poisson
+import lib.split_fd
+import lib.split_fourier
 import lib.velocityfields
+ 

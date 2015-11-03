@@ -22,6 +22,8 @@ def inputfile(filename):
     HOC = lines[6][lines[6].find('=')+1:].strip()
     HOC = HOC.upper()
     derivative_method = '.'.join(('DECSKS.lib.derivatives', HOC.lower()))
+    split_function_handle = '_'.join(('DECSKS.lib.split', HOC.lower()))
+    split_function_handle = '.'.join((split_function_handle, 'scheme'))
 
     N = eval(lines[7][lines[7].find('=')+1:].strip())
     print "%s based high order corrections, LTE[CS] = %d" % (HOC, N+1)
@@ -57,7 +59,6 @@ def inputfile(filename):
     at = eval(lines[53][lines[53].find('=')+1:].strip())
     bt = eval(lines[54][lines[54].find('=')+1:].strip())
     T = eval(lines[55][lines[55].find('=')+1:].strip())
-
 
     # Boundary condition dictionary storage
     # BC['z']['LBC'] and BC['z']['RBC'] give the BC for phase space var z
@@ -168,6 +169,7 @@ def inputfile(filename):
     sim_params = dict(
         N = N, HOC = HOC,
         derivative_method = derivative_method,
+        split_function_handle = split_function_handle,
         WindowedFilter = WindowedFilter,
         Nx = Nx, ax = ax, bx = bx,
         Ny = Ny, ay = ay, by = by,

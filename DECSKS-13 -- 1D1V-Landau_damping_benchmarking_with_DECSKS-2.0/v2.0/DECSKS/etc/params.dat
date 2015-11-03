@@ -4,8 +4,8 @@
                                                                               X
 Simulation specifications (case insensitive, except 'None'):
 
-High order corrections (enter: Fourier, or FD) = fourier
-Global error order [if FD, must generate tables up to this order, if no corrections needed enter 1] (int) = 21
+High order corrections (enter: Fourier, or FD) = fd
+Global error order [if FD, must generate tables up to this order, if no corrections needed enter 1] (int) = 7
 Windowed Fourier transform on? (yes/no) = no
 
 Domain specifications:

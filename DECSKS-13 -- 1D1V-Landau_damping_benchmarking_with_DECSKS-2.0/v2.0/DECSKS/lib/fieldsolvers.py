@@ -77,7 +77,7 @@ def Gauss(ni, f, x, vx, n, sim_params):
     return E
 
 def Poisson_PBC_6th(ni, f,
-                x, v, n,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for periodic BCs
 
@@ -95,17 +95,18 @@ def Poisson_PBC_6th(ni, f,
     phi -- (ndarray,dim=1) scalar potential, phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
+    f = DECSKS.lib.domain.extract_active_grid(f[n,:,:], x, sim_params)
 
     # charge densities
-    ne = DECSKS.lib.density.single_integration(f[n,:x.N,:v.N], of = x, wrt = v)
-    n = ne - ni
+    ne = single_integration(f, of = x, wrt = vx)
+    n_total = ne - ni
 
     # form the tensor objects involved in the numerical solution
     #
     #     d^2 phi = n --> D*phi = B*n + phi_BC
 
     # label the RHS as b = dx ** 2 * B*n
-    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n)
+    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n_total)
 
     # solve D*phi = b
     phi = LA.solve(sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['D'], b)
@@ -119,7 +120,7 @@ def Poisson_PBC_6th(ni, f,
     return phi
 
 def Poisson_PBC_6th_1D1V(ni, f,
-                x, v, n,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for periodic BCs
 
@@ -137,17 +138,18 @@ def Poisson_PBC_6th_1D1V(ni, f,
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
+    f = DECSKS.lib.domain.extract_active_grid(f[n,:,:], x, sim_params)
 
     # charge densities
-    ne = DECSKS.lib.density.single_integration(f[n,:x.N,:v.N], of = x, wrt = v)
-    n = ne - ni
+    ne = single_integration(f, of = x, wrt = vx)
+    n_total = ne - ni
 
     # form the tensor objects involved in the numerical solution
     #
     #     d^2 phi = n --> D*phi = B*n + phi_BC
 
     # label the RHS as b = dx ** 2 * B*n
-    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n)
+    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n_total)
 
     # solve D*phi = b
     phi = LA.solve(sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['D'], b)
@@ -158,7 +160,8 @@ def Poisson_PBC_6th_1D1V(ni, f,
     phi_avg = np.sum(phi) * x.width / x.L
     phi -= phi_avg
 
-    phi = np.outer(phi, np.ones[1,v.N])
+    # generate the 2D map for every [i,j], note that each row is constant
+    phi = np.outer(phi, np.ones([1,vx.N]))
 
     return phi
 

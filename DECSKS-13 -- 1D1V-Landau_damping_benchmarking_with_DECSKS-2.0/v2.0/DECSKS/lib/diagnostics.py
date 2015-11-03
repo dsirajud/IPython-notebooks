@@ -41,7 +41,14 @@ def calcs_and_writeout(sim_params,f,n,x,v):
         #        phi = DECSKS.lib.fieldsolvers.Poisson_PBC_6th(sim_params['ni'], f, x, v, n)
         #        dphi = 1 / x.width ** 1 * sim_params['W_dn1'].dot(phi) # currently W_dn1 is a 6th order LTE matrix of FD coeffs for first derivative
         #        E = -dphi
-        E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, v, n, sim_params)
+
+        if sim_params['HOC'].lower() == 'fourier':
+            E = DECSKS.lib.fieldsolvers.Gauss(sim_params['ni'], f, x, v, n, sim_params)
+        elif sim_params['HOC'].lower() == 'fd':
+            phi = DECSKS.lib.fieldsolvers.Poisson_PBC_6th(sim_params['ni'], f, x, v, n, sim_params)
+            dphi = 1 / x.width ** 1 * sim_params['W_dn1'].dot(phi) # currently W_dn1 is a 6th order LTE matrix of FD coeffs for first derivative
+            E = -dphi
+
 
         IW = total_energy(f,n,x,v,E)
         WE = electrostatic_energy(x,E)
