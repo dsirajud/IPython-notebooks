@@ -1,5 +1,6 @@
 import numpy as np
 import pylab
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class Plots:
     """Plots are generated in ./DECSKS/plots/
@@ -70,16 +71,34 @@ class PlotSetup(Plots):
         if len(self.f.shape) == 3:
             # f = f[x,v,t], 2 dim in phase space
             ft = self.f[n,:,:]
-            pylab.pcolor(self.X, self.V, ft.T, cmap='jet')
-            pylab.colorbar()
+
+            ax = pylab.gca()
+            im = pylab.imshow(ft.T, cmap = 'jet', extent = [self.xmin, self.xmax, self.ymin, self.ymax])
+
+            # create an axes on the right side of ax. The width of cax will be 5%
+            # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="5%", pad=0.25)
+            pylab.colorbar(im, cax=cax)            
             pylab.clim(0,0.38) # for Landau test case
             pylab.grid()
-            pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)
             pylab.ylabel('$v$', fontsize = 18)
-            pylab.title('$N_x$ = %d, $N_v$ = %d, $t$ = %2.1f' % (self.x.N, self.v.N, self.it*self.t.width))
+            pylab.title('$N_x$ = %d, $N_v$ = %d, $t$ = %2.1f' % (self.x.N, self.v.N, self.it*self.t.width), x = -10.1, y = 1.015)
             pylab.savefig(self.path + self.filename)
             pylab.clf()
+            return None
+
+        #    pylab.pcolor(self.X, self.V, ft.T, cmap='jet')
+        #    pylab.colorbar()
+        #    pylab.clim(0,0.38) # for Landau test case
+        #    pylab.grid()
+        #    pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
+        #    pylab.xlabel('$x$', fontsize = 18)
+        #    pylab.ylabel('$v$', fontsize = 18)
+        #    pylab.title('$N_x$ = %d, $N_v$ = %d, $t$ = %2.1f' % (self.x.N, self.v.N, self.it*self.t.width))
+        #    pylab.savefig(self.path + self.filename)
+        #    pylab.clf()
             return None
 
         if len(self.f.shape) == 2:
