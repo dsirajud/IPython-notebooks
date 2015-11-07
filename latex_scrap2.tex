@@ -1,0 +1,114 @@
+we use consistent normalizations as with the electron equation:
+
+\begin{eqnarray*}
+t = \frac{1}{\omega_{pe}}\tilde{t} & \longrightarrow & \partial_t = \omega_{pe}\partial_{\tilde{t}} \qquad \omega_{pe} = \sqrt{\frac{n_{e} q_{e}^2}{\epsilon_0m_{e}}} \\
+x = \lambda_D \tilde{x} & \longrightarrow & \partial_x = \frac{1}{\lambda_D}\partial_{\tilde{x}} \qquad \lambda_D = \sqrt{\frac{\epsilon_0 kT_{e}}{n_{e}q_{e}}} \\
+v = v_{Te} \tilde{v} & \longrightarrow & \partial_v = \frac{1}{v_{Te}}\partial_{\tilde{v}} \qquad v_{Te} = \sqrt{\frac{kT_{e}}{m_{e}}}\\
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\partial_t f_{i} + v\partial_x f_{i} + \frac{q_{i}E}{m_{i}} \partial_v f_{i} & = & 0 \\
+\left(\omega_{pe}\partial_{\tilde{t}}\right) f_{i} + \left(\tilde{v}v_{Te}\right) \left(\frac{1}{\lambda_D}\partial_{\tilde{x}}\right)f_{i} + \frac{q_{i}E}{m_{i}}\left(\frac{1}{v_{Te}}\partial_{\tilde{v}}\right) f_i = 0 \\
+\underbrace{\lambda_D\omega_{pe}}_{=\, v_{Te}}\partial_{\tilde{t}} f_i + \tilde{v}v_{Te}\partial_{\tilde{x}}f_i + \frac{q_{i}E}{m_{i}}\frac{\lambda_D}{v_{T\alpha}}\partial_{\tilde{v}} f_i = 0 \\
+v_{Te}\partial_{\tilde{t}} f_i + \tilde{v}v_{Te}\partial_{\tilde{x}}f_i + \frac{q_{i}E}{m_{i}}\frac{\lambda_D}{v_{Te}}\partial_{\tilde{v}} f_i = 0 \\
+\partial_{\tilde{t}} f_i + \tilde{v}\partial_{\tilde{x}}f_i + \left(\frac{q_{\alpha}\lambda_D}{m_{i}v_{Te}^2}\right) E \partial_{\tilde{v}} f_i = 0 \\
+\end{eqnarray*}
+
+Recall our normalization for the electric field are characterized not by ion quantities, but by the electron inertia:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In standard units, we have for a species $\alpha$ the 1D1V Vlasov equation:
+
+$$\partial_t f_{\alpha} + v\partial_x f_{\alpha} + \frac{q_{\alpha}E}{m_{\alpha}} \partial_v f_{\alpha} = 0$$
+
+We elect to normalize to natural units, i.e. multiples of characteristic parameters of a plasma species. Define normalized (tilde) quantities according to:
+
+\begin{eqnarray*}
+t = \frac{1}{\omega_{p\alpha}}\tilde{t} & \longrightarrow & \partial_t = \omega_{p\alpha}\partial_{\tilde{t}} \qquad \omega_{p\alpha} = \sqrt{\frac{n_{\alpha} q_{\alpha}^2}{\epsilon_0m_{\alpha}}} \\
+x = \lambda_D \tilde{x} & \longrightarrow & \partial_x = \frac{1}{\lambda_D}\partial_{\tilde{x}} \qquad \lambda_D = \sqrt{\frac{\epsilon_0 kT_{\alpha}}{n_{\alpha}q_{\alpha}}} \\
+v = v_{T\alpha} \tilde{v} & \longrightarrow & \partial_v = \frac{1}{v_{T\alpha}}\partial_{\tilde{v}} \qquad v_{T\alpha} = \sqrt{\frac{kT_{\alpha}}{m_{\alpha}}}\\
+\end{eqnarray*}
+
+Subsequent normalizations may be needed, and will be decided if approrpiate. Substituting all of the above into the species Vlasov equation:
+
+\begin{eqnarray*}
+\partial_t f_{\alpha} + v\partial_x f_{\alpha} + \frac{q_{\alpha}E}{m_{\alpha}} \partial_v f_{\alpha} & = & 0 \\
+\left(\omega_{\alpha}\partial_{\tilde{t}}\right) f_{\alpha} + \left(\tilde{v}v_{T\alpha}\right) \left(\frac{1}{\lambda_D}\partial_{\tilde{x}}\right)f_{\alpha} + \frac{q_{\alpha}E}{m_{\alpha}}\left(\frac{1}{v_{T\alpha}}\partial_{\tilde{v}}\right) f_{\alpha} = 0 \\
+\underbrace{\lambda_D\omega_{\alpha}}_{=\, v_{T\alpha}}\partial_{\tilde{t}} f_{\alpha} + \tilde{v}v_{T\alpha}\partial_{\tilde{x}}f_{\alpha} + \frac{q_{\alpha}E}{m_{\alpha}}\frac{\lambda_D}{v_{T\alpha}}\partial_{\tilde{v}} f_{\alpha} = 0 \\
+v_{T\alpha}\partial_{\tilde{t}} f_{\alpha} + \tilde{v}v_{T\alpha}\partial_{\tilde{x}}f_{\alpha} + \frac{q_{\alpha}E}{m_{\alpha}}\frac{\lambda_D}{v_{T\alpha}}\partial_{\tilde{v}} f_{\alpha} = 0 \\
+\partial_{\tilde{t}} f_{\alpha} + \tilde{v}\partial_{\tilde{x}}f_{\alpha} + \left(\frac{q_{\alpha}\lambda_D}{m_{\alpha}v_{T\alpha}^2}\right) E \partial_{\tilde{v}} f_{\alpha} = 0 \\
+\end{eqnarray*}
+
+Here, it is natural to normalize the electric field as well 
+
+$$\tilde{E} = \left(\frac{q_{\alpha}\lambda_D}{m_{\alpha}v_{T\alpha}^2}\right) E = \frac{E}{\bar{E}}$$
+
+where $\bar{E} = q_{\alpha}\lambda_D / (m_{\alpha}v_{T\alpha}^2) = \mathrm{[force / charge]}$ has the same units as the electric field.
+
+So, the Vlasov equation can be written as:
+
+$$\partial_{\tilde{t}} f_{\alpha} + \tilde{v}\partial_{\tilde{x}}f_{\alpha} + \tilde{E} \partial_{\tilde{v}} f_{\alpha} = 0 $$
+
+or, relabelling $\tilde{w} \rightarrow w$ for $w = \{t,x,v,E\}$, we understand the equation
+
+$$\partial_t f_{\alpha} + v\partial_xf_{\alpha} + E \partial_v f_{\alpha} = 0 $$
+
+measures time in multiples of plasma periods ($\omega_{p\alpha}^{-1}$) for the charged species $\alpha$, $x$ is a measure of distance as multiples of Debye lengths $\lambda_D$ for species $\alpha$, velocity is measured as multiples of the species thermal velocity $v_{T\alpha}$, and the electric field is in multiples of $m_{\alpha}v_{T\alpha}^2 / (\lambda_D q_{\alpha})$, which can be interpreted as the force field per unit charge of species $\alpha$ averaged over one Debye length at its average speed.
+
+
+
+----------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

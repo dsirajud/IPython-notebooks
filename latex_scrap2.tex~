@@ -1,0 +1,25 @@
+$$\vec{v}\cdot \vec{\nabla}_x f_{\alpha} + \frac{q_{\alpha}}{m_{\alpha}} \vec{E}\cdot \vec{\nabla}_v f_{\alpha} = 0$$ 
+
+Considering any component $x_i = \{x_1, x_2, x_3\}$:
+
+$$v_{x_i}\partial_{x_i} f_{\alpha} + \frac{q_{\alpha}}{m_{\alpha}} E_{x_i}\partial_{v_{x_i}} f_{\alpha} = 0$$ 
+
+or
+
+$$\partial_{x_i} f_{\alpha} + \frac{q_{\alpha}}{m_{\alpha}} E_{x_i}\frac{1}{v_{x_i}}\partial_{v_{x_i}} f_{\alpha} = 0$$ 
+
+integrating ($\int d^3 v$) and identifying $n_{\alpha} := \int d^3 v f_{\alpha}$
+
+$$\partial_{x_i} n_{\alpha} + \frac{q_{\alpha}}{m_{\alpha}} E_{x_i}\int d^3 v\, \frac{1}{v_{x_i}}\partial_{v_{x_i}} f_{\alpha} = 0 \qquad \qquad (1)$$ 
+
+then,
+
+$$\partial_{x_i} n_{\alpha} = -\frac{q_{\alpha}}{m_{\alpha}} E_{x_i}\int d^3 v\, \frac{1}{v_{x_i}}\partial_{v_{x_i}} f_{\alpha} = 0$$ 
+
+
+In terms of species $\alpha = e,i$:
+
+$$\partial_{x_i} n_{i} = -\frac{q_{i}}{m_{i}} E_{x_i}\int d^3 v\, \frac{1}{v_{x_i}}\partial_{v_{x_i}} f_{i}$$ 
+$$\partial_{x_i} n_{e} = -\frac{q_{e}}{m_{e}} E_{x_i}\int d^3 v\, \frac{1}{v_{x_i}}\partial_{v_{x_i}} f_{e}$$ 
+
+

@@ -14,7 +14,7 @@ Enter the number of cells as int or None
 Enter the dimensions as float or None
 Enter the boundary conditions as strings (case insensitive)
 
-Number of cells, x = 240
+Number of cells, x = 200
 lower boundary value ax = -10 * np.pi / 3
 upper boundary value bx = 10 * np.pi / 3
 lower boundary condition = periodic

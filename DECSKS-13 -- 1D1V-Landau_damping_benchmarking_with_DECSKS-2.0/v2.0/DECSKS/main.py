@@ -59,7 +59,7 @@ Plot(n = 0)
 print 'simulation has started, status updates are broadcasted after each timestep'
 
 for n in t.stepnumbers:
-
+    print sim_params['split_function_handle']
     f = eval(sim_params['split_function_handle'])(
         f,
         t, x, vx, ax,
