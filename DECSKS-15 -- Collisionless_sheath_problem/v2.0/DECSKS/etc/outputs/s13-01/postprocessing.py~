@@ -1,0 +1,71 @@
+import numpy as np
+import pylab as plt
+
+# Plot the electrostatic energy of the system
+
+infile = open('out_WE','r')
+lines = infile.readlines()
+
+WE = []
+for line in lines:
+    WE.append(eval(line))
+
+WE = np.array(WE)
+WE = WE / WE[0] # normalize
+
+Nt = 60
+dt = 1.0
+T = 60.
+
+t = np.zeros(Nt+1) # includes t = 0
+
+for it in range(Nt_coarse+1):
+    t_coarse[it] = 0 + it * dt_coarse
+
+# CONVERGED SOLUTION
+
+infile = open('./../etc/outputs/out_WE_converged','r')
+lines = infile.readlines()
+
+WE_converged = []
+for line in lines:
+    WE_converged.append(eval(line))
+
+WE_converged = np.array(WE_converged)
+WE_converged = WE_converged / WE_converged[0] # normalize
+
+Nt_converged = 600
+dt_converged = .1
+T_converged = 60.
+
+t_converged = np.zeros(Nt_converged+1)
+
+for it in range(Nt_converged+1):
+    t_converged[it] = 0 + it * dt_converged
+
+# LINEAR THEORY, WE = WE[0] exp(-2*gamma*t), if
+#                E = E[0] exp(jw_r t) exp(-gamma t)
+#                normalize: WE / WE[0] = exp(-gamma*t)
+
+gamma = 0.153359 # damping constant
+
+WE_linear = np.exp(-2*gamma*t_coarse)
+
+# plotting
+
+params = {'legend.fontsize': 12,
+          'legend.linewidth': 2}
+plt.rcParams.update(params)
+
+plt.semilogy(t_coarse, WE_coarse, 'o',
+             label = '$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^4)$, $N_x = 8,\, N_v = 256$')
+plt.semilogy(t_converged, WE_converged, '-g',
+             label = '$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^6)$, $N_x = 16,\, N_v = 512$')
+plt.semilogy(t_coarse, WE_linear, '--m', linewidth = 2, label = 'Linear theory')
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Normalized electrostatic energy, $W_E/W_{E0}$', fontsize = 12)
+plt.legend(loc = 'lower left')
+plt.savefig('./../etc/outputs/Landau_WE.png')
+plt.clf()
+

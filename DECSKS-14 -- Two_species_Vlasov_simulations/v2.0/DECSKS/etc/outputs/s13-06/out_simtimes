@@ -1,0 +1,71 @@
+FD based high order corrections, LTE[CS] = 8
+using O6-4 split scheme (note: only activated if more than 1D)
+initializing Landau profile
+simulation has started, status updates are broadcasted after each timestep
+time step 1 of 60 completed in 12.223 seconds
+time step 2 of 60 completed in 15.4239 seconds
+time step 3 of 60 completed in 12.2293 seconds
+time step 4 of 60 completed in 12.1966 seconds
+time step 5 of 60 completed in 12.3769 seconds
+time step 6 of 60 completed in 12.1151 seconds
+10% done :         n = 6 of 60
+time step 7 of 60 completed in 12.2009 seconds
+time step 8 of 60 completed in 13.5334 seconds
+time step 9 of 60 completed in 12.0874 seconds
+time step 10 of 60 completed in 12.0396 seconds
+time step 11 of 60 completed in 12.0277 seconds
+time step 12 of 60 completed in 12.0588 seconds
+time step 13 of 60 completed in 12.129 seconds
+time step 14 of 60 completed in 12.1186 seconds
+time step 15 of 60 completed in 12.1378 seconds
+25% done :         n = 15 of 60
+time step 16 of 60 completed in 12.1751 seconds
+time step 17 of 60 completed in 12.1984 seconds
+time step 18 of 60 completed in 12.1154 seconds
+time step 19 of 60 completed in 12.5786 seconds
+time step 20 of 60 completed in 12.1986 seconds
+time step 21 of 60 completed in 12.0767 seconds
+time step 22 of 60 completed in 12.3131 seconds
+time step 23 of 60 completed in 12.2036 seconds
+time step 24 of 60 completed in 12.1124 seconds
+time step 25 of 60 completed in 12.1804 seconds
+time step 26 of 60 completed in 12.0712 seconds
+time step 27 of 60 completed in 12.2123 seconds
+time step 28 of 60 completed in 12.3036 seconds
+time step 29 of 60 completed in 12.2021 seconds
+time step 30 of 60 completed in 12.1763 seconds
+50% done :         n = 30 of 60
+time step 31 of 60 completed in 12.1707 seconds
+time step 32 of 60 completed in 12.1392 seconds
+time step 33 of 60 completed in 12.2444 seconds
+time step 34 of 60 completed in 12.1357 seconds
+time step 35 of 60 completed in 12.1932 seconds
+time step 36 of 60 completed in 12.1307 seconds
+time step 37 of 60 completed in 12.1237 seconds
+time step 38 of 60 completed in 12.1925 seconds
+time step 39 of 60 completed in 12.2436 seconds
+time step 40 of 60 completed in 12.1368 seconds
+time step 41 of 60 completed in 12.0633 seconds
+time step 42 of 60 completed in 12.1786 seconds
+time step 43 of 60 completed in 12.178 seconds
+time step 44 of 60 completed in 12.306 seconds
+time step 45 of 60 completed in 12.2432 seconds
+75% done :         n = 45 of 60
+time step 46 of 60 completed in 12.248 seconds
+time step 47 of 60 completed in 12.4362 seconds
+time step 48 of 60 completed in 12.1621 seconds
+time step 49 of 60 completed in 12.1577 seconds
+time step 50 of 60 completed in 12.1963 seconds
+time step 51 of 60 completed in 12.2617 seconds
+time step 52 of 60 completed in 12.1815 seconds
+time step 53 of 60 completed in 12.3497 seconds
+time step 54 of 60 completed in 12.1697 seconds
+90% done :         n = 54 of 60
+time step 55 of 60 completed in 12.1183 seconds
+time step 56 of 60 completed in 12.1505 seconds
+time step 57 of 60 completed in 12.0951 seconds
+95% done :         n = 57 of 60
+time step 58 of 60 completed in 12.2068 seconds
+time step 59 of 60 completed in 12.09 seconds
+time step 60 of 60 completed in 12.1551 seconds
+100% done :         end of simulation

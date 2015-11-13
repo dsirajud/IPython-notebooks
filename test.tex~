@@ -1,0 +1,7 @@
+In 1D steady-state, we have for ions (let $n_e = n_i = n$, quasi-neutrality in the bulk region):
+
+$$n \frac{dv_i}{dx} + v_i\frac{dn_i}{dx} = 0$$
+
+Further, the ion momentum consevation from above is
+
+$$m_i n_i v_i \frac{dv_i}{dx} 

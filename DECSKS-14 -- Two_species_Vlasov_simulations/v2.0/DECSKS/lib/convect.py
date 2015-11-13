@@ -32,7 +32,7 @@ def scheme(
     f_initial = DECSKS.lib.domain.extract_active_grid(f_initial, z, sim_params)
 
     if z.str[0] == 'v':
-        f_initial, z, vz = DECSKS.lib.domain.velocity_advection_prep(f_final, f_initial, z, vz)
+        f_initial, z, vz = DECSKS.lib.domain.velocity_advection_prep(f_initial, z, vz)
 
     # (1) PUSH MOVING CELLS an integer number of cells
     z.postpointmesh = advection_step(z)
@@ -449,8 +449,7 @@ def finalize_density(sim_params, f_remapped, f_final, z, vz):
   """
     # TODO currently assuming that both dimensions are periodic, need to generalize
     if z.str[0] == 'v':
-        DECSKS.lib.domain.velocity_advection_prep(f_final, f_remapped, z, vz) # undo all transpositions
-        f_final = np.transpose(f_final)
+        f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz) # undo all transpositions
 
     # assign all active grid points to grid values on f_final
     f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped
@@ -463,8 +462,5 @@ def finalize_density(sim_params, f_remapped, f_final, z, vz):
     # complete the diagonal entry [x.N+1, vx.N + 1] with either [0,vx.N+1]
     # or [x.N+1, 0], both will be the same because of dual periodicity.
     f_final[f_remapped.shape[0], f_remapped.shape[1]] = f_final[0, f_remapped.shape[1]]
-
-    if z.str[0] == 'v':
-        f_final = np.transpose(f_final)
 
     return f_final

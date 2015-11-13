@@ -1,0 +1,48 @@
+def trans(W):
+    W = np.transpose(W)
+    return None
+
+def trans2(W):
+    W.T
+    return W
+
+class test():
+    def __init__(self):
+        self.array = np.arange(10).reshape(2,5)*20
+
+def transinst(inst):
+    inst.array = np.transpose(inst.array)
+    return return None
+
+def transinst2(inst):
+    inst.array = np.transpose(inst.array)
+    return None
+
+import numpy as np
+
+def transpose_ndarray(W):
+    """tranposes an ndarray W"""
+    W = np.transpose(W)
+    return None
+
+def transpose_attr(inst):
+    """same as transpose, but the ndarray is the attribute
+    inst.array of the instance inst
+    """
+    inst.array = np.transpose(inst.array)
+    return None
+
+class instance:
+    def __init__(self, W):
+        self.array = W
+
+
+A = np.arange(10).reshape(2,5)
+inst = instance(A)
+print A
+
+A = 
+
+
+
+

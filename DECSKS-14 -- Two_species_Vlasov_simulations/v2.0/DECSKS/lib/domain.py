@@ -27,7 +27,7 @@ class Setup:
 
             self.prepoints = np.arange(self.N)
             self.prepointmesh = np.array(np.outer( self.prepoints, np.ones([1, sim_params['active_dims'][1]]) ), dtype = int)
-            
+
         elif dim is not None and var.lower() != 't':
             # var = 'v', dim = 'x', 'y' or 'z'
             # instantiates vx, vy, or vz
@@ -190,11 +190,13 @@ class CourantNumber:
         self.int = np.array(self.int, dtype = int)
 
 
-def velocity_advection_prep(f_final, f_initial, z, vz):
+def velocity_advection_prep(f_initial, z, vz):
     """
     When advecting physical velocity variables, the implementation
     requires several transpositions. This method performs those
-    operations
+    operations. Note, the instances z and vz will are changed
+    by reference, the ndarrays f_final and f_initial need to be
+    referred (assigned) back to the caller.
 
     inputs:
     f_initial -- (ndarray, ndim=2) shape = (x.N, vx.N)
@@ -225,16 +227,12 @@ def velocity_advection_prep(f_final, f_initial, z, vz):
 
         z.prepointmesh -- (ndarray, ndim=2) shape = (vx.N, x.N)
 
+    NOTE: technically, we do not need to return the instances z and vz, as the
+    changes persist outside the function scope. We do so for clarity.
 
-
-    reverting to the appropriate dimensions for f_initial --> f_final
-    is done at the final step of lib.convect in the function call
-    lib.convect.finalize_density (also, where periodic BCs are applied
-    if specified)
     """
 
     f_initial = np.transpose(f_initial)
-    f_final = np.transpose(f_final)
 
     z.prepointmesh = np.transpose(z.prepointmesh)
     z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
@@ -245,6 +243,66 @@ def velocity_advection_prep(f_final, f_initial, z, vz):
     vz.prepointmesh = np.transpose(vz.prepointmesh)
 
     return f_initial, z, vz
+
+def velocity_advection_postproc(f_remapped, z, vz):
+    """
+    This function undoes the transpositions of velocity_advection_prep.
+    It is written as a new method just for clarity. It is not passed
+    to the other function to not include needless function call overhead.
+
+    By this point, the initial density f_initial (shape = (vx.N, x.N))
+    has been remapped (after all advection) to f_remapped (shape = (vx.N, x.N)).
+    This function returns f_remapped (shape = (x.N, vx.N)) so that it can be
+    stuffed into the final density container f_final (shape = (x.N, vx.N))
+
+    It also transposes the previously transposed ndarray attributes of
+    the instances z and vz.
+
+    inputs:
+    f_remapped -- (ndarray, ndim=2) shape = (vx.N, x.N)
+    z -- (instance) phase space variable being evolved
+
+        z.prepointmesh -- (ndarray, ndim=2)
+        z.postpointmesh -- (ndarray, ndim=3), shape = (2, vx.N, x.N)
+
+        z.CFL.frac -- (ndarray, ndim=2) shape = (vx.N, x.N)
+        z.CFL.int -- (ndarray, ndim=2) shape = (vx.N, x.N)
+
+    vz -- (instance) generalized velocity, here vz = acceleration since z = vel.
+
+        z.prepointmesh -- (ndarray, ndim=2) shape = (vx.N, x.N)
+
+    outputs:
+
+    f_remapped -- (ndarray, ndim=2) shape = (x.N, vx.N)
+    z -- (instance) phase space variable being evolved
+
+        z.prepointmesh -- (ndarray, ndim=2) shape = (x.N, vx.N)
+        z.postpointmesh -- (ndarray, ndim=3), shape = (2, x.N, vx.N)
+
+        z.CFL.frac -- (ndarray, ndim=2) shape = (x.N, vx.N)
+        z.CFL.int -- (ndarray, ndim=2) shape = (x.N, vx.N)
+
+    vz -- (instance) generalized velocity, here vz = acceleration since z = vel.
+
+        z.prepointmesh -- (ndarray, ndim=2) shape = (x.N, vx.N)
+
+    NOTE: technically, we do not need to return the instances z and vz, as the
+    changes persist outside the function scope. We do so for clarity.
+
+    """
+
+    f_remapped = np.transpose(f_remapped)
+
+    z.prepointmesh = np.transpose(z.prepointmesh)
+    z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
+
+    z.CFL.frac = np.transpose(z.CFL.frac)
+    z.CFL.int = np.transpose(z.CFL.int)
+
+    vz.prepointmesh = np.transpose(vz.prepointmesh)
+
+    return f_remapped, z, vz
 
 def extract_active_grid(f_total_grid, z, sim_params):
     """We evolve the density from the previous time step, f_old

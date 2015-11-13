@@ -1,0 +1,29 @@
+
+$$\partial_t n_{\alpha} + \vec{\nabla}_x\cdot (n_{\alpha}\vec{V}) = S$$
+
+Where $S$ is the moment of the source term in the inhomogeneous Vlasov equation (Boltzmann equation). Note, that for steady state analysis, we must include a source or else the plasma would be depleted as the species populations would be absorbed by the sink.
+
+We now proceed with the anlaysis considering 1D and steady state. The above continuity equation becomes:
+
+$$n\partial_x v_i + v_i \partial_x n = S$$
+
+and consider the ion momentum equation (see boxed equation above for electrons, we take $-e \rightarrow e$ to recover the ion equation):
+
+$$m_i nv_i \partial_x v_i = enE$$
+
+In steady state, the electrons are to a good approximation adiabtic:
+
+$$enE + T_e\partial_x n = 0 \Rightarrow enE = - T_e\partial_x n$$
+
+Combining this with the ion momentum equation:
+
+$$m_i nv_i \partial_x v_i = - T_e\partial_x n$$
+
+Solving for the derivative of the density from the continuity equation: 
+
+$$\partial_x n = \frac{1}{v_i}S - \frac{n}{v_i}\partial_x v_i$$
+
+
+
+
+
