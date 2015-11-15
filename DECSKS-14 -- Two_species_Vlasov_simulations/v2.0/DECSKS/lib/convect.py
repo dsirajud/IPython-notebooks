@@ -449,7 +449,8 @@ def finalize_density(sim_params, f_remapped, f_final, z, vz):
   """
     # TODO currently assuming that both dimensions are periodic, need to generalize
     if z.str[0] == 'v':
-        f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz) # undo all transpositions
+        # undo all transpositions
+        f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
 
     # assign all active grid points to grid values on f_final
     f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped

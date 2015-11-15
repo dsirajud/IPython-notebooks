@@ -2,6 +2,49 @@ import numpy as np
 import numpy.linalg as LA
 import DECSKS
 
+def Gauss1D1V_2S(fe, fi, x, vx, n, sim_params):
+    """Computes self-consistent electric field E by solving Gauss' law
+    using FFT/IFFT.
+
+    The signature 2S = "two species"
+
+    inputs:
+    ni -- (float) uniform background density of ions,
+                  in the future can take an input fi, to compute ni
+    f -- (ndarray, dim=2) electron density fe(x,v,n) at time step t^n
+                          used to compute ne(x,n) at time step t^n
+    x -- (instance) spatial variable
+    vx -- (instance) velocity variable
+    n -- (int) time step number, t^n
+    sim_params -- (dict) simulation parameters dictionary
+        sim_params['xi'] -- (ndarray, ndim=1) wave number vector over x
+
+    outputs:
+    E -- (ndarray,dim=2) electric field, E(x,v) = E(x) at time t^n for all (i,j)
+    """
+    fe = DECSKS.lib.domain.extract_active_grid(fe[n,:,:], x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi[n,:,:], x, sim_params)
+
+    n_total = single_integration(fi - fe, of = x, wrt = vx)
+    #    ne = single_integration(fe, of = x, wrt = vx)
+    #    ni = single_integration(fe, of = x, wrt = vx)
+    #    n_total = ni - ne
+
+    Fn_total = np.fft.fft(n_total) # transformed density
+    FE = np.zeros(n_total.shape, dtype = complex)
+
+    FE[1:] = 1 / (1j * sim_params['xi']['x'][1:]) * Fn_total[1:]
+    # implicit here is that FE[0] = 0, i.e. we solved for only the fluctuating
+    # portion of the field. If the boundary conditions are *not* periodic
+    # then some adjustment will need to be factored in (cf. notebook
+    # DECSKS-05 for discussion on how to do this)
+
+    E = np.real(np.fft.ifft(FE))
+
+    # extend for all [i,j]
+    E = np.outer(E, np.ones([1, vx.N]))
+
+    return E
 
 def Gauss1D1V(ni, f, x, vx, n, sim_params):
     """Computes self-consistent electric field E by solving Gauss' law

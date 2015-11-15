@@ -1,7 +1,7 @@
 import DECSKS
 import numpy as np
 import time
-
+ 
 def scheme(
         f,
         t,x,vx,ax,

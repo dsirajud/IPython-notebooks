@@ -81,8 +81,17 @@ def inputfile(filename):
             active_dims.append(eval('N' + phasespace_vars[var]))
 
     numdims = len(phasespace_vars)
-    density = lines[58][lines[58].find('=')+1:].strip()
-    density = density.lower()
+
+    densities_list = lines[58][lines[58].find('=')+1:].strip().split(',')
+    if len(densities_list) == 2: # if two species return dictionary of strings
+        density = {}
+        density['electron'] = densities_list[0]
+        density['electron'] = density['electron'].lower()
+        density['ion'] = densities_list[1]
+        density['ion'] = density['ion'].lower()
+
+    elif len(densities_list) == 1: # if one species return a string
+        density = densities_list[0]
 
     split_scheme = lines[77][lines[77].find('=')+1:].strip()
     split_scheme = split_scheme.upper()

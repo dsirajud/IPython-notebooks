@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 def scheme(
-        f,
+        fe, fi,
         t,x,vx,ax,
         n,
         sim_params
@@ -31,19 +31,38 @@ def scheme(
         if s == 0: # on first pass, the previous time step (n - 1) needs to be
             if coeff[s] == 'a': # advect x
                 x.CFL.compute_numbers(x, vx, split_coeff*t.width)
-                f[n,:,:] = DECSKS.lib.convect.scheme(
-                        f[n-1,:,:],
+                fe[n,:,:] = DECSKS.lib.convect.scheme(
+                        fe[n-1,:,:],
+                        n,
+                        sim_params,
+                        z = x,
+                        vz = vx)
+                fi[n,:,:] = DECSKS.lib.convect.scheme(
+                        fi[n-1,:,:],
                         n,
                         sim_params,
                         z = x,
                         vz = vx)
 
-            elif coeff[s] == 'b': # advect v
-                Ex = DECSKS.lib.fieldsolvers.Gauss1D1V(sim_params['ni'], f, x, vx, n-1, sim_params) # calculate accelerations at time zero (n-1)
+            elif coeff[s] == 'b': # advect vx
+                # calculate electric field at most recent positions of ions and electrons
+                Ex = DECSKS.lib.fieldsolvers.Gauss1D1V_2S(fe, fi, x, vx, n-1, sim_params) 
+
+                # advect electron velocities
                 ax.prepointvaluemesh = -Ex
                 vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
-                f[n,:,:] = DECSKS.lib.convect.scheme(
-                    f[n-1,:,:],
+                fe[n,:,:] = DECSKS.lib.convect.scheme(
+                    fe[n-1,:,:],
+                    n,
+                    sim_params,
+                    z = vx,
+                    vz = ax)
+
+                # advect ion velocities
+                ax.prepointvaluemesh = 1 / sim_params['mu'] * Ex
+                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
+                fi[n,:,:] = DECSKS.lib.convect.scheme(
+                    fi[n-1,:,:],
                     n,
                     sim_params,
                     z = vx,
@@ -52,25 +71,44 @@ def scheme(
         else: # each subsequent steps overwrites the previous step, all at time n until all split steps complete
             if coeff[s] == 'a': # advect x
                 x.CFL.compute_numbers(x, vx, split_coeff*t.width)
-                f[n,:,:] = DECSKS.lib.convect.scheme(
-                        f[n,:,:],
+                fe[n,:,:] = DECSKS.lib.convect.scheme(
+                        fe[n,:,:],
+                        n,
+                        sim_params,
+                        z = x,
+                        vz = vx)
+                fi[n,:,:] = DECSKS.lib.convect.scheme(
+                        fi[n,:,:],
                         n,
                         sim_params,
                         z = x,
                         vz = vx)
 
             elif coeff[s] == 'b': # advect v
-                Ex = DECSKS.lib.fieldsolvers.Gauss1D1V(sim_params['ni'], f, x, vx, n, sim_params)
+                # calculate electric field at most recent positions of ions and electrons
+                Ex = DECSKS.lib.fieldsolvers.Gauss1D1V_2S(fe, fi, x, vx, n, sim_params) 
+
+                # advect electron velocities
                 ax.prepointvaluemesh = -Ex
                 vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
-                f[n,:,:] = DECSKS.lib.convect.scheme(
-                        f[n,:,:],
-                        n,
-                        sim_params,
-                        z = vx,
-                        vz = ax)
+                fe[n,:,:] = DECSKS.lib.convect.scheme(
+                    fe[n,:,:],
+                    n,
+                    sim_params,
+                    z = vx,
+                    vz = ax)
+
+                # advect ion velocities
+                ax.prepointvaluemesh = 1 / sim_params['mu'] * Ex
+                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
+                fi[n,:,:] = DECSKS.lib.convect.scheme(
+                    fi[n,:,:],
+                    n,
+                    sim_params,
+                    z = vx,
+                    vz = ax)
 
     toc = time.time()
     print "time step %d of %d completed in %g seconds" % (n,t.N, toc - tic)
 
-    return f
+    return fe, fi

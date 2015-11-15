@@ -17,29 +17,64 @@ def setup(sim_params, t, z1, z2 = None):
     if z2 is None:
         # init density container with dims z1.N and zero time + t.N steps
         f = np.zeros([t.Ngridpoints, z1.Ngridpoints])
-        f[:,0] = initial_profile(f[0,:], sim_params, z1)
+        f[:,0] = initial_profile(f[0,:], sim_params['density'], z1)
+
+        return f
 
     elif z2 is not None:
-        f = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
-        f[0,:,:] = initial_profile(f[0,:,:], sim_params, z1, z2)
+        if len(sim_params['density']) == 1:
+            f = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
+            f[0,:,:] = initial_profile(f[0,:,:], sim_params['density'], z1, z2)
 
-    return f
+            return f
 
-def initial_profile(f0, sim_params, z1, z2 = None):
+        elif len(sim_params['density']) == 2:
+            print "made it here"
+            fe = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
+            fi = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
+
+            fe[0,:,:] = initial_profile(fe[0,:,:],
+                                        sim_params['density']['electron'],
+                                        z1, z2)
+            fi[0,:,:] = initial_profile(fi[0,:,:],
+                                        sim_params['density']['ion'],
+                                        z1, z2)
+
+            return fe, fi
+
+
+def initial_profile(f0, density, z1, z2 = None):
     """Returns the initial density specified in input file
 
     inputs:
     f0 -- (ndarray, ndim = 1,2) density container at t = 0
     density -- (str)
-    sim_params -- (dict) simulation parameters
     z1 -- (instance) phase space variable
     z2 -- (instance) phase space variable
 
     outputs:
-    f0 -- (ndarray, ndim = 1,2) initial density according
-          to sim_params['density']
+    f0 -- (ndarray, ndim = 1,2) initial density corresponding to
+          string argument, density
     """
-    density = sim_params['density']
+
+    if density == 'electron maxwellian':
+        x,v = z1, z2
+        vD = 0 # drift velocity
+        print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
+        for j in range(v.Ngridpoints):
+            f0[:,j] = 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2)
+        return f0
+
+    if density == 'ion maxwellian':
+        x,v = z1, z2
+        vD = 0 # drift velocity
+        mu = 1836.15267389 # mass ratio mi / me for Hydrogen
+        tau = 1.            # Ti / Te temperature ratio
+        print "initializing H ion maxwellian profile: drift velocity vD = %g, mi / me = %g, Ti / Te = %g " % (vD, mu, tau)
+        for j in range(v.Ngridpoints):
+            f0[:,j] = 1 / np.sqrt(2*np.pi*tau/mu) * np.exp(-(v.gridvalues[j] - vD) ** 2 / (2 * tau / mu))
+        return f0
+
     if density == 'landau':
         x,v = z1, z2
         eps, k = 0.01, 0.5

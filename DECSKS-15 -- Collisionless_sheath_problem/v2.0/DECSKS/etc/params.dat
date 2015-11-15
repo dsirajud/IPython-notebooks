@@ -4,7 +4,7 @@
                                                                               X
 Simulation specifications (case insensitive, except 'None'):
 
-High order corrections (enter: Fourier, or FD) = fd
+High order corrections (enter: Fourier, or FD) = fourier
 Global error order [if FD, must generate tables up to this order, if no corrections needed enter 1] (int) = 7
 Windowed Fourier transform on? (yes/no) = no
 
@@ -14,7 +14,7 @@ Enter the number of cells as int or None
 Enter the dimensions as float or None
 Enter the boundary conditions as strings (case insensitive)
 
-Number of cells, x = 200
+Number of cells, x = 240
 lower boundary value ax = -10 * np.pi / 3
 upper boundary value bx = 10 * np.pi / 3
 lower boundary condition = periodic

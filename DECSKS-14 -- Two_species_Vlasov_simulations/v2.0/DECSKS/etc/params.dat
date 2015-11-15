@@ -4,7 +4,7 @@
                                                                               X
 Simulation specifications (case insensitive, except 'None'):
 
-High order corrections (enter: Fourier, or FD) = fd
+High order corrections (enter: Fourier, or FD) = fourier
 Global error order [if FD, must generate tables up to this order, if no corrections needed enter 1] (int) = 7
 Windowed Fourier transform on? (yes/no) = no
 
@@ -55,8 +55,8 @@ lower boundary value at = 0
 upper boundary value bt = 22
 Simulation duration, time T = 22
 
-list all evolved phase space variables in order (x,y,z, vx,vy,vz): x, vx
-density profile = bump on tail
+list all evolved phase space variables in order (x,y,z, vx,vy,vz, no spaces): x,vx
+density profiles for electrons and ions (comma separated, no space in between) = electron maxwellian,ion maxwellian
  
 # options:
 
@@ -65,7 +65,7 @@ density profile = bump on tail
     bump on tail
     Landau
     1D1V bell
-    flower
+    flower, electron maxwellian, ion maxwellian
 
     1D, one speed options
     -------------

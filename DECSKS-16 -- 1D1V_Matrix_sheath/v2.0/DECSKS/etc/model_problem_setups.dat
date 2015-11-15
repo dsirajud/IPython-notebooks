@@ -1,0 +1,50 @@
+
+
+# for f_0_cos
+
+# domain setup #
+def domain(outfile, Nx, Nt):
+    a = -np.pi          # float, left-hand spatial boundary
+    b = np.pi           # right-hand spatial boundary
+    L = b - a         # domain length
+    dx = L /(Nx)      # width of each cell, should be L / Nx
+                      # since Nx cells and periodicity, not L / (Nx - 1)
+
+    T   = 2*np.pi         # total time (t), 0 <= t <= T, must be a float
+    dt  = T/(Nt)
+
+    ix     = np.array(range(Nx))    # vector of init index positions
+    ix_min = 0                # "min index for x mesh", labeled for
+                              # transparency
+    ix_max = Nx - 1           # "max of index for x mesh"
+    it_max = Nt               # "max of index for t mesh", Nt = # of time steps
+
+    return a, b, L, dx, T, dt, ix, ix_min, ix_max, it_max, outfile
+
+# =============================================================================
+# for f_0_tri, f_0_GB3
+
+# .................................................................#
+# domain setup #
+def domain(outfile, Nx, Nt):
+    a = -0.5         # float, left-hand spatial boundary
+    b = 0.5           # right-hand spatial boundary
+    L = b - a         # domain length
+    dx = L /(Nx)      # width of each cell, should be L / Nx
+                      # since Nx cells and periodicity, not L / (Nx - 1)
+
+    T   = 1.0         # total time (t), 0 <= t <= T, must be a float
+    dt  = T/(Nt)
+
+    ix     = np.array(range(Nx))    # vector of init index positions
+    ix_min = 0                # "min index for x mesh", labeled for
+                              # transparency
+    ix_max = Nx - 1           # "max of index for x mesh"
+    it_max = Nt               # "max of index for t mesh", Nt = # of time steps
+
+    return a, b, L, dx, T, dt, ix, ix_min, ix_max, it_max, outfile
+
+
+#=================================================================================
+
+
