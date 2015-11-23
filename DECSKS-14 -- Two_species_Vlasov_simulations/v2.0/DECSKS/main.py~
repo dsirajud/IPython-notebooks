@@ -2,7 +2,7 @@
 #============================================================================##
 #DECSKS - DEterministic Convected Scheme Kinetic Solver for Boltzmann systems #
 #-----------------------------------------------------------------------------#
-# 1D1V Vlasov-Poisson system, two species                                     #
+# CURRENT SETUP: 1D1V, Vlasov-Poisson system with cold ion background         #
 #                                                                             #
 #     __author__     = David Sirajuddin                                       #
 #     __version__    = 2.0                                                    #

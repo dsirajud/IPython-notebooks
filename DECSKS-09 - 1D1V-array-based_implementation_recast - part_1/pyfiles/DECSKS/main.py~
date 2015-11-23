@@ -5,19 +5,15 @@
 # CURRENT SETUP: 1D1V, Vlasov-Poisson system with cold ion background         #
 #                                                                             #
 #     __author__     = David Sirajuddin                                       #
-#     __version__    = 2.0                                                    #
+#     __version__    = 1.1                                                    #
 #     __email__      = sirajuddin@wisc.edu                                    #
 #     __status__     = in development                                         #
 #                                                                             #
 # Python code is crafted with some attention to PEP8 style standards          #
-# https://www.python.org/dev/peps/pep-0008/ for                               #
+# for Python 2.7.3 / NumPy 1.10.0                                             #
 #                                                                             #
-#     Python 2.7.3                                                            #
-#     NumPy 1.11.0.dev0+fe64f97                                               #
+#     https://www.python.org/dev/peps/pep-0008/                               #
 #                                                                             #
-#     is not compatible with Python 3+ and/or earlier Numpy releases          #
-#                                                                             #
-#     coding conventions:                                                     #
 #     packages/modules -- lowercase, no underscore                            #
 #     classes          -- CapWords                                            #
 #     instances        -- lowercase (if no symbol conflict), with underscores #

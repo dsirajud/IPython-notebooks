@@ -50,7 +50,7 @@ upper boundary value bvz = None
 lower boundary condition = None
 upper boundary condition = None
 
-Number of time steps, Nt = 10
+Number of time steps, Nt = 44
 lower boundary value at = 0
 upper boundary value bt = 22
 Simulation duration, time T = 22
