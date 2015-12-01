@@ -46,7 +46,7 @@ sim_params['m_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(f[0,:,:]
 
 # Current case: uniform background (cold) density of ions,
 sim_params['ni'] = DECSKS.lib.density.cold_background(f,x,vx,sim_params)
-
+print sim_params['ni']
 if sim_params['HOC'] == 'FD':
     sim_params['W'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrices(sim_params,x,vx)
     sim_params['W_dn1'] = DECSKS.lib.derivatives.assemble_finite_difference_weight_matrix_single_derivative(sim_params,x,dn = 1, LTE = 6)

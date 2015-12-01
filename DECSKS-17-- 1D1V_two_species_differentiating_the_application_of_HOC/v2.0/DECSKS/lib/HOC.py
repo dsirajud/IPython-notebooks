@@ -42,27 +42,6 @@ def Beta_matrix(sim_params, z, vz):
     #        alpha_tilde : alpha_tilde[q,j] = alpha_hat ** q,q = 0, 1, ... N-1
     #
 
-    # CRASH NOTICE: if the number of rows is not at least of size N
-    # this will crash the simulation since python permits
-    # indexing *ranges* beyond the final index in this limited case,
-    # e.g. if A.shape = (5,), indexing A[:9] returns the entire
-    # vector of size 5 without any error thrown (whereas, A[9] returns
-    # the expected indexing error). This is easily corrected, but
-    # requires including conditional checks
-    #
-    #     if z.CFL.frac.shape[0] < N:
-    #        alpha_hat = np.zeros((N, z.CFL.frac.shape[1]))
-    #        alpha_hat[:z.CFL.frac.shape[0], :] = z.CFL.frac
-    #
-    #        # create duplicates for the extra rows needed
-    #
-    #        N_extra_rows = sim_params['N'] - z.CFL.frac.shape[0]
-    #        alpha_hat[z.CFL.frac.shape[0]:N_extra_rows, :] = \
-    #            z.CFL.frac[:N_extra_rows, :]
-    #
-
-    # the matrix alpha_hat is N x vz.N
-
     # catch cases where N > z.N, need to append extra (N - z.N)
     # copies of any row (all the same) to the remaining rows of alpha_hat
     if z.CFL.frac.shape[0] < sim_params['N']:

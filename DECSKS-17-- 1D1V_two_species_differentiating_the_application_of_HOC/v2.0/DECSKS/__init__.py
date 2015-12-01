@@ -9,7 +9,6 @@ import lib.HOC
 import lib.plots
 import lib.read
 import lib.status
-import lib.split_fd
-import lib.split_fourier
+import lib.split
 import lib.velocityfields
- 
+import lib.read_DECSKS16

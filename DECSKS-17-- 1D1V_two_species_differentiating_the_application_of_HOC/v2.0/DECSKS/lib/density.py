@@ -22,6 +22,11 @@ def setup(sim_params, t, z1, z2 = None):
         return f
 
     elif z2 is not None:
+        # TODO make this compatible with intended changes for unifying
+        # the density dictionary object for both one species and two species
+        # when that change is made, the length of the dictionaries will be
+        # the same. Need to distinguish between cases with a cold background
+        # and cases where two densities are evolved alongside it.
         if len(sim_params['density']) == 1:
             f = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
             f[0,:,:] = initial_profile(f[0,:,:], sim_params['density'], z1, z2)
@@ -56,6 +61,17 @@ def initial_profile(f0, density, z1, z2 = None):
     f0 -- (ndarray, ndim = 1,2) initial density corresponding to
           string argument, density
     """
+
+    if density == 'const': # set up to be compatible with periodic condition on phi
+                           # so that n_i,avg = n_e,avg
+
+        ne_avg = 0.970710678119 # for bump on tail with above domain
+        #        fi0 = 0.00289675130128
+        fi0 = ne_avg / (16.)
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
+
+        #        f0[:,150] = ne_avg / (z2.prepointvalues[-1] - z2.prepointvalues[0])
+        return f0
 
     if density == 'electron maxwellian':
         x,v = z1, z2
@@ -200,6 +216,11 @@ def cold_background(f,x,v,sim_params):
     ne = single_integration(f[0,:x.N,:v.N], of = x, wrt = v)
     Ne = single_integration(ne, wrt = x)
     ni = Ne / (bx - ax)
+
+    avx, bvx = sim_params['avx'], sim_params['bvx']
+
+    fi0 = ni / (bx - ax) / (bvx - avx)
+    print fi0
     return ni
 
 def single_integration(f, of = None, wrt = None):

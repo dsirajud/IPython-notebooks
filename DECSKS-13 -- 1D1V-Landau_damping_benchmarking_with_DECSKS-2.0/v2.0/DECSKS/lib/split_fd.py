@@ -64,6 +64,7 @@ def scheme(
             elif coeff[s] == 'b': # advect v
                 phi = DECSKS.lib.fieldsolvers.Poisson_PBC_6th_1D1V(sim_params['ni'], f, x, vx, n, sim_params)
                 dphi = 1 / x.width ** 1 * sim_params['W_dn1'].dot(phi) # currently W_dn1 is a 6th order LTE matrix of FD coeffs for first derivative
+
                 ax.prepointvaluemesh = dphi
 
                 vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)

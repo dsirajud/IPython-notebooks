@@ -294,7 +294,7 @@ def flux(
     # calls lib.derivatives.fd or lib.derivatives.fourier based on the
     # HOC specified in etc/params.dat, sim_params['derivative_method']
     # contains the related function handle as a string
-    d = eval(sim_params['derivative_method'])(f_old, z, vz, sim_params)
+    d = eval(sim_params['derivative_method'][z.str])(f_old, z, vz, sim_params)
 
     # compute high order fluxes column-by-column
     Uf = np.zeros(f_old.shape)

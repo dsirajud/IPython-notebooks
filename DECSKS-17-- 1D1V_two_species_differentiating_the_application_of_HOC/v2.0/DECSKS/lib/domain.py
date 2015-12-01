@@ -108,8 +108,11 @@ class Setup:
 
             self.N = sim_params['N' + var] # number of timesteps
             self.Ngridpoints = self.N + 1 # total number of time grid points
-            self.a = float(sim_params['a' + var])
-            self.b = float(sim_params['b' + var])
+
+            # the following are defined for us in the method self.generate_Eulerian_mesh            
+            self.a = 0.0
+            self.b = float(sim_params['T'])
+
             self.T = float(self.b - self.a)
             self.width = self.T / self.N
             self.stepnumbers = np.array(range(1,self.Ngridpoints))

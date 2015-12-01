@@ -2,11 +2,21 @@ import numpy as np
 import numpy.linalg as LA
 import DECSKS
 
-def Gauss1D1V_2S(fe, fi, x, vx, n, sim_params):
-    """Computes self-consistent electric field E by solving Gauss' law
-    using FFT/IFFT.
+def compute_electric_field_fd(fe, fi, x, vx, n, sim_params):
 
-    The signature 2S = "two species"
+
+    phi = Poisson_PBC_6th_1D1V_2S(fe, fi, x, vx, n, sim_params)
+
+    # currently the finite difference weight matrix W_dn1 is a 6th order LTE to
+    # match the 6th order LTE on the Poisson solve
+    dphi = 1 / x.width ** 1 * sim_params['W_dn1_LTE6'].dot(phi)
+    Ex = -dphi
+
+    return Ex
+
+def compute_electric_field_fourier(fe, fi, x, vx, n, sim_params):
+    """Computes self-consistent electric field E by solving Gauss' law
+    using FFT/IFFT for two species.
 
     inputs:
     ni -- (float) uniform background density of ions,
@@ -26,9 +36,6 @@ def Gauss1D1V_2S(fe, fi, x, vx, n, sim_params):
     fi = DECSKS.lib.domain.extract_active_grid(fi[n,:,:], x, sim_params)
 
     n_total = single_integration(fi - fe, of = x, wrt = vx)
-    #    ne = single_integration(fe, of = x, wrt = vx)
-    #    ni = single_integration(fe, of = x, wrt = vx)
-    #    n_total = ni - ne
 
     Fn_total = np.fft.fft(n_total) # transformed density
     FE = np.zeros(n_total.shape, dtype = complex)
@@ -199,9 +206,77 @@ def Poisson_PBC_6th_1D1V(ni, f,
 
     # PBCs do not produce unique solutions but a family of solutions with arbitrary integration constant
     # that corresponds to a DC offset phi_avg, recenter so that phi_avg = 0
-
     phi_avg = np.sum(phi) * x.width / x.L
     phi -= phi_avg
+
+    # generate the 2D map for every [i,j], note that each row is constant
+    phi = np.outer(phi, np.ones([1,vx.N]))
+
+    return phi
+
+def Poisson_PBC_6th_1D1V_2S(fe, fi,
+                x, vx, n,
+                sim_params):
+    """6th order LTE finite difference Poisson solver for periodic BCs
+
+    The signature 2S = "two species"
+
+    inputs:
+    fe -- (ndarray, dim=2) electron density fe(x,v,n) at time step t^n
+                          used to compute ne(x,n) at time step t^n
+    fi -- (ndarray, dim=2) ion density fe(x,v,n) at time step t^n
+                          used to compute ni(x,n) at time step t^n
+    x -- (instance) spatial variable
+    v -- (instance) velocity variable
+    n -- (int) time step number, t^n
+
+
+    outputs:
+    phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
+           for i = 0, 1, ... , x.N - 1, one full period
+    """
+    fe = DECSKS.lib.domain.extract_active_grid(fe[n,:,:], x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi[n,:,:], x, sim_params)
+
+    # THIS DOESN'T WORK BECAUSE I RANDOMLY CHOSE CHARGE DENSITIES WITHOUT
+    # MAKING SURE THAT PERIODIC BCS ARE EVEN VALID, I.E. THE IMPLICATION
+    # OF PERIODIC BCS IS THAT INTEGRAL RHO DV = 0 ! THAT'S WHY
+    # IT DOES WORK IF i PUT IN 0.9707... BECAUSE THAT ENSURES CHARGE
+    # NEUTRALITY, BUT DOESN'T WORK IF i TRY TO USE THE RANDOM DENSITY CHOSEN
+    # FOR ION IN ETC/PARAMS.DAT.
+
+    # NOW IT WORKS FOR THE FOURIER CASE, BECAUSE IT CAN'T COMPUTE THE DC
+    # OFFSET ANYWAY, IT'S ALL NON DC COMPONENTS THAT ARE COMPUTED, SO THE
+    # AVERAGE 'OFFSET' IS SUBTRACTED OFF AUTOMATICALLY.
+
+    # HERE, WE MANUALLY HAVE TO SUBTRACT OFF THE AVERAGE, AND IT ISN'T
+    # SUCH THAT IT'S CHARGE DENSITY INTEGRATES TO ZERO, SO IT FAILS
+
+    # Poisson eq. has -(charge density) = ne - ni
+    n_total = single_integration(fe - fi, of = x, wrt = vx)
+
+    #    ne = single_integration(fe, of = x, wrt = vx)
+    #    ni = 0.970710678119
+    #    n_total = ne - ni
+    n_avg = np.sum(n_total) * x.width / x.L
+    print n_avg
+    # form the tensor objects involved in the numerical solution
+    #
+    #     d^2 phi = n --> D*phi = B*n + phi_BC
+
+    # label the RHS as b = dx ** 2 * B*n
+    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n_total)
+
+    # solve D*phi = b
+    phi = LA.solve(sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['D'], b)
+
+    # PBCs do not produce unique solutions but a family of solutions with arbitrary integration constant
+    # that corresponds to a DC offset phi_avg, recenter so that phi_avg = 0
+
+    phi_avg = np.sum(phi) * x.width / x.L
+
+    phi -= phi_avg
+    phi_avg = np.sum(phi) * x.width / x.L
 
     # generate the 2D map for every [i,j], note that each row is constant
     phi = np.outer(phi, np.ones([1,vx.N]))

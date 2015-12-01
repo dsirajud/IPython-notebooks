@@ -15,13 +15,6 @@ class Plots:
         self.Nv_str = 'Nv%d' % v.Ngridpoints
         self.Nt_str = 'Nt%d' % t.N
 
-        if sim_params['HOC'] == 'FOURIER':
-            self.N_str  = 'F%d'  % sim_params['N']
-        elif sim_params['HOC'] == 'FD':
-            self.N_str  = 'FD%d' % sim_params['N']
-        else:
-            self.N_str = 'Classic_CS'
-
         self.it_str = 'it%05d' % it
 
         self.t = t
@@ -51,7 +44,7 @@ class PlotSetup(Plots):
               + self.dimensionality + self.underscore \
               + species + self.underscore \
               + self.splitscheme + self.underscore \
-              + self.N_str + self.Nx_str + self.Nv_str + self.Nt_str \
+              + self.Nx_str + self.Nv_str + self.Nt_str \
               + self.underscore + self.it_str + self.fileformat
 
             self.X, self.V = np.meshgrid(self.x.gridvalues,self.v.gridvalues)
@@ -63,7 +56,7 @@ class PlotSetup(Plots):
             self.filename = self.filetype + self.divider \
               + self.dimensionality + self.underscore \
               + self.splitscheme + self.underscore \
-              + self.N_str + self.Nx_str + self.Nv_str + self.Nt_str \
+              + self.Nx_str + self.Nv_str + self.Nt_str \
               + self.underscore + self.it_str + self.fileformat
 
             self.f = f
