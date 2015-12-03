@@ -39,7 +39,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read_DECSKS16.inputfile('./etc/params.dat')
+sim_params = DECSKS.lib.read_DECSKS16.inputfile('./etc/params_s17-02.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -52,6 +52,21 @@ t = DECSKS.lib.domain.Setup(sim_params, var = 't')
 # set up two species
 fe, fi = DECSKS.lib.density.setup(sim_params, t, x, vx)
 
+print "densities are"
+print sim_params['density']['electron']
+print sim_params['density']['ion']
+
+ne = np.sum(fe, axis = 1) * vx.width
+ni = np.sum(fi, axis = 1) * vx.width
+
+ne_int = np.sum(ne) * x.width
+ni_int = np.sum(ni) * x.width
+
+print "neint = "
+print ne_int
+print "niint = "
+print ni_int 
+
 # store total mass for conservation checks, TODO do not need the x phase space variable pass
 sim_params['me_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fe[0,:,:], x, sim_params)))
 sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi[0,:,:], x, sim_params)))
@@ -59,7 +74,7 @@ sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi[0,:,
 # TODO add this to lib.read, right now you need to make sure you use
 # TODO the same mu and tau as in density.setup for sim_params['density']
 sim_params['mu'] = 1836.15267389 # mass ratio mi / me for Hydrogen
-sim_params['tau'] = 1. # Ti / Te temperature ratio
+sim_params['tau'] = 1./30 # Ti / Te temperature ratio
 
 #ni = DECSKS.lib.density.cold_background(fe, x, vx, sim_params)
 
@@ -70,6 +85,7 @@ Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electr
 Plot(n = 0)
 Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
 Plot(n = 0)
+
 
     # create and store densities at a chosen x, here we choose x = 0, or x.gridpoints[240 / 2] = x.gridpoints[120]
     #fe_v = np.zeros([t.N+1, fe.shape[2]])
@@ -92,7 +108,6 @@ for n in t.stepnumbers:
     Plot(n)
     Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
     Plot(n)
-
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat

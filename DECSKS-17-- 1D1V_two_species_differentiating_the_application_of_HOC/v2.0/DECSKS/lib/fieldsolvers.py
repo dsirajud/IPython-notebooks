@@ -238,26 +238,19 @@ def Poisson_PBC_6th_1D1V_2S(fe, fi,
     fe = DECSKS.lib.domain.extract_active_grid(fe[n,:,:], x, sim_params)
     fi = DECSKS.lib.domain.extract_active_grid(fi[n,:,:], x, sim_params)
 
-    # THIS DOESN'T WORK BECAUSE I RANDOMLY CHOSE CHARGE DENSITIES WITHOUT
-    # MAKING SURE THAT PERIODIC BCS ARE EVEN VALID, I.E. THE IMPLICATION
-    # OF PERIODIC BCS IS THAT INTEGRAL RHO DV = 0 ! THAT'S WHY
-    # IT DOES WORK IF i PUT IN 0.9707... BECAUSE THAT ENSURES CHARGE
-    # NEUTRALITY, BUT DOESN'T WORK IF i TRY TO USE THE RANDOM DENSITY CHOSEN
-    # FOR ION IN ETC/PARAMS.DAT.
-
-    # NOW IT WORKS FOR THE FOURIER CASE, BECAUSE IT CAN'T COMPUTE THE DC
-    # OFFSET ANYWAY, IT'S ALL NON DC COMPONENTS THAT ARE COMPUTED, SO THE
-    # AVERAGE 'OFFSET' IS SUBTRACTED OFF AUTOMATICALLY.
-
-    # HERE, WE MANUALLY HAVE TO SUBTRACT OFF THE AVERAGE, AND IT ISN'T
-    # SUCH THAT IT'S CHARGE DENSITY INTEGRATES TO ZERO, SO IT FAILS
-
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
+
+    print "int ne dx = "
+    print np.sum(single_integration(fe, of = x, wrt = vx)) * x.width
+
+    print "int ni dx = "
+    print np.sum(single_integration(fi, of = x, wrt = vx)) * x.width
 
     #    ne = single_integration(fe, of = x, wrt = vx)
     #    ni = 0.970710678119
     #    n_total = ne - ni
+
     n_avg = np.sum(n_total) * x.width / x.L
     print n_avg
     # form the tensor objects involved in the numerical solution
@@ -284,20 +277,25 @@ def Poisson_PBC_6th_1D1V_2S(fe, fi,
     return phi
 
 def single_integration(f, of = None, wrt = None):
-    """integrates once a single variable or two variable
+    """integrates once a two variable
     function, i.e. computes integral f(z,wrt) d(wrt) = f(z),
-    or integral f(wrt) d(wrt) = F. For the case of a two
-    variable function, 'of' is the unintegrated variable
-    such that f is a function 'of' that variable after it was
-    integrated with respect to the variable 'wrt'. Momentarily
-    writing of = z, the returned integrated function would
+    or integral f(wrt) d(wrt) = F. the keyword
+    'of' is the unintegrated variable such that f is a function
+    'of' that variable after it is integrated with respect
+    to the variable 'wrt'. Momentarily writing of = z, the
+    returned integrated function would 
     then be F = F(z). If of = None, then the return is
     F = sum(F)*wrt.width = constant.
 
     Note: there is no need for conditional checks here,
     if we wish to integrate along rows we specificy axis = 0
     in numpy.sum. If the density passed is 1D, axis = 0 still
-    adds up all the entries as needed.
+    adds up all the entries as needed. The axis argument
+    indicates the 'direction' of summing.
+
+    for a 2D matrix = (rows, cols):
+    axis = 0 would sum every row for each column
+    axis = 1 would sum every column for each row
 
     inputs:
     f -- (ndarray, ndim = 1,2) density at a given time

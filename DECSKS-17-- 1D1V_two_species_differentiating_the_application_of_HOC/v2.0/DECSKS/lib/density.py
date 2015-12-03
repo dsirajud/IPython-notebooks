@@ -97,7 +97,21 @@ def initial_profile(f0, density, z1, z2 = None):
         print "initializing Landau profile"
         for i in range(x.Ngridpoints):
             for j in range(v.Ngridpoints):
-                f0[i,j] =1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.gridvalues[i])) * np.exp(-v.gridvalues[j] ** 2 / 2.)
+                f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.gridvalues[i])) * np.exp(-v.gridvalues[j] ** 2 / 2.)
+        return f0
+
+    if density == 'quadratic ion maxwellian':
+        x, v = z1, z2
+        tau = 1/30.
+        mu = 1836.15267389
+        var = 1000.
+        A_quadratic = 0.006638859435540892
+        A_maxwellian = np.sqrt(1 / (var*np.pi * tau / mu))
+        for i in range(x.N):
+            for j in range(v.N):
+                f0[i,j] = A_quadratic*x.gridvalues[i] ** 2 \
+                  * A_maxwellian * np.exp(-(v.gridvalues[j]) ** 2 / (var * tau / mu) )
+
         return f0
 
     if density == 'bump on tail':
@@ -220,7 +234,7 @@ def cold_background(f,x,v,sim_params):
     avx, bvx = sim_params['avx'], sim_params['bvx']
 
     fi0 = ni / (bx - ax) / (bvx - avx)
-    print fi0
+
     return ni
 
 def single_integration(f, of = None, wrt = None):
