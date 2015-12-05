@@ -10,7 +10,7 @@ def main(Nx = 24, a = 0, b = 1, return_all_results = 'no'):
     b -- (float) right boundary of x-domain
     return_all_results -- (str) if 'yes', function returns ( x, phi, phi_exact, error)
                           elif 'no', function returns (error)
-                          
+
     outputs:
     error -- (float) L2 norm
     x -- (ndarray, ndim = 1) mesh points (abscissa)
@@ -24,20 +24,20 @@ def main(Nx = 24, a = 0, b = 1, return_all_results = 'no'):
     x = np.linspace(a, b, Nx) # spacing dx = (b - a ) / (Nx - 1)
     dx = L / (Nx - 1)
 
-    
+
     # phi_exact is chosen, Poisson's equation gives n
     n = -np.pi**4 * np.sin(np.pi**2 * x)
     phi_exact = np.sin(np.pi**2 * x)
-    
+
     # the boundary values from phi_exact are seen to be:
     phi_a = 0
     phi_b = np.sin(np.pi**2)
-    
+
     # form the tensor objects involved in the numerical solution
     #
     #     d^2 phi = n --> D*phi = B*n + phi_BC
 
-     
+
 
     # Assemble FD coefficient matrix on phi: D
     D = np.zeros([Nx,Nx])
@@ -81,6 +81,7 @@ def main(Nx = 24, a = 0, b = 1, return_all_results = 'no'):
             B[i,i] = 209/240.
             B[i,i+1] = 3/40.
 
+
     # Dirichlet boundary conditions (DBC) vector
     phi_DBC = np.zeros(Nx)
     phi_DBC[0] = phi_a
@@ -91,7 +92,7 @@ def main(Nx = 24, a = 0, b = 1, return_all_results = 'no'):
 
     # solve D*phi = b
     phi = LA.solve(D,b)
-    
+
     # define normalized root-mean square error, i.e. normalized L2 norm of the error
     error_norm = LA.norm(phi_exact - phi,2) * np.sqrt(dx / L)
 

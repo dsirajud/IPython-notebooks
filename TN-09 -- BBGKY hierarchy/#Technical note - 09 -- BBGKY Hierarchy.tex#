@@ -1,0 +1,51 @@
+Writing $\vec{E}_i = -\frac{\partial}{\partial\vec{x}_i}\phi_i = -\frac{\partial}{\partial\vec{x}_i}\sum_{j\neq i} \phi_{ij} = -\frac{\partial}{\partial\vec{x}_i}\sum_{j\neq i} \frac{q_j}{|x_i - x_j|}$, Liouville's equation is equivalent to
+
+$$\left(\frac{\partial}{\partial t} + \sum_i \left(\vec{v}_i\cdot\frac{\partial}{\partial\vec{x}_i}  - \frac{q}{m}\frac{\partial\phi_i}{\partial\vec{x}_i}\cdot \frac{\partial}{\partial\vec{v}_i}\right)\right)D_N = \frac{d}{dt}D_N = 0$$
+
+If we introduce the one-particle Hamiltonian $\mathcal{H}_i$:
+
+$$\mathcal{H}_i = \frac{p_i^2}{2m} + q_i\phi_i$$
+
+Note that,
+
+$$\frac{\partial\mathcal{H}_i}{\partial\vec{p}_i} = \frac{1}{2m}\frac{\partial}{\partial\vec{p}_i}(\vec{p}_i\cdot\vec{p}_i) = \frac{2\vec{p}_i\cdot\frac{\partial\vec{p}_i}{\partial\vec{p}_i}}{2m} =  \frac{2\vec{p}_i\cdot\vec{\vec{I}}}{2m}  =  \frac{2\vec{p}_i}{2m} = \frac{2m\vec{v}_i}{2m} = \vec{v}_i $$
+
+and
+
+$$\frac{\partial\mathcal{H}_i}{\partial\vec{x}_i} = q_i \frac{\partial\phi_i}{\partial\vec{x}_i}$$
+
+Then, the Poisson bracket formulation follows naturally:
+
+$$\frac{\partial}{\partial t} + \sum_i \{D_N, \mathcal{H}_i\} = 0$$
+
+where the bracket 
+
+$$\{D_N, \mathcal{H}_i\} = \frac{\partial \mathcal{H}_i}{\partial \vec{x}_i}\cdot \frac{\partial D_N}{\partial \vec{p}_i} - \frac{\partial\mathcal{H}_i}{\partial \vec{p}_i}\frac{\partial D_N}{\partial \vec{x}_i}$$
+
+
+
+$$\left(\frac{\partial}{\partial t} + \sum_i \left(\vec{v}_i\cdot\frac{\partial}{\partial\vec{x}_i}  - \frac{q}{m}\vec{\nabla}_{x_i}\phi\cdot \frac{\partial}{\partial\vec{v}_i}\right)\right)\D_N = \frac{d}{dt}D_N = 0$$
+
+
+$$H_N = \sum_i \left(\vec{v}_i\cdot\frac{\partial}{\partial\vec{x}_i}  + \frac{q}{m}\vec{E}\cdot \frac{\partial}{\partial\vec{v}_i}\right)$$
+
+So that Liouville's equation is equivalent to
+
+
+
+
+
+$$\left(\frac{\partial}{\partial t} + H_N)D_N = \frac{d}{dt}D_N = 0$$
+
+
+
+
+
+
+
+
+
+
+
+
+
