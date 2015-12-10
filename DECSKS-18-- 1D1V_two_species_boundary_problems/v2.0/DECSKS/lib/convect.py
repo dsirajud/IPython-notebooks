@@ -34,16 +34,21 @@ def scheme(
     if z.str[0] == 'v':
         f_initial, z, vz = DECSKS.lib.domain.velocity_advection_prep(f_initial, z, vz)
 
-    # (1) PUSH MOVING CELLS an integer number of cells
+    # (1) ADVECT DENSITY AND COMPUTE CORRESPONDING FLUXES
     z.postpointmesh = advection_step(z)
 
-    # (*) APPLY BOUNDARY CONDITIONS
-    z.postpointmesh = DECSKS.lib.boundaryconditions.periodic(z.postpointmesh, z.N)
+    # compute high order fluxes
+    Uf = flux(
+        sim_params,
+        f_initial,
+        z, vz
+        )
 
     # (2) REMAP DENSITY TO GRID
     f_remapped = remap_step(
                        sim_params,
                        f_initial,
+                       Uf,
                        n,
                        z,
                        vz
@@ -53,7 +58,7 @@ def scheme(
     # f_new = DECSKS.lib.collisions.collisiontype(f_old, z, n)
 
     # (4) RETURN FINAL DESTINY (density*)
-    f_final = finalize_density(sim_params, f_remapped, f_final, z, vz)
+    f_final = finalize_density_absorbing(sim_params, f_remapped, f_final, z, vz)
 
     return f_final
 #---------------------------------------------------------------------------  #
@@ -125,6 +130,7 @@ def advection_step(z):
 def remap_step(
         sim_params,
         f_old,
+        Uf,
         n,
         z,
         vz
@@ -158,6 +164,7 @@ def remap_step(
 
    remap the appropriate proportion to the nearest neighbor gridpoints
    f_k1 = convect.remap_assignment(
+                            sim_params,
                             f_old,
                             Uf,
                             z.postpointmesh[0,:,:],
@@ -169,6 +176,7 @@ def remap_step(
 
    remap the remaining proportion to the appropriate contiguous gridpoint
    f_k2 = convect.remap_assignment(
+                            sim_params,
                             f_old,
                             Uf,
                             z.postpointmesh[1,:,:],
@@ -222,18 +230,12 @@ def remap_step(
     possible for each index separately. The sum gives the appropriate ]
     total density f_new.
     """
-    # compute high order fluxes
-    Uf = flux(
-        sim_params,
-        f_old,
-        z, vz
-        )
 
     # remap to nearest neighbor cell center
     f_k1 = remap_assignment(
+        sim_params,
         f_old,
         Uf,
-        z.postpointmesh[0,:,:],
         z,
         vz,
         index = 'nearest'    # remaps to nearest neighbor index
@@ -241,9 +243,9 @@ def remap_step(
 
     # remap to contiguous cell center
     f_k2 = remap_assignment(
+        sim_params,
         f_old,
         Uf,
-        z.postpointmesh[1,:,:],
         z,
         vz,
         index = 'contiguous'    # remaps to contiguous neighbor of above
@@ -251,20 +253,8 @@ def remap_step(
 
     f_remapped = f_k1 + f_k2
 
-    # check for density conservationfor every gridpoint
-
-    #    k = z.postpointmesh
-
-    #    for i in range(f_old.shape[0]):
-    #        for j in range(f_old.shape[1]):
-    #            if (f_old[i,j] != f_k1[k[0,i,j],j] + f_k2[k[1,i,j], j]):
-    #                print "density not conserved from prepoint [%d, %d], the difference is %g" % (i,j,
-    #                                                                                              f_old[i,j] - (f_k1[k[0,i,j],j] + f_k2[k[1,i,j], j]))
-
-    # global check on density conservation
-    #    DECSKS.lib.density.global_conservation_check(sim_params, f_remapped, n)
-
     return f_remapped
+
 # ........................................................................... #
 def flux(
         sim_params,
@@ -286,7 +276,6 @@ def flux(
 
                Uf[i,j] = sum c[q,j]*d[q,i,j] over q = 0, 1, ... N-1
     """
-
     c = DECSKS.lib.HOC.correctors(sim_params, z, vz)
 
     # evaluate derivatives q = 0, 1, 2, ... N-1 (zeroeth is density itself)
@@ -360,9 +349,9 @@ def flux_limiter(
     return Uf
 
 def remap_assignment(
+        sim_params,
         f_old,
         Uf,
-        zpostpointmesh,
         z,
         vz,
         index = 'nearest'
@@ -385,39 +374,57 @@ def remap_assignment(
     mask_neg =  (z.CFL.frac < 0)
     mask_pos = np.logical_not(mask_neg)
 
-    f_old_ma = ma.array(f_old)
-    f_pos, f_neg = ma.zeros(f_old.shape), ma.zeros(f_old.shape)
-
-    Uf_ma = ma.array(Uf)
-
-    # TODO this probably has to be switched around for v advection
-    # should be index slicing [vz.prepointmesh, zpostpointmesh] for
-    # vz = ax, z = vx maaayyyyybbeeee....everything is transposed after all
     if index == 'nearest':
+
+        f_BCs_applied = f_old.copy() # BCs will be applied to f_old
+        Uf_BCs_applied = Uf.copy()
+
+        # APPLY BOUNDARY CONDITIONS
+        # e.g. for absorbing boundaries, we zero out all prepoint density entries
+        # which exit the domain
+        f_BCs_applied, Uf_BCs_applied, z = \
+          eval(sim_params['boundarycondition_function_handle'][z.str])(
+              f_BCs_applied, Uf_BCs_applied, z, sim_params, k = 0)
+
+        f_old_ma = ma.array(f_BCs_applied)
+        Uf_ma = ma.array(Uf_BCs_applied)
+        f_pos, f_neg = ma.zeros(f_BCs_applied.shape), ma.zeros(f_BCs_applied.shape)
+
         # mask out negative values
         f_old_ma.mask = mask_neg
         Uf_ma.mask = mask_neg
 
-        f_pos[ zpostpointmesh, vz.prepointmesh ] = f_old_ma - Uf_ma
+        f_pos[ z.postpointmesh[0,:,:], vz.prepointmesh ] = f_old_ma - Uf_ma
 
         # mask out all positive values
         f_old_ma.mask = mask_pos
         Uf_ma.mask = mask_pos
 
-        f_neg[ zpostpointmesh, vz.prepointmesh ] = f_old_ma + Uf_ma
+        f_neg[ z.postpointmesh[0,:,:], vz.prepointmesh ] = f_old_ma + Uf_ma
 
     elif index == 'contiguous':
-        # mask out negative values
-        f_old_ma.mask = mask_neg
+
+        f_BCs_applied = f_old.copy() # BCs will be applied to f_old
+        Uf_BCs_applied = Uf.copy()
+
+        # APPLY BOUNDARY CONDITIONS
+        # e.g. for absorbing boundaries, we zero out all prepoint density entries
+        # which exit the domain
+        f_BCs_applied, Uf_BCs_applied, z = \
+          eval(sim_params['boundarycondition_function_handle'][z.str])(
+              f_BCs_applied, Uf_BCs_applied, z, sim_params, k = 1)
+
+        # initialize masked array for flux Uf; mask out negative values
+        f_pos, f_neg = ma.zeros(f_BCs_applied.shape), ma.zeros(f_BCs_applied.shape)
+        Uf_ma = ma.array(Uf_BCs_applied)
         Uf_ma.mask = mask_neg
 
-        f_pos[ zpostpointmesh, vz.prepointmesh ] = Uf_ma
+        f_pos[ z.postpointmesh[1,:,:], vz.prepointmesh ] = Uf_ma
 
         # mask out all positive values
-        f_old_ma.mask = mask_pos
         Uf_ma.mask = mask_pos
 
-        f_neg[ zpostpointmesh, vz.prepointmesh ] = -Uf_ma
+        f_neg[ z.postpointmesh[1,:,:], vz.prepointmesh ] = -Uf_ma
 
     # "wherever there is negative data, assign f_neg, else assign f_pos
     f_new = np.where(mask_neg == True, f_neg.data, f_pos.data)
@@ -446,13 +453,15 @@ def finalize_density(sim_params, f_remapped, f_final, z, vz):
           periodic BCs     : z.N = z.Ngridpoints - 1
                              f_final[z1.Ngridpoints - 1, :] = f_new[0,:]
                              f_final[:, z2.Ngridpoints - 1] = f_new[:,0]
-  """
-    # TODO currently assuming that both dimensions are periodic, need to generalize
+    """
+
     if z.str[0] == 'v':
         # undo all transpositions
         f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
 
-    # assign all active grid points to grid values on f_final
+    # assign all active grid points to grid values on f_final, the indexing is unnecessary
+    # but included for transparency, f_final (total grid) contains an extra column and
+    # row as compared to f_remapped (active grid)
     f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped
 
     # complete by periodicity at gridpoints [x.N + 1, :],
@@ -463,5 +472,23 @@ def finalize_density(sim_params, f_remapped, f_final, z, vz):
     # complete the diagonal entry [x.N+1, vx.N + 1] with either [0,vx.N+1]
     # or [x.N+1, 0], both will be the same because of dual periodicity.
     f_final[f_remapped.shape[0], f_remapped.shape[1]] = f_final[0, f_remapped.shape[1]]
+
+    return f_final
+
+def finalize_density_absorbing(sim_params, f_remapped, f_final, z, vz):
+    """
+    finalizes density function assuming x nonperiodic, vx periodic
+    """
+
+    if z.str[0] == 'v':
+        # undo all transpositions
+        f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
+
+    # assign all active grid points to grid values on f_final
+    f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped
+
+    # complete vx by periodicity at gridpoints [:, vx.N + 1], indexing f_remapped.shape[1] is the final
+    # gridpoint given zero based indexing.
+    f_final[:, f_remapped.shape[1]] = f_remapped[:,0]
 
     return f_final

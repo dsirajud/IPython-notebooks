@@ -2,10 +2,9 @@ import numpy as np
 import numpy.linalg as LA
 import DECSKS
 
-def compute_electric_field_fd(fe, fi, x, vx, n, sim_params):
+def compute_electric_field_fd_dirichlet(fe, fi, x, vx, n, sim_params):
 
-
-    phi = Poisson_PBC_6th_1D1V_2S(fe, fi, x, vx, n, sim_params)
+    phi = Poisson_DBC_1D1V_2S(fe, fi, x, vx, n, sim_params)
 
     # currently the finite difference weight matrix W_dn1 is a 6th order LTE to
     # match the 6th order LTE on the Poisson solve
@@ -14,7 +13,18 @@ def compute_electric_field_fd(fe, fi, x, vx, n, sim_params):
 
     return Ex
 
-def compute_electric_field_fourier(fe, fi, x, vx, n, sim_params):
+def compute_electric_field_fd_periodic(fe, fi, x, vx, n, sim_params):
+
+    phi = Poisson_PBC_1D1V_2S(fe, fi, x, vx, n, sim_params)
+
+    # currently the finite difference weight matrix W_dn1 is a 6th order LTE to
+    # match the 6th order LTE on the Poisson solve
+    dphi = 1 / x.width ** 1 * sim_params['W_dn1_LTE6'].dot(phi)
+    Ex = -dphi
+
+    return Ex
+
+def compute_electric_field_fourier_periodic(fe, fi, x, vx, n, sim_params):
     """Computes self-consistent electric field E by solving Gauss' law
     using FFT/IFFT for two species.
 
@@ -57,6 +67,13 @@ def Gauss1D1V(ni, f, x, vx, n, sim_params):
     """Computes self-consistent electric field E by solving Gauss' law
     using FFT/IFFT.
 
+    ** This is the same routine as Gauss, but it makes
+       vx.N copies of the electric field vector. This routine
+       could be used to calculate electric field related quantities
+       such as electrostatic energy, but we would need to only compute
+       over on column in order to not multiply the quantities artificially
+       by a factor of vx.N
+
     inputs:
     ni -- (float) uniform background density of ions,
                   in the future can take an input fi, to compute ni
@@ -95,6 +112,11 @@ def Gauss(ni, f, x, vx, n, sim_params):
     """Computes self-consistent electric field E by solving Poisson's equation
     using FFT/IFFT.
 
+    ** This is the same routine as Gauss1D1V, but it does *not*
+       make vx.N copies of the electric field vector. this routine is
+       is used for checking conservation of total energy and computing
+       electrostatic energy
+
     inputs:
     ni -- (float) uniform background density of ions,
                   in the future can take an input fi, to compute ni
@@ -126,7 +148,7 @@ def Gauss(ni, f, x, vx, n, sim_params):
 
     return E
 
-def Poisson_PBC_6th(ni, f,
+def Poisson_PBC(ni, f,
                 x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for periodic BCs
@@ -156,10 +178,10 @@ def Poisson_PBC_6th(ni, f,
     #     d^2 phi = n --> D*phi = B*n + phi_BC
 
     # label the RHS as b = dx ** 2 * B*n
-    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n_total)
+    b = x.width ** 2 * sim_params['Poisson_6th_order_FD_solver_matrices']['B'].dot(n_total)
 
     # solve D*phi = b
-    phi = LA.solve(sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['D'], b)
+    phi = LA.solve(sim_params['Poisson_6th_order_FD_solver_matrices']['D'], b)
 
     # PBCs do not produce unique solutions but a family of solutions with arbitrary integration constant
     # that corresponds to a DC offset phi_avg, recenter so that phi_avg = 0
@@ -199,10 +221,10 @@ def Poisson_PBC_6th_1D1V(ni, f,
     #     d^2 phi = n --> D*phi = B*n + phi_BC
 
     # label the RHS as b = dx ** 2 * B*n
-    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n_total)
+    b = x.width ** 2 * sim_params['Poisson_6th_order_FD_solver_matrices']['B'].dot(n_total)
 
     # solve D*phi = b
-    phi = LA.solve(sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['D'], b)
+    phi = LA.solve(sim_params['Poisson_6th_order_FD_solver_matrices']['D'], b)
 
     # PBCs do not produce unique solutions but a family of solutions with arbitrary integration constant
     # that corresponds to a DC offset phi_avg, recenter so that phi_avg = 0
@@ -214,7 +236,7 @@ def Poisson_PBC_6th_1D1V(ni, f,
 
     return phi
 
-def Poisson_PBC_6th_1D1V_2S(fe, fi,
+def Poisson_PBC_1D1V_2S(fe, fi,
                 x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for periodic BCs
@@ -241,29 +263,19 @@ def Poisson_PBC_6th_1D1V_2S(fe, fi,
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
 
-    print "int ne dx = "
-    print np.sum(single_integration(fe, of = x, wrt = vx)) * x.width
-
-    print "int ni dx = "
-    print np.sum(single_integration(fi, of = x, wrt = vx)) * x.width
-
-    #    ne = single_integration(fe, of = x, wrt = vx)
-    #    ni = 0.970710678119
-    #    n_total = ne - ni
-
-    n_avg = np.sum(n_total) * x.width / x.L
-    print n_avg
     # form the tensor objects involved in the numerical solution
     #
     #     d^2 phi = n --> D*phi = B*n + phi_BC
 
     # label the RHS as b = dx ** 2 * B*n
-    b = x.width ** 2 * sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['B'].dot(n_total)
+    b = x.width ** 2 * sim_params['Poisson_6th_order_FD_solver_matrices']['B'].dot(n_total)
 
     # solve D*phi = b
-    phi = LA.solve(sim_params['Poisson_6th_order_PBC_FD_solver_matrices']['D'], b)
+    phi = LA.solve(sim_params['Poisson_6th_order_FD_solver_matrices']['D'], b)
 
-    # PBCs do not produce unique solutions but a family of solutions with arbitrary integration constant
+    # boundary conditions: periodic
+
+    # periodic do not produce unique solutions but a family of solutions with arbitrary integration constant
     # that corresponds to a DC offset phi_avg, recenter so that phi_avg = 0
 
     phi_avg = np.sum(phi) * x.width / x.L
@@ -276,6 +288,62 @@ def Poisson_PBC_6th_1D1V_2S(fe, fi,
 
     return phi
 
+def Poisson_DBC_1D1V_2S(fe, fi,
+                x, vx, n,
+                sim_params):
+    """6th order LTE finite difference Poisson solver for Dirichlet BCs
+
+    see notebook DECSKS-04 for details on construction
+
+    https://github.com/dsirajud/IPython-notebooks/blob/master/
+    DECSKS-04%20--%20Design%20of%20a%206th%20order%20FD%20Poisson%20solver/
+    DECSKS-04%20--%20Design%20of%20a%206th%20order%20FD%20Poisson%20solver.ipynb
+
+    The signature 2S = "two species"
+
+    inputs:
+    fe -- (ndarray, dim=2) electron density fe(x,v,n) at time step t^n
+                          used to compute ne(x,n) at time step t^n
+    fi -- (ndarray, dim=2) ion density fe(x,v,n) at time step t^n
+                          used to compute ni(x,n) at time step t^n
+    x -- (instance) spatial variable
+    v -- (instance) velocity variable
+    n -- (int) time step number, t^n
+
+
+    outputs:
+    phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
+           for i = 0, 1, ... , x.N - 1, one full period
+    """
+    fe = DECSKS.lib.domain.extract_active_grid(fe[n,:,:], x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi[n,:,:], x, sim_params)
+
+    # Poisson eq. has -(charge density) = ne - ni
+    n_total = single_integration(fe - fi, of = x, wrt = vx)
+
+    # form the tensor objects involved in the numerical solution
+    #
+    #     d^2 phi = n --> D*phi = b
+    #
+    # where     b = x.width ** 2 * B*n + phi_BC
+
+    # boundary conditions: dirichlet
+
+    phi_DBC = np.zeros(x.N)
+    phi_DBC[0] = sim_params['BC']['x']['phi']['lower']
+    phi_DBC[-1] = sim_params['BC']['x']['phi']['upper']
+
+    b = x.width ** 2 * sim_params['Poisson_6th_order_FD_solver_matrices']['B'].dot(n_total) + phi_DBC
+
+    # solve D*phi = b
+    phi = LA.solve(sim_params['Poisson_6th_order_FD_solver_matrices']['D'], b)
+
+    # generate the 2D map for every [i,j], note that each row is constant
+    phi = np.outer(phi, np.ones([1,vx.N]))
+
+    return phi
+
+
 def single_integration(f, of = None, wrt = None):
     """integrates once a two variable
     function, i.e. computes integral f(z,wrt) d(wrt) = f(z),
@@ -283,7 +351,7 @@ def single_integration(f, of = None, wrt = None):
     'of' is the unintegrated variable such that f is a function
     'of' that variable after it is integrated with respect
     to the variable 'wrt'. Momentarily writing of = z, the
-    returned integrated function would 
+    returned integrated function would
     then be F = F(z). If of = None, then the return is
     F = sum(F)*wrt.width = constant.
 

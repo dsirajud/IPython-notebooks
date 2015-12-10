@@ -15,91 +15,257 @@ def inputfile(filename):
                          as well as a dictionary of splitting coeffs
                          needed for chosen split scheme
     """
-    rel_path = './etc/'
     infile = open(filename, 'r')
     lines = infile.readlines()
 
-    HOC = lines[6][lines[6].find('=')+1:].strip()
-    HOC = HOC.upper()
-    derivative_method = '.'.join(('DECSKS.lib.derivatives', HOC.lower()))
-    split_function_handle = '_'.join(('DECSKS.lib.split', HOC.lower()))
-    split_function_handle = '.'.join((split_function_handle, 'scheme'))
+    # --------------------------------------------------------------------------
+    # Domain specifications
 
-    N = eval(lines[7][lines[7].find('=')+1:].strip())
-    print "%s based high order corrections, LTE[CS] = %d" % (HOC, N+1)
+    Nx = eval(lines[15][lines[15].find('=')+1:].strip())
+    ax = eval(lines[16][lines[16].find('=')+1:].strip())
+    bx = eval(lines[17][lines[17].find('=')+1:].strip())
 
-    WindowedFilter = lines[8][lines[8].find('=')+1:].strip()
-    WindowedFilter = WindowedFilter.upper()
+    Ny = eval(lines[21][lines[21].find('=')+1:].strip())
+    ay = eval(lines[22][lines[22].find('=')+1:].strip())
+    by = eval(lines[23][lines[23].find('=')+1:].strip())
 
-    Nx = eval(lines[16][lines[16].find('=')+1:].strip())
-    ax = eval(lines[17][lines[17].find('=')+1:].strip())
-    bx = eval(lines[18][lines[18].find('=')+1:].strip())
+    Nz = eval(lines[27][lines[27].find('=')+1:].strip())
+    az = eval(lines[28][lines[28].find('=')+1:].strip())
+    bz = eval(lines[29][lines[29].find('=')+1:].strip())
 
-    Ny = eval(lines[22][lines[22].find('=')+1:].strip())
-    ay = eval(lines[23][lines[23].find('=')+1:].strip())
-    by = eval(lines[24][lines[24].find('=')+1:].strip())
+    Nvx = eval(lines[33][lines[33].find('=')+1:].strip())
+    avx = eval(lines[34][lines[34].find('=')+1:].strip())
+    bvx = eval(lines[35][lines[35].find('=')+1:].strip())
 
-    Nz = eval(lines[28][lines[28].find('=')+1:].strip())
-    az = eval(lines[29][lines[29].find('=')+1:].strip())
-    bz = eval(lines[30][lines[30].find('=')+1:].strip())
+    Nvy = eval(lines[39][lines[39].find('=')+1:].strip())
+    avy = eval(lines[40][lines[40].find('=')+1:].strip())
+    bvy = eval(lines[41][lines[41].find('=')+1:].strip())
 
-    Nvx = eval(lines[34][lines[34].find('=')+1:].strip())
-    avx = eval(lines[35][lines[35].find('=')+1:].strip())
-    bvx = eval(lines[36][lines[36].find('=')+1:].strip())
+    Nvz = eval(lines[45][lines[45].find('=')+1:].strip())
+    avz = eval(lines[46][lines[46].find('=')+1:].strip())
+    bvz = eval(lines[47][lines[47].find('=')+1:].strip())
 
-    Nvy = eval(lines[40][lines[40].find('=')+1:].strip())
-    avy = eval(lines[41][lines[41].find('=')+1:].strip())
-    bvy = eval(lines[42][lines[42].find('=')+1:].strip())
+    Nt = eval(lines[51][lines[51].find('=')+1:].strip())
+    T = eval(lines[52][lines[52].find('=')+1:].strip())
 
-    Nvz = eval(lines[46][lines[46].find('=')+1:].strip())
-    avz = eval(lines[47][lines[47].find('=')+1:].strip())
-    bvz = eval(lines[48][lines[48].find('=')+1:].strip())
+    N = eval(lines[58][lines[58].find('=')+1:].strip())
 
-    Nt = eval(lines[52][lines[52].find('=')+1:].strip())
-    at = eval(lines[53][lines[53].find('=')+1:].strip())
-    bt = eval(lines[54][lines[54].find('=')+1:].strip())
-    T = eval(lines[55][lines[55].find('=')+1:].strip())
+    # --------------------------------------------------------------------------
+    # Broadcast notification regarding start of simulation and order of solver
 
-    # Boundary condition dictionary storage
-    # BC['z']['LBC'] and BC['z']['RBC'] give the BC for phase space var z
-    BC = read_boundary_conditions(lines) # pass already read-in lines from params.dat
+    print "\nStarting 1D1V Vlasov-Poisson simulation"
+    print "\nadvection solver: LTE order %d" % (N+1)
 
-    # the following list contains strings identifying all evolved phase
-    # space variables, a subset of ['x', 'y', 'z', 'vx', 'vy', 'vz']
-    phasespace_vars = lines[57][lines[57].find(':')+1:].strip().split(',')
+   # --------------------------------------------------------------------------
+    # list of phase space variables used, in etc/params.dat must set unused
+    # vars to have Nz as None, z = x, vx, y, ...
+    # e.g. in 1D1V, phasespace_vars = ['x', 'vx']
+    phasespace_vars = []
+    if Nx is not None:
+        phasespace_vars.append('x')
+    if Ny is not None:
+        phasespace_vars.append('y')
+    if Nz is not None:
+        phasespace_vars.append('z')
+    if Nvx is not None:
+        phasespace_vars.append('vx')
+    if Nvy is not None:
+        phasespace_vars.append('vy')
+    if Nvz is not None:
+        phasespace_vars.append('vz')
 
+    # --------------------------------------------------------------------------
+    # safe eval function: returns eval if successful (is a valid Name for a python
+    # object), else returns the lowercase version of the string
+
+    def safe_eval(s):
+        try:
+            return eval(s)
+        except NameError:
+            return s.lower()
+
+    # --------------------------------------------------------------------------
+    # Boundary conditions
+
+    # stored as a dictionary of dictionaries, access as
+    # BC['z']['upper'] and BC['z']['lower'] for z = {x, y, ...}
+
+    BC = {}
+    # main dictionary with key/values {'x' : {'lower' : value, 'upper : value},
+    #                                 {'y' : {'lower' : value, 'upper : value},
+    #                                 {'z' : {'lower' : value, 'upper : value},
+    #                                 {'vx' : {'lower' : value, 'upper : value},
+    #                                 {'vy' : {'lower' : value, 'upper : value},
+    #                                 {'vz' : {'lower' : value, 'upper : value},
+
+
+    # subdictionaries with key/values {'lower' : BC_value, and 'upper' : BC_value}
+
+    # will throw an error if numbers are inputted as BCs in etc/params.dat
+    BC['x'] = {}
+    BC['x']['lower'] = safe_eval(lines[18][lines[18].find('=')+1:].strip())
+    BC['x']['upper'] = safe_eval(lines[19][lines[19].find('=')+1:].strip())
+
+    BC['y'] = {}
+    BC['y']['lower'] = safe_eval(lines[24][lines[24].find('=')+1:].strip())
+    BC['y']['upper'] = safe_eval(lines[25][lines[25].find('=')+1:].strip())
+
+    BC['z'] = {}
+    BC['z']['lower'] = safe_eval(lines[30][lines[30].find('=')+1:].strip())
+    BC['z']['upper'] = safe_eval(lines[31][lines[31].find('=')+1:].strip())
+
+    BC['vx'] = {}
+    BC['vx']['lower'] = safe_eval(lines[36][lines[36].find('=')+1:].strip())
+    BC['vx']['upper'] = safe_eval(lines[37][lines[37].find('=')+1:].strip())
+
+    BC['vy'] = {}
+    BC['vy']['lower'] = safe_eval(lines[42][lines[42].find('=')+1:].strip())
+    BC['vy']['upper'] = safe_eval(lines[43][lines[43].find('=')+1:].strip())
+
+    BC['vz'] = {}
+    BC['vz']['lower'] = safe_eval(lines[48][lines[48].find('=')+1:].strip())
+    BC['vz']['upper'] = safe_eval(lines[49][lines[49].find('=')+1:].strip())
+
+    for var in ['x', 'y', 'z', 'vx', 'vy', 'vz']:
+        if BC[var]['lower'] == 'periodic' and BC[var]['upper'] == 'periodic':
+            BC[var]['type'] = 'periodic'
+        elif BC[var]['lower'] == 'periodic' and BC[var]['upper'] != 'periodic':
+            BC[var]['type'] = 'incompatible periodic BCs specified'
+        elif BC[var]['lower'] != 'periodic' and BC[var]['upper'] == 'periodic':
+            BC[var]['type'] = 'incompatible periodic BCs specified'
+        else:
+            BC[var]['type'] = 'nonperiodic'
+
+    boundarycondition_function_handle_prefix = 'DECSKS.lib.boundaryconditions'
+
+    # create a dictionary for every phase space variable simulated
+    boundarycondition_function_handle = {}
+
+    for var in phasespace_vars:
+        boundarycondition_function_handle[var] = ".".join(
+            (boundarycondition_function_handle_prefix, BC[var]['type']))
+
+    # --------------------------------------------------------------------------
+    # Store number of active gridpoints for every phase space variable
+    #
+    # Note: for periodic BCs:  Nz_active = Nz - 1
+    #       for all other BCs: Nz_active = Nz
+
+    # TODO this is acknowledged as being redundant, but more specific than the lists
+    # active_dims vs. total_dims
+    if BC['x']['lower'] == 'periodic' and BC['x']['upper'] == 'periodic' and Nx is not None:
+        Nx_active  = Nx - 1
+    else:
+        Nx_active = Nx
+
+    if BC['y']['lower'] == 'periodic' and BC['y']['upper'] == 'periodic' and Ny is not None:
+        Ny_active  = Ny - 1
+    else:
+        Ny_active = Ny
+
+    if BC['z']['lower'] == 'periodic' and BC['z']['upper'] == 'periodic' and Nz is not None:
+        Nz_active  = Nz - 1
+    else:
+        Nz_active = Nz
+
+    if BC['vx']['lower'] == 'periodic' and BC['vx']['upper'] == 'periodic' and Nvx is not None:
+        Nvx_active  = Nvx - 1
+    else:
+        Nvx_active = Nvx
+
+    if BC['vy']['lower'] == 'periodic' and BC['vy']['upper'] == 'periodic' and Nvy is not None:
+        Nvy_active  = Nvy - 1
+    else:
+        Nvy_active = Nvy
+
+    if BC['vz']['lower'] == 'periodic' and BC['vz']['upper'] == 'periodic' and Nvz is not None:
+        Nvz_active  = Nvz - 1
+    else:
+        Nvz_active = Nvz
+
+    # --------------------------------------------------------------------------
+    # High order correction (HOC) method applied to each phase space variable
+
+    # store as uppercase
+
+    HOC = {}
+    HOC['x'] = lines[68][lines[68].find(':')+1:].strip().upper()
+    HOC['y'] = lines[69][lines[69].find(':')+1:].strip().upper()
+    HOC['z'] = lines[70][lines[70].find(':')+1:].strip().upper()
+
+    HOC['vx'] = lines[72][lines[72].find(':')+1:].strip().upper()
+    HOC['vy'] = lines[73][lines[73].find(':')+1:].strip().upper()
+    HOC['vz'] = lines[74][lines[74].find(':')+1:].strip().upper()
+
+    print "will step through %d-dimensional solution in variables: %s" % (len(phasespace_vars), phasespace_vars)
+    for var in phasespace_vars:
+        print "high order correction method on %s: %s" % (var, HOC[var])
+
+    # for periodic BCs, the number of active dims is not equal to the
+    # total number of dims, we evolve "Nz-1" gridpoints, then assign
+    # the Nth point by periodicity as equal to the 0th point. Hence,
+    # a distinction is needed between active dims and total dims
+    # where we note they are identical in all cases but periodic BCs.
+
+    # TODO as mentioned above, this is now a redundant set of total grid points
+    # as compared to active grid points. At some point, need to trace where
+    # this is actually used in the code and replace or remove it
+
+    # initialize lists
     total_dims = []
     active_dims = []
+
     # strip all whitespace in each entry
-    for var in range(len(phasespace_vars)):
-        phasespace_vars[var] = phasespace_vars[var].strip()
-        total_dims.append(eval('N' + phasespace_vars[var]))
+    for var in phasespace_vars:
+        total_dims.append(eval('N' + var))
 
-        if ( (BC[phasespace_vars[var]]['lower'] == 'periodic') and (BC[phasespace_vars[var]]['upper'] == 'periodic') ):
-            active_dims.append(eval('N' + phasespace_vars[var]) - 1)
+        if ( (BC[var]['lower'] == 'periodic') and (BC[var]['upper'] == 'periodic') ):
+            active_dims.append(eval('N' + var) - 1)
         else:
-            active_dims.append(eval('N' + phasespace_vars[var]))
+            active_dims.append(eval('N' + var))
 
+    # TODO this is a misleading name, should be numvars
     numdims = len(phasespace_vars)
 
-    densities_list = lines[58][lines[58].find('=')+1:].strip().split(',')
+    # --------------------------------------------------------------------------
+    # Initial density specification
+    #
+    # the following establishes a difference between the number of densities
+    # specified in etc/params.dat. Should there be two, the solver is a two
+    # species Vlasov solver. If only one, then a cold background will be
+    # automatically computed (TODO)
+
+
+    densities_list = lines[79][lines[79].find(':')+1:].strip().split(', ')
+    for i in range(len(densities_list)):
+        densities_list[i] = densities_list[i].lower()
+
     if len(densities_list) == 2: # if two species return dictionary of strings
         density = {}
-        density['electron'] = densities_list[0]
-        density['electron'] = density['electron'].lower()
-        density['ion'] = densities_list[1]
-        density['ion'] = density['ion'].lower()
+        density['electrons'] = densities_list[0]
+        density['electrons'] = density['electrons'].lower()
+        density['ions'] = densities_list[1]
+        density['ions'] = density['ions'].lower()
+        print "\ntwo species simulation with initial densities:\n"
+        print "electrons: %s" % density['electrons']
+        print "ions:      %s\n" % density['ions']
 
     elif len(densities_list) == 1: # if one species return a string
         density = densities_list[0]
+        print "one species (electron) simulation with initial density: %s" % density
+        # TODO compute cold background, store both this and the above
+        # in a common dictionary as above for two species.
 
-    split_scheme = lines[77][lines[77].find('=')+1:].strip()
+    # --------------------------------------------------------------------------
+    # Split scheme specification
+
+    split_scheme = lines[98][lines[98].find('=')+1:].strip()
     split_scheme = split_scheme.upper()
-    print "using %s split scheme (note: only activated if more than 1D)" % split_scheme
+    print "split scheme: %s\n\n" % split_scheme
 
-    # splitting input filepath setup
-    filename  = lines[78][lines[78].find(':')+1:].strip()
-    filepath = rel_path + filename
+    # filepath to splitting coefficient tables
+    filename  = lines[99][lines[99].find(':')+1:].strip()
+    filepath = './etc/' + filename
 
     # get splitting coefficients for chosen scheme
     if split_scheme is not None:
@@ -107,51 +273,150 @@ def inputfile(filename):
     else:
         splitting = None
 
-    plot_params = plot_parameters(lines) # pass already read-in lines of params.dat
+    # --------------------------------------------------------------------------
+    # Plot window specification (used in lib.plots.Setup)
 
-    # Table of Bernoulli numbers dat filepath setup
-    filename = 'Table_of_Bernoulli_numbers.dat'
-    filepath = rel_path + filename
-    Bernoulli_numbers = Bernoulli(filepath)
+    xmin = eval(lines[113][lines[113].find('=')+1:].strip())
+    xmax = eval(lines[114][lines[114].find('=')+1:].strip())
+    ymin = eval(lines[116][lines[116].find('=')+1:].strip())
+    ymax = eval(lines[117][lines[117].find('=')+1:].strip())
 
-    record_outputs = lines[97][lines[97].find(':')+1:].strip()
+    plot_params = dict(xmin = xmin, xmax = xmax,
+                       ymin = ymin, ymax = ymax)
+
+    record_outputs = lines[120][lines[120].find(':')+1:].strip()
     record_outputs = record_outputs.lower()
 
     if record_outputs == 'yes':
         # output filepath setup
-        filename = lines[99][lines[99].find(':')+1:].strip()
-        filepath = rel_path + filename
+        filename = lines[121][lines[121].find(':')+1:].strip()
+        filepath = './etc/' + filename
         outfiles = output_files(filepath) # dictionary of opened files
     else:
         outfiles = None
 
-    if HOC == 'FD':
+    # --------------------------------------------------------------------------
+    # MISC STORAGE (e.g. stored matrices that are used routinely)
+    #
+    # dictionaries and matrices relevant for high order correction applications
+    #
+    # Constructing the finite different weight matricies, W.
+    #-------------------------------------------------------
+    #    requires: (dict) FD_schemes
+    #
+    #    Note: FD_schemes is only needed to construct W. W is what is used in
+    #          the simulation. Hence, the building routine for FD_schemes
+    #          is not optimized, since it happens before the simulation starts
+    #          and hence is not a source of repeated computational cost.
+    #
+    # FD_schemes is a dictionary containing the families of every order derivative
+    # needed for the indicated global error N in etc/params.dat, i.e. all schemes
+    # of various degrees of asymmetry and handedness. For large N, this can be a
+    # very large dictionary, see the function routine read_FD_schemes to see all
+    # that gets stored inside. It is used to construct the difference coefficient
+    # matrices W (for applying high order corrections). The other scheme
+    # FD_scheme_dn1 is used to construct the matrix W_dn1 which is a difference
+    # coefficient matrix for the first derivative (dn = 1) at LTE = 6, and used
+    # in the finite difference 6th order Poisson solver (PBCs currently only).
+    #---------------------------------------------------------------------------
+    #
+    # initialize all dictionaries whose keys correspond to phase space vars
+    # and whose values contain the relevant ndarrays
+
+    Xi = {}
+    xi = {}
+    W = {}
+
+    # top level check: if any var has FD corrections, store FD_schemes and init W
+    if 'FD' in HOC.values():
+        # store finite difference schemes
         FD_schemes = read_FD_schemes(N)
-        FD_scheme_dn1 = read_FD_scheme(1,6) # LTE = 6 currently, usage is
-                                            # for 6th order FD Poisson
-                                            # solver
-        Xi = None
-        xi = None
+
+    if HOC['x'] == 'FD':
+        # first derivative with LTE = 6, used to find dphi = -E after phi is
+        # found from a 6th order Poisson solve
+        FD_scheme_dn1 = read_FD_scheme(1,6)
+        W_dn1_LTE6 = assemble_finite_difference_weight_matrix_const_dn_const_LTE(Nx_active,
+                                             FD_scheme_dn1,
+                                             dn = 1,
+                                             LTE = 6
+                                             )
+
+        # TODO if more than one or different spatial dimension
+        # TODO than 'x' with FD corrections need to permit access to this
+        # TODO dictionary W_dn1_LTE6 and have it be assembled.
 
     else:
-        FD_schemes = None
-        FD_scheme_dn1 = None
+        # else, Fourier Gauss solver is used, no need for this matrix
+        W_dn1_LTE6 = None
 
-        # Xi[q,i,j] = spectral differentiation matrix = (1j * xi[i,j]) ** q
-        # xi = wave number vector = (x.N,)
-        Xi, xi = assemble_spectral_derivative_operator(total_dims, active_dims,
-                                                       ax, bx, avx, bvx,
-                                                       N)
+    # variable-by-variable checks: assemble consistent objects needed
+    # for the specified means of HOC from etc/params.dat
 
-    # MISC STORAGE
+    # Note: the following is organized with the expectation that
+    # higher dimensional implementations would be stepped through
+    # as sets of 2D advection problems,  always paired as z and vz
+    # i.e. not as mixed stepthroughs with x paired with vy for example
 
-    # for correctors c, need I_alternating = the negative of identity
-    # matrix where each row is raised to the power of its row
+    for var in phasespace_vars:
+        if HOC[var] == 'FD':
+            W[var] = assemble_finite_difference_weight_matrix(
+                eval('N' + var + '_active'),
+                N,
+                FD_schemes
+                )
+        elif HOC[var] == 'FOURIER':
+            # ensure the correct number of grid points
+            # is passed for the generalized velocity Nvz_active
+            # for x,y,z, 'vz' = vx, vy, vz
+            # for vx, vy, vz, 'vz' = ax, ay, az, which have
+            # the same number of dims as x, y, z, respectively
+
+            if var[0] == 'v':
+                Nvz_active = eval('N' + var[1] + '_active')
+            else:
+                Nvz_active = eval('Nv' + var + '_active')
+
+            Xi, xi = assemble_spectral_derivative_operator(Xi, xi,
+                                                          var,
+                                                          eval('a' + var),
+                                                          eval('b' + var),
+                                                          eval('N' + var),
+                                                          eval('N' + var + '_active'),
+                                                          Nvz_active,
+                                                          N)
+
+    # ---------------------------------------------------------------------
+    # "Alternating" identity matrix
+
+
+    # in lib.HOC.correctors, require an N x N  diagonal matrix with entries
+    # (-1)^i, where i is the row number, for details see on github
+    #
+    #    dsirajud/IPython-notebooks/
+    #       DECSKS-09 -- array-based implementation recast -- part 1.ipynb
+    #
+    # section "2D casting of correction coefficients c (vector) -> c (tensor)"
 
     I_alternating = np.diag( (-np.ones(N))  ** np.arange(N) )
 
-    # A matrices for Bernoulli number storage and matrix HOC application
+    # obtain Bernoulli numbers (note: list only 23 numbers are listed)
+    # for a correction up to global error order N, N-1 Bernoulli numbers
+    # are needed. If higher than global error order 22 is desired, additional
+    # Bernoulli numbes need to be entered in
+    #
+    #    etc/Table_of_Bernoulli_numbers.dat
+    #
 
+    # Store Bernoulli numbers from dat file etc/Table_of_Bernoulli_numbers.dat
+    filename = 'Table_of_Bernoulli_numbers.dat'
+    filepath = './etc/' + filename
+    Bernoulli_numbers = Bernoulli(filepath)
+
+    # "A" matrices for Bernoulli number storage and matrix HOC application
+    # in lib.HOC.Beta_matrix, see notebook on github at
+    # dsirajud/IPython-notebooks/
+    # DECSKS-09 -- array-based implementation recast -- part 1.ipynb
     A_pos, A_neg = np.zeros([N,N]), np.zeros([N,N])
     for i in range(N):
         for j in range(i+1):
@@ -170,23 +435,50 @@ def inputfile(filename):
     A_matrix['0'] = A_pos
     A_matrix['-1'] = A_neg
 
-    # 6th order FD PBC Poisson solver matrices dictionary
+
+    # ---------------------------------------------------------------------
+    # 6th order finite difference Poisson solver for periodic BCs
     # (stored as keys 'D' [difference matrix] and 'B' [inhomogeneity])
 
-    Poisson_6th_order_PBC_FD_solver_matrices = assemble_Poisson_6th_order_PBC_FD_solver_matrices(Nx, BC)
+    Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC)
+
+    # TODO specialize right now to just be x, vx. Figure out how to generalize later with higher dimensions
+    compute_electric_field_function_handle_prefix = "DECSKS.lib.fieldsolvers.compute_electric_field_"
+
+    if BC['x']['type'] == 'periodic':
+        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle_prefix, HOC['x'].lower()))
+        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_periodic'))
+    else:
+        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle_prefix, HOC['x'].lower()))
+        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_dirichlet'))
+
+    BC['x']['phi'] = {}
+    BC['x']['phi']['lower'] = safe_eval(lines[131][lines[131].find('=')+1:].strip())
+    BC['x']['phi']['upper'] = safe_eval(lines[132][lines[132].find('=')+1:].strip())
+
+    BC['y']['phi'] = {}
+    BC['y']['phi']['lower'] = safe_eval(lines[134][lines[134].find('=')+1:].strip())
+    BC['y']['phi']['upper'] = safe_eval(lines[135][lines[135].find('=')+1:].strip())
+
+    BC['z']['phi'] = {}
+    BC['z']['phi']['lower'] = safe_eval(lines[137][lines[137].find('=')+1:].strip())
+    BC['z']['phi']['upper'] = safe_eval(lines[138][lines[138].find('=')+1:].strip())
+
+    derivative_method = {}
+    derivative_method_prefix = 'DECSKS.lib.derivatives'
+    for var in phasespace_vars:
+        derivative_method[var] = ".".join((derivative_method_prefix, HOC[var].lower()))
 
     sim_params = dict(
         N = N, HOC = HOC,
         derivative_method = derivative_method,
-        split_function_handle = split_function_handle,
-        WindowedFilter = WindowedFilter,
         Nx = Nx, ax = ax, bx = bx,
         Ny = Ny, ay = ay, by = by,
         Nz = Nz, az = az, bz = bz,
         Nvx = Nvx, avx = avx, bvx = bvx,
         Nvy = Nvy, avy = avy, bvy = bvy,
         Nvz = Nvz, avz = avz, bvz = bvz,
-        Nt = Nt, at = at, bt = bt, T = T,
+        Nt = Nt, T = T,
         phasespace_vars = phasespace_vars,
         numdims = numdims,
         active_dims = active_dims,
@@ -195,17 +487,18 @@ def inputfile(filename):
         split_scheme = split_scheme,
         splitting = splitting,
         plot_params = plot_params,
-        Bernoulli_numbers = Bernoulli_numbers,
         record_outputs = record_outputs,
         outfiles = outfiles,
-        FD_schemes = FD_schemes,
-        FD_scheme_dn1 = FD_scheme_dn1,
         BC = BC,    # boundary conditions on all phase space variables
+        boundarycondition_function_handle = boundarycondition_function_handle,
         I_alternating = I_alternating, # identity matrix with alternating signs according to row, used in computing correctors c
         A_matrix = A_matrix,     # Matrices of Bernoulli numbers for HOC
+        W = W,
+        W_dn1_LTE6 = W_dn1_LTE6,
         Xi = Xi, # spectral differentiation operator matrix (1j*xi[i,j]) ** q
         xi = xi, # wave number vector
-        Poisson_6th_order_PBC_FD_solver_matrices = Poisson_6th_order_PBC_FD_solver_matrices
+        Poisson_6th_order_FD_solver_matrices = Poisson_6th_order_FD_solver_matrices,
+        compute_electric_field_function_handle = compute_electric_field_function_handle # determines if solver is FD or fourier based
         )
 
     infile.close()
@@ -339,26 +632,6 @@ def splitting_coefficients(filepath, split_scheme):
                             b = [None, b1, b2, b3, b4, b5, b6, b7])
 
     return splitting
-
-def plot_parameters(lines):
-    """Reads in plot parameters from input file (e.g. params.dat)
-    inputs:
-    lines -- (list, str) lines from 'params.dat'.readlines()
-
-    output:
-    plot_params -- (dict) domain for plot [xmin, xmax, ymin, ymax]
-    """
-
-    # lines from filename = 'input_params.dat' in Input(*args) method
-    xmin = eval(lines[91][lines[91].find('=')+1:].strip())
-    xmax = eval(lines[92][lines[92].find('=')+1:].strip())
-    ymin = eval(lines[94][lines[94].find('=')+1:].strip())
-    ymax = eval(lines[95][lines[95].find('=')+1:].strip())
-
-    plot_params = dict(xmin = xmin, xmax = xmax,
-                       ymin = ymin, ymax = ymax)
-
-    return plot_params
 
 def Bernoulli(filepath):
     """Reads in Bernoulli numbers from data file
@@ -548,23 +821,25 @@ def read_FD_schemes(N):
 
 #-----------------------------------------------------------#
 # the following are for the sole purpose of reading a single
-# dn at given LTE, the original purpose was to have dn1, LTE6
-# so that dphi can be computed
-
-# TODO clean this up by combining above routines with this one
-# TODO in a general function call and looping only if needed
+# derivative of order dn at given LTE, the original purpose
+# was to have dn = 1, LTE = 6 for a 6th order Poisson solver
 
 def read_FD_scheme(dn, LTE):
     """store finite difference scheme for dn'th derivative
     from tables generated in dat files located in
     ./etc/finite_difference_schemes
-    in a consoolidated dictionary called FD_schemes_dn
+    in a consolidated dictionary called FD_schemes_dn
 
     inputs:
     dn -- (int) derivative number in .dat file containing
           difference coefficients
 
     LTE -- (int) local truncation error order
+
+    **Requires the generated dat file for dn = 1, LTE = 6
+
+            etc/finite_difference_schemes/
+            f1_LTE6_FD_coefficients.dat
 
     outputs:
     FD_scheme -- (dict) FD scheme equipped with
@@ -675,62 +950,184 @@ def store_FD_scheme(infilename,
 
     return FD_scheme
 
-def read_boundary_conditions(lines):
-    """Assembles a dictionary permitting access to strings
-    indicating the type of boundary condition on each
-    phase space variable
+def assemble_finite_difference_weight_matrix(zN,
+                                             N,
+                                             FD_schemes
+                                             ):
+    """Assembles a matrix corresponding to the weights of in
+    the finite difference computation of derivatives, i.e.
+    assembles the weight matrix W, giving the difference matrix d
+    for the q-th derivative:
 
-        e.g. BC['z']['upper'] gives the string specified in
-             etc/params.dat under the upper boundary condition
-             for the variable z
+        1 / x.width ** q W[q,:,:].dot(f) =  d[q,:,:]
+
+                                    i.e. W are the difference
+                                    coefficients, which do not
+                                    contain the width of the
+                                    abscissa value, e.g. x.width
+
+    where f and df are vectors of length z.N in the 1D case.
 
     inputs:
-    lines -- (list of strings) the read-in lines from etc/params.dat
-
+    zN -- (int) number of active grid points for the phase sapce variable z
+    N -- (int) global error on the advection algorithm, specified in etc/params.dat
+    FD_schemes -- (dict) dictionary containing all schemes for all dn, handedness,
+        and asymmetry
     outputs:
-    BC -- (dict) boundary conditions for every phase space variable
-          at every boundary, see access example above
-
+    Wz -- (ndarray, ndim=3) Wz[dn, zN, zN] where each 2D matrix Wz[dn,:,:]
+          is the weight matrix W corresponding to the dn-th derivative in
+          the context of the above equation.
     """
-    BC = {}
+    imax = zN - 1
+    Wz = np.zeros([N, zN, zN]) # includes zeroeth order derivative container (not used)
+    # i.e. Wz[q,:,:] is for the q-th derivative with this dummy zero index created
 
-    BC['x'] = {}
-    BC['y'] = {}
-    BC['z'] = {}
+    for dn in range(1,N):
+        W_dn = np.zeros([zN, zN])
+        p = N - dn     # LTE of scheme on dn-th derivative decreases with dn
+                       # given what is needed is LTE[z.width ** dn * dnf] = O(N)
+                       # rather than LTE on just the derivative
 
-    BC['vx'] = {}
-    BC['vy'] = {}
-    BC['vz'] = {}
+        # local copy of all schemes pertaining to derivative order dn
+        FD_schemes_dn = FD_schemes['dn' + str(dn)]
+        stencil_size = p + dn
+        stencil_center = stencil_size // 2
 
-    BC['x']['lower'] = lines[19][lines[19].find('=')+1:].strip()
-    BC['x']['upper'] = lines[20][lines[20].find('=')+1:].strip()
+        for i in range(zN):
 
-    BC['y']['lower'] = lines[25][lines[25].find('=')+1:].strip()
-    BC['y']['upper'] = lines[26][lines[26].find('=')+1:].strip()
+            if i < stencil_center:
+                handedness = 'forward'
+                asymmetry = str(i)
+            elif imax - i < stencil_center:
+                handedness = 'backward'
+                asymmetry = str(imax - i)
+            else:
+                if np.mod(stencil_size,2) == 1:
+                    handedness = 'central'
+                    asymmetry = str(0)
+                else:
+                    handedness = 'forward'
+                    asymmetry = str(stencil_center - 1)
 
-    BC['z']['lower'] = lines[31][lines[31].find('=')+1:].strip()
-    BC['z']['upper'] = lines[32][lines[32].find('=')+1:].strip()
+            FD_scheme = FD_schemes_dn[handedness][asymmetry]
+            w = FD_scheme['w']
+            stencil = FD_scheme['stencil']
 
-    BC['vx']['lower'] = lines[37][lines[37].find('=')+1:].strip()
-    BC['vx']['upper'] = lines[38][lines[38].find('=')+1:].strip()
+            W_dn[i, i + np.array(stencil)] = w # load all weights at once into W_dn
 
-    BC['vy']['lower'] = lines[43][lines[43].find('=')+1:].strip()
-    BC['vy']['upper'] = lines[44][lines[44].find('=')+1:].strip()
+        Wz[dn,:,:] = W_dn
 
-    BC['vz']['lower'] = lines[49][lines[49].find('=')+1:].strip()
-    BC['vz']['upper'] = lines[50][lines[50].find('=')+1:].strip()
+    return Wz
 
-    return BC
+def assemble_finite_difference_weight_matrix_const_dn_const_LTE(zN,
+                                             FD_scheme_const_dn,
+                                             dn = 1,
+                                             LTE = 6
+                                             ):
+    """Assembles a matrix corresponding to the weights of in
+    the finite difference computation of derivatives, i.e.
+    assembles the weight matrix W, giving the difference matrix d
+    for the q-th derivative:
 
-def assemble_spectral_derivative_operator(total_dims, active_dims,
-                                          ax, bx, avx, bvx,
+        1 / x.width ** q W[q,:,:].dot(f) =  d[q,:,:]
+
+                                    i.e. W are the difference
+                                    coefficients, which do not
+                                    contain the width of the
+                                    abscissa value, e.g. x.width
+
+    where f and df are vectors of length z.N in the 1D case.
+
+    inputs:
+    zN -- (int) number of active grid points for the phase sapce variable z
+    N -- (int) global error on the advection algorithm, specified in etc/params.dat
+    FD_schemes -- (dict) dictionary containing all schemes for all dn, handedness,
+        and asymmetry
+    outputs:
+    Wz -- (ndarray, ndim=3) Wz[dn, zN, zN] where each 2D matrix Wz[dn,:,:]
+          is the weight matrix W corresponding to the dn-th derivative in
+          the context of the above equation.
+    """
+    imax = zN - 1
+    W_dn_LTE = np.zeros([zN, zN])
+
+    # local copy of all schemes pertaining to derivative order dn
+    FD_scheme = FD_scheme_const_dn['dn' + str(dn)]['LTE' + str(LTE)]
+    stencil_size = LTE + dn
+    stencil_center = stencil_size // 2
+
+    for i in range(zN):
+
+        if i < stencil_center:
+            handedness = 'forward'
+            asymmetry = str(i)
+        elif imax - i < stencil_center:
+            handedness = 'backward'
+            asymmetry = str(imax - i)
+        else:
+            if np.mod(stencil_size,2) == 1:
+                handedness = 'central'
+                asymmetry = str(0)
+            else:
+                handedness = 'forward'
+                asymmetry = str(stencil_center - 1)
+
+        w = FD_scheme[handedness][asymmetry]['w']
+        stencil = FD_scheme[handedness][asymmetry]['stencil']
+
+        W_dn_LTE[i, i + np.array(stencil)] = w # load all weights at once into W_dn
+
+    return W_dn_LTE
+
+def assemble_spectral_derivative_operator(Xi, xi,
+                                          z_str,
+                                          az, bz,
+                                          Nz, Nz_active,
+                                          Nvz_active,
                                           N):
-    """Returns a dictionary Xi with key/value pairs:
+    """For 2D constructions, e.g. (x, vx). For higher dimensions,
+    e.g. 4D (x,y, vx, v_perp) can reuse this with some minor
+    changes. For 1D or 3D, a different (but, similar) routine
+    needs to be coded. For 3D, the overall stepthrough will need
+    to be deconstructed to be a split problem among 2D problems
+    and a 1D problem.
 
-        Xi['x'] -- (ndarray, ndim=3, dtype=complex)
-        Xi['vx'] -- (ndarray, ndim=3, dtype=complex)
+    inputs:
+    Xi -- (dict) to contain key/values:
 
-    Each of these matrices correspond to a matrix with entries
+        Xi['z'] -- (ndarray, ndim=3, dtype = complex), z = x, vx, ...
+
+        this routine adds the key 'z' to the dictionary. Hence,
+        the dictionary passed is at minimum an empty dictionary, but
+        in general contains previous keys assigned by previuos calls
+        to this same function
+
+    xi -- (dict) contains key/values
+
+        xi['z'] -- (ndarray, ndim=1, dtype = float64), z = x, vx, ...
+
+        this routine adds the key 'z' to the dictionary. Hence,
+        the dictionary passed is at minimum an empty dictionary, but
+        in general contains previous keys assigned by previuos calls
+        to this same function
+
+    z_str -- (str) corresponding to phase space variable z affiliated
+        with the objects Xi and xi.
+
+    Nz -- (int) total number of gridpoints
+    Nz_active -- (int) total number of active gridpoints for z
+    Nvz_active -- (int) total number of active gridpoints for vz
+    az -- (num) lower domain bound on z, used to compute width Lz
+    bz -- (num) upper domain bound on z
+    N -- (int) global error of scheme
+
+    outputs: updates the dictionaries Xi, xi to have
+    the key/value pair:
+
+        Xi['z'] -- (ndarray, ndim=3, dtype=complex)
+        xi['z'] -- (ndarray, ndim=1, dtype = float64)
+
+    which corresponds to a matrix with entries
 
       $$Xi = ((Xi)_{q,i,j}) = 1j * (Delta z xi_{i,j})^q$$
 
@@ -743,106 +1140,147 @@ def assemble_spectral_derivative_operator(total_dims, active_dims,
     transform so that the tensor d[q,i,j] is generated.
     """
 
-    Xi = {}
-    xi = {}
+    # catch any nonsense passes to this function, i.e. z
+    # does not have a velocity, hence is not being advected
+    if Nvz_active is None:
+        return None
 
-    Lx = float(bx - ax)
-    xwidth = float((bx - ax) / (total_dims[0] - 1))
+    # domain widths
+    Lz = float(bz - az) # used in wave number vector, xi
+    zwidth = Lz / (Nz - 1) # needed for 3D object, Xi = "(j zwidth xi)**q"
 
-    Lvx = float(bvx - avx)
-    vxwidth = float((bvx - avx) / (total_dims[1] - 1))
+    # build wave vector xi for given z
+    wave_index = np.arange(Nz_active)
+    xi_z = np.where(wave_index <= Nz_active / 2,
+              2*np.pi*wave_index / Lz,
+              2*np.pi*(wave_index - Nz_active) / Lz)
 
-    # build x-advection objects
-    N_xi, N_cols = active_dims[0], active_dims[1]
-    wave_index = np.arange(N_xi)
-    xi_x = np.where(wave_index <= N_xi / 2,
-              2*np.pi*wave_index / Lx,
-              2*np.pi*(wave_index - N_xi) / Lx)
+    xi[z_str] = xi_z
 
-    xi['x'] = xi_x
-    xi_2D = np.outer(xi_x, np.ones(N_cols)) # wavenumbers enumerated by row, copies in Nv columns
+    # Set up compound matrix Xi.
+    # First, copy column vector xi along Nvz_active columns
+    xi_2D = np.outer(xi_z, np.ones(Nvz_active))
 
+    # set up vector extending in depth dimension so
+    # broadcasting per ** operator produces the expected dims on Xi
+    # i.e. Xi.shape = (N, z.N, vz.N)
     dn = np.arange(1,N).reshape(N-1,1,1)
-    Xi['x'] = (1j * xwidth * xi_2D) ** dn
 
-    # build v-advection objects
-    N_xi, N_rows = active_dims[1], active_dims[0]
-    wave_index = np.arange(N_xi)
-    xi_vx = np.where(wave_index <= N_xi / 2,
-              2*np.pi*wave_index / Lvx,
-              2*np.pi*(wave_index - N_xi) / Lvx)
-
-    xi['vx'] = xi_vx
-    xi_2D = np.outer(np.ones(N_rows), xi_vx) # wavenumbers enumerated by row, copies in Nv columns
-
-    xi_2D = np.transpose (xi_2D) # dimensions are (vx.N, x.N) now to match v-advection cases
-    dn = np.arange(1,N).reshape(N-1,1,1)
-    Xi['vx'] = (1j * vxwidth * xi_2D) ** dn
+    # with the previously formed objects with carefully chosen dims
+    # we generate the required Xi object
+    Xi[z_str] = (1j * zwidth * xi_2D) ** dn
 
     return Xi, xi
 
-def assemble_Poisson_6th_order_PBC_FD_solver_matrices(Nx, BC):
+def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
+
+    Poisson_6th_order_FD_solver_matrices = {}
 
     # Nx is the number of active nodes in configuration
-    if ( (BC['x']['lower'] == 'periodic') and (BC['x']['upper'] == 'periodic') ):
+    if BC['x']['type'] == 'periodic':
+        # periodic boundaries
         Nx -= 1
 
-    Poisson_6th_order_PBC_FD_solver_matrices = {}
-    D = np.zeros([Nx,Nx])
-    for i in range(Nx):
-        if i == 0:         # first row
-            D[i,i] = -2
-            D[i,i+1] = 1
-            D[i,-1] = 1
+        # Assemble FD matrix B
+        B = np.zeros([Nx, Nx])
+        for i in range(Nx):
+            if i == 0:             # first row
+                B[i,-2] = -1/240.
+                B[i,-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
 
-        elif i == Nx - 1: # last row
-            D[i,i] = -2
-            D[i,i-1] = 1
-            D[i,0] = 1
-        else:              # interior rows
-            D[i,i-1] = 1
-            D[i,i] = -2
-            D[i,i+1] = 1
+            elif i == 1:           # second row
+                B[i,-1] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
 
-    # Assemble FD matrix B
-    B = np.zeros([Nx, Nx])
-    for i in range(Nx):
-        if i == 0:             # first row
-            B[i,-2] = -1/240.
-            B[i,-1] = 1/10.
-            B[i,i] = 97/120.
-            B[i,i+1] = 1/10.
-            B[i,i+2] = -1/240.
+            elif 1 < i < (Nx - 2): # 2 <= row <= third before last
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
 
-        elif i == 1:           # second row
-            B[i,-1] = -1/240.
-            B[i,i-1] = 1/10.
-            B[i,i] = 97/120.
-            B[i,i+1] = 1/10.
-            B[i,i+2] = -1/240.
+            elif i == (Nx - 2): # second before last row
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,0] = -1/240.
 
-        elif 1 < i < (Nx - 2): # 2 <= row < = third before last
-            B[i,i-2] = -1/240.
-            B[i,i-1] = 1/10.
-            B[i,i] = 97/120.
-            B[i,i+1] = 1/10.
-            B[i,i+2] = -1/240.
+            elif i == (Nx - 1): # last row
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,0] = 1/10.
+                B[i,1] = -1/240.
 
-        elif i == (Nx - 2): # second before last row
-            B[i,i-2] = -1/240.
-            B[i,i-1] = 1/10.
-            B[i,i] = 97/120.
-            B[i,i+1] = 1/10.
-            B[i,0] = -1/240.
+        D = np.zeros([Nx,Nx])
+        for i in range(Nx):
+            if i == 0:         # first row
+                D[i,i] = -2
+                D[i,i+1] = 1
+                D[i,-1] = 1
 
-        elif i == (Nx - 1): # last row
-            B[i,i-2] = -1/240.
-            B[i,i-1] = 1/10.
-            B[i,i] = 97/120.
-            B[i,0] = 1/10.
-            B[i,1] = -1/240.
+            elif i == Nx - 1: # last row
+                D[i,i] = -2
+                D[i,i-1] = 1
+                D[i,0] = 1
+            else:              # interior rows
+                D[i,i-1] = 1
+                D[i,i] = -2
+                D[i,i+1] = 1
 
-    Poisson_6th_order_PBC_FD_solver_matrices['D'] = D
-    Poisson_6th_order_PBC_FD_solver_matrices['B'] = B
+    else: # dirichlet boundaries
 
-    return Poisson_6th_order_PBC_FD_solver_matrices
+        # Assemble FD matrix B
+        B = np.zeros([Nx, Nx])
+        for i in range(Nx):
+
+            # redundant, included for transparency
+            if i == 0 or i == Nx - 1:
+                B[i,i] = 0
+
+            elif i == 1:
+                B[i,i-1] = 3/40.
+                B[i,i] = 209/240.
+                B[i,i+1] = 1/60.
+                B[i,i+2] = 7/120.
+                B[i,i+3] = -1/40.
+                B[i,i+4] = 1/240.
+
+            elif i == Nx-1:
+                B[i,i] = 0
+
+            elif 1 < i < Nx-2:
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
+
+            elif i == Nx-2:
+                B[i,i-4] = 1/240.
+                B[i,i-3] = -1/40.
+                B[i,i-2] = 7/120.
+                B[i,i-1] = 1/60.
+                B[i,i] = 209/240.
+                B[i,i+1] = 3/40.
+
+        D = np.zeros([Nx,Nx])
+        for i in range(Nx):
+            if i == 0 or i == Nx - 1: # last row
+                D[i,i] = 1
+            else:              # interior rows
+                D[i,i-1] = 1
+                D[i,i] = -2
+                D[i,i+1] = 1
+
+    Poisson_6th_order_FD_solver_matrices['D'] = D
+    Poisson_6th_order_FD_solver_matrices['B'] = B
+
+    return Poisson_6th_order_FD_solver_matrices

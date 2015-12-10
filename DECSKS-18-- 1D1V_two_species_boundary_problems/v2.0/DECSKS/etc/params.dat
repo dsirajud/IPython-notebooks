@@ -121,3 +121,19 @@ y, max = 8
 record outputs? (yes/no): no
 output filename: params_output.dat
 --------------------------------------------------------------------------------
+Potential (phi) boundary conditions (currently only support periodic BCs on E)
+================================================================================
+- 'lower' and 'upper' refer to domain boundaries on abscissas x, y, z
+-  if a variable is not simulated, must denote by 'None' (case sensitive)
+-  if value is to be computed self-consistently, denote by 'self-consistent'
+-  if value is determined per periodic boundary conditions, this section is ignored
+-  if value is fixed at a value, denote with numerical value
+
+lower boundary condition on x = -5
+upper boundary condition on x = 5
+
+lower boundary condition on y = None
+upper boundary condition on y = None
+
+lower boundary condition on z = None
+upper boundary condition on z = None
