@@ -44,7 +44,7 @@ def scheme(
         z, vz
         )
 
-    # (2) REMAP DENSITY TO GRID
+    # (2) APPLY BOUNDARY CONDITIONS AND REMAP DENSITY TO GRID
     f_remapped = remap_step(
                        sim_params,
                        f_initial,
