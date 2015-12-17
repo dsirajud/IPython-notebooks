@@ -404,19 +404,17 @@ def remap_assignment(
 
     elif index == 'contiguous':
 
-        f_BCs_applied = f_old.copy() # BCs will be applied to f_old
-        Uf_BCs_applied = Uf.copy()
-
         # APPLY BOUNDARY CONDITIONS
         # e.g. for absorbing boundaries, we zero out all prepoint density entries
         # which exit the domain
-        f_BCs_applied, Uf_BCs_applied, z = \
+
+        f_old, Uf, z = \
           eval(sim_params['boundarycondition_function_handle'][z.str])(
-              f_BCs_applied, Uf_BCs_applied, z, sim_params, k = 1)
+              f_old, Uf, z, sim_params, k = 1)
 
         # initialize masked array for flux Uf; mask out negative values
-        f_pos, f_neg = ma.zeros(f_BCs_applied.shape), ma.zeros(f_BCs_applied.shape)
-        Uf_ma = ma.array(Uf_BCs_applied)
+        f_pos, f_neg = ma.zeros(f_old.shape), ma.zeros(f_old.shape)
+        Uf_ma = ma.array(Uf)
         Uf_ma.mask = mask_neg
 
         f_pos[ z.postpointmesh[1,:,:], vz.prepointmesh ] = Uf_ma

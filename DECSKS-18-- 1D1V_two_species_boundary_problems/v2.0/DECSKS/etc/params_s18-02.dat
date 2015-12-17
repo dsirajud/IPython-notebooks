@@ -14,8 +14,8 @@ Requirements for value entry:
 -------------------------------------------------------------------------------
 
 Number of grid points, x = 240
-lower boundary value ax = -2 * np.pi / .3
-upper boundary value bx = 2 * np.pi / .3
+lower boundary value ax = -10.
+upper boundary value bx = 10.
 lower boundary condition = absorbing
 upper boundary condition = absorbing
 
@@ -77,7 +77,7 @@ high order correction on vz: None
 --------------------------------------------------------------------------------
 Initial density specification
 ==============================
-density profile: electron maxwellian, const
+density profile: electron maxwellian, const ion background for maxwellian
 
 # options:
 

@@ -13,7 +13,7 @@ Requirements for value entry:
 (3) if needed, use numpy prefix as np, e.g. np.pi
 -------------------------------------------------------------------------------
 
-Number of grid points, x = 1024
+Number of grid points, x = 240
 lower boundary value ax = -2 * np.pi / .3
 upper boundary value bx = 2 * np.pi / .3
 lower boundary condition = absorbing
@@ -31,7 +31,7 @@ upper boundary value bz = None
 lower boundary condition = None
 upper boundary condition = None
 
-Number of grid points, vx = 1024
+Number of grid points, vx = 300
 lower boundary value avx = -8.0
 upper boundary value bvx =  8.0
 lower boundary condition = periodic

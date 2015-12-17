@@ -66,10 +66,18 @@ def initial_profile(f0, density, z1, z2 = None):
 
         ne_avg = 0.970710678119 # for bump on tail with above domain
         #        fi0 = 0.00289675130128
-        fi0 = ne_avg / (16.)
+        fi0 = ne_avg / z2.L
         f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
 
         #        f0[:,150] = ne_avg / (z2.prepointvalues[-1] - z2.prepointvalues[0])
+        return f0
+
+    if density == 'const ion background for maxwellian': 
+                 
+        # neutral for x nonperiodic, vx periodic
+        ne_avg = 1.00418410042
+        fi0 = ne_avg / z2.L
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
         return f0
 
     if density == 'electron maxwellian':
@@ -78,6 +86,7 @@ def initial_profile(f0, density, z1, z2 = None):
         print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
         for j in range(v.Ngridpoints):
             f0[:,j] = 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2)
+
         return f0
 
     if density == 'ion maxwellian':
@@ -88,6 +97,44 @@ def initial_profile(f0, density, z1, z2 = None):
         print "initializing H ion maxwellian profile: drift velocity vD = %g, mi / me = %g, Ti / Te = %g " % (vD, mu, tau)
         for j in range(v.Ngridpoints):
             f0[:,j] = 1 / np.sqrt(2*np.pi*tau/mu) * np.exp(-(v.gridvalues[j] - vD) ** 2 / (2 * tau / mu))
+        return f0
+
+    if density == 'cosine 22-bell':
+        x, vx = z1, z2
+        xc, vc = -5., 2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
+
+    if density == 'ion cosine 22-bell':
+        x, vx = z1, z2
+        xc, vc = 5., -2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
         return f0
 
     if density == 'landau':
