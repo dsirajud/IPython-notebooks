@@ -108,7 +108,6 @@ def nonperiodic(f_old,
 def symmetric_lower_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge):
     f_entering = np.where(zpostpointmesh < 0, f_old, 0) # = f_exiting
     Uf_entering = np.where(zpostpointmesh < 0, -Uf, Uf)
-    
 
 def absorbing_lower_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge):
 

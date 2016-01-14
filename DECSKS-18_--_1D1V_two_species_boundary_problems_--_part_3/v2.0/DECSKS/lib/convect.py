@@ -123,7 +123,7 @@ def advection_step(z):
       object
     """
     z.postpointmesh[0,:,:] = z.prepointmesh + z.CFL.int
-    z.postpointmesh[1,:,:] = np.sign(z.CFL.frac).astype(int) + z.postpointmesh[0,:,:]
+    z.postpointmesh[1,:,:] = np.sign(z.CFL.numbers).astype(int) + z.postpointmesh[0,:,:]
 
     return z.postpointmesh
 
