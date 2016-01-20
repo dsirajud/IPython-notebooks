@@ -111,6 +111,7 @@ def correctors(sim_params, z, vz):
     """
     B = Beta_matrix(sim_params, z, vz)
     c = sim_params['I_alternating'].dot(B)
+
     return c
 
 def correctors_on_configuration(sim_params, z, vz, t):
@@ -147,7 +148,7 @@ def correctors_on_configuration(sim_params, z, vz, t):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a':
             z.CFL.compute_numbers(z, vz, split_coeff*t.width)
-            
+
     B = Beta_matrix(sim_params, z, vz)
     c = sim_params['I_alternating'].dot(B)
     return c

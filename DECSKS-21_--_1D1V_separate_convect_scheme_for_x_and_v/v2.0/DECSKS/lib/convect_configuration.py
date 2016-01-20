@@ -1,11 +1,12 @@
 import DECSKS
 import numpy as np
 import numpy.ma as ma
-
+#TODO WE KEEP USING Z.CFL.FRAC FOR THE SIGN INFERENCE, SHOULD USE VZ INSTEAD, MORE NATURAL
+#TODO ALSO THIS REMOVES THE NEED TO PASS THE STAGE S MORE THAN NEEDED
 def scheme(
     f_initial,
     s,n,
-    sim_params,
+    sim_params, c,
     z,
     vz,
     charge = -1
@@ -37,7 +38,7 @@ def scheme(
 
     # compute high order fluxes
     Uf = flux(
-        sim_params,
+        sim_params, c,
         s,
         f_initial,
         z, vz
@@ -48,7 +49,7 @@ def scheme(
                        sim_params,
                        f_initial,
                        Uf,
-                       n,
+                       s, n,
                        z,
                        vz,
                        charge
@@ -130,7 +131,7 @@ def remap_step(
         sim_params,
         f_old,
         Uf,
-        n,
+        s, n,
         z,
         vz,
         charge
@@ -166,6 +167,7 @@ def remap_step(
    remap the appropriate proportion to the nearest neighbor gridpoints
    f_k1 = convect.remap_assignment(
                             sim_params,
+                            s,
                             f_old,
                             Uf,
                             z,
@@ -178,6 +180,7 @@ def remap_step(
    remap the remaining proportion to the appropriate contiguous gridpoint
    f_k2 = convect.remap_assignment(
                             sim_params,
+                            s,
                             f_old,
                             Uf,
                             z,
@@ -238,6 +241,7 @@ def remap_step(
     f_k1 = remap_assignment(
         sim_params,
         f_old,
+        s,
         Uf,
         z,
         vz,
@@ -249,6 +253,7 @@ def remap_step(
     f_k2 = remap_assignment(
         sim_params,
         f_old,
+        s,
         Uf,
         z,
         vz,
@@ -262,7 +267,7 @@ def remap_step(
 
 # ........................................................................... #
 def flux(
-        sim_params,
+        sim_params, c,
         s,
         f_old,
         z, vz
@@ -284,7 +289,10 @@ def flux(
                Uf[i,j] = sum c[q,j]*d[q,i,j] over q = 0, 1, ... N-1
                        = f_old + (high order corrections)
     """
-    c = DECSKS.lib.HOC.correctors(sim_params, s, z, vz)
+
+    # the correctors c[s,q,j] were calculated prior to the simulation start
+    # inside lib.split
+
     # evaluate derivatives q = 0, 1, 2, ... N-1 (zeroeth is density itself)
 
     # calls lib.derivatives.fd or lib.derivatives.fourier based on the
@@ -295,14 +303,15 @@ def flux(
     # compute high order fluxes column-by-column
     Uf = np.zeros(f_old.shape)
     for j in range(vz.N):
-        Uf[:,j] = c[:,j].dot(d[:,:,j])
+        Uf[:,j] = c[s,:,j].dot(d[:,:,j])
 
     # enforce flux limiter to ensure positivity and restrict numerical overflow
-    Uf = flux_limiter(f_old, Uf, z)
+    Uf = flux_limiter(s, f_old, Uf, z)
 
     return Uf
 
 def flux_limiter(
+        s,
         f_old,
         Uf,
         z):
@@ -331,10 +340,10 @@ def flux_limiter(
           i.e. the computational savings is at least a factor of 10
     """
     # local masked array (ma) copy of CFL.frac used to leave CFL.frac unchanged
-    Uf_ma = ma.array(z.CFL.frac)
+    Uf_ma = ma.array(z.CFL.frac[s,:,:])
 
     # mask negative values, keep positives
-    Uf_ma[z.CFL.frac < 0] = ma.masked
+    Uf_ma[z.CFL.frac[s,:,:] < 0] = ma.masked
 
     # assign the mask to a zero matrix of same size for pairwise ma.minimum/maximum operations below
     zeros = ma.zeros(Uf.shape)
@@ -358,6 +367,7 @@ def flux_limiter(
 def remap_assignment(
         sim_params,
         f_old,
+        s,
         Uf,
         z,
         vz,
@@ -387,7 +397,7 @@ def remap_assignment(
             [z.prepointmesh, vz.prepointmesh] --> [k, vz.prepointmesh]
 
     """
-    mask_neg =  (z.CFL.frac < 0)
+    mask_neg =  (z.CFL.frac[s,:,:] < 0)
     mask_pos = np.logical_not(mask_neg)
 
     if index == 'nearest':

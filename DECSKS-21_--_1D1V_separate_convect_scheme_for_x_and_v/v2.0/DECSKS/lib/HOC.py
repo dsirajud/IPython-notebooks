@@ -83,7 +83,7 @@ def Beta_matrix(sim_params, z, vz):
 
     return B
 
-def Beta_matrix_3D(sim_params, z, vz):
+def Beta_matrix_3D(sim_params, z, vz, s):
     """constructs the B matrix, whose columns are
     the beta vectors (shape = N x 1) for each value
     of the generalized velocity for the advecting
@@ -125,19 +125,19 @@ def Beta_matrix_3D(sim_params, z, vz):
 
     # catch cases where N > z.N, need to append extra (N - z.N)
     # copies of any row (all the same) to the remaining rows of alpha_hat
-    if z.CFL.frac.shape[0] < sim_params['N']:
-        alpha_hat = np.zeros([sim_params['N'], z.CFL.frac.shape[1]])
-        alpha_hat[:z.CFL.frac.shape[0],:] = z.CFL.frac
-        N_extra_rows = sim_params['N'] - z.CFL.frac.shape[0]
+    if z.CFL.frac[s,:,:].shape[0] < sim_params['N']:
+        alpha_hat = np.zeros([sim_params['N'], z.CFL.frac[s,:,:].shape[1]])
+        alpha_hat[:z.CFL.frac[s,:,:].shape[0],:] = z.CFL.frac[s,:,:]
+        N_extra_rows = sim_params['N'] - z.CFL.frac[s,:,:].shape[0]
 
         # generate the object of the required size to fit the remaining submatrix
         # in alpha_hat not already filled, compute an outer product with any row (all same)
         # here, we take the first row for obviousness
-        alpha_hat_extras = np.outer( np.ones(N_extra_rows), z.CFL.frac[0,:])
-        alpha_hat[z.CFL.frac.shape[0]:z.CFL.frac.shape[0] + N_extra_rows,:] = alpha_hat_extras
+        alpha_hat_extras = np.outer( np.ones(N_extra_rows), z.CFL.frac[s,0,:])
+        alpha_hat[z.CFL.frac[s,:,:].shape[0]:z.CFL.frac[s,:,:].shape[0] + N_extra_rows,:] = alpha_hat_extras
 
     else:
-        alpha_hat = z.CFL.frac[:sim_params['N'],:z.CFL.frac.shape[1]]
+        alpha_hat = z.CFL.frac[s,:sim_params['N'],:z.CFL.frac[s,:,:].shape[1]]
 
     alpha_tilde = ma.array(alpha_hat ** N_arr / scipy.misc.factorial(N_arr))
 
@@ -221,21 +221,15 @@ def correctors_on_configuration(sim_params, z, vz, t):
 
     # compute CFL numbers for every substage in a split scheme
 
-    # compute total number of stages
-    stages = 1
-    coeffs = sim_params['splitting']['order']['coeffs']
-    for coeff in coeffs:
-        if coeff == 'a':
-            stages += 1
-
-    dim1 = stages
+    dim1 = sim_params['splitting']['number_of_substeps']['a'] + 1 # index = 0 not used
     dim2 = sim_params['N']
     dim3 = vz.N
+
     B = np.zeros([dim1, dim2, dim3])
     c = np.zeros([dim1, dim2, dim3])
     
-    for s in range(1,stages):
-        B[s,:,:] = Beta_matrix_3D(sim_params, z, vz)
+    for s in range(1,dim1):
+        B[s,:,:] = Beta_matrix_3D(sim_params, z, vz, s)
+        c[s,:,:] = sim_params['I_alternating'].dot(B[s,:,:])
 
-    c = sim_params['I_alternating'].dot(B[s,:,:])
     return c

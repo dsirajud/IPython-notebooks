@@ -142,13 +142,12 @@ class CourantNumberConfiguration:
     """
     def __init__(self, z, sim_params):
 
-        # count the number of stages correspond to 'a' in the split
-        # procedure, which we have designated (arbitrary choice) as
-        # corresponding to advection of configuration variables
-        dim1 = (sim_params['splitting']['number_of_substeps']['a'],)
-        dims = dim1 + z.prepointmesh.shape
+        # split operator labelled by 'a' is designated as 'x' advection
 
         # [s,:,:] for s = 1, 2, ... are used for each stage. s = 0 unused
+        dim1 = (sim_params['splitting']['number_of_substeps']['a'] + 1,) 
+        dims = dim1 + z.prepointmesh.shape
+
         self.numbers = np.zeros(dims)
         self.frac = np.zeros(dims)
         self.int = np.zeros(dims)
@@ -207,13 +206,13 @@ class CourantNumberConfiguration:
 
         splitting = sim_params['splitting']
 
-        for s in range(sim_params['splitting']['number_of_substeps']['a']):
-            # splitting dictionary begins with 1
-            split_coeff = splitting[coeff[s]][int(stage[s]) + 1]
+        for s in range(1,sim_params['splitting']['number_of_substeps']['a'] + 1):
+            split_coeff = splitting['a'][s]
 
             # if number_of_substeps = sim_params['splitting']['number_of_substeps']['a']
             # 3D CFL arrays shape = (number_of_substeps,) + z.prepointmesh.shape
-            # indexing in first dimension begins with 0
+            # index first dimension beginning with 0 to be correspondent with lib.split.scheme
+            # top level looping over stages
             self.compute_numbers(z, vz, split_coeff*t.width, s)
 
 

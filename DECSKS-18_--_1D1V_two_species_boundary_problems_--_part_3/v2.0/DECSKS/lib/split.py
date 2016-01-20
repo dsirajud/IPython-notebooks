@@ -37,8 +37,8 @@ def scheme(
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a': # advect x
-            x.CFL.compute_numbers(x, vx, split_coeff*t.width)
 
+            x.CFL.compute_numbers(x, vx, split_coeff*t.width)
             fe = DECSKS.lib.convect.scheme(
                     fe,
                     n,

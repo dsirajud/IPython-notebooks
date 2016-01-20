@@ -21,18 +21,11 @@ def scheme(
     outputs:
     f -- (ndarray, dim=3) f(n+1,x,v)
     """
-    # TODO put this routine in lib.read to store in sim_params
-    # the CFL numbers in x at each time substep are constant over the whole simulation
-    # hence so are the correctors cx. We compute these now and store them for later use
-    #    cx = DECSKS.lib.HOC.correctors_on_configuration(x, vx, t, splitting, sim_params)
-    # note the CFL numbers in vx depend on accelerations, which change at each step
-    # self-consistently. Hence, these CFL numbers are different from one full time
-    # step to the next.
 
-    # compute all CFL numbes beforehand
+    # compute all CFL numbers for configuration variables beforehand
     x.CFL.compute_all_numbers(sim_params, x, vx, t)
     c = DECSKS.lib.HOC.correctors_on_configuration(sim_params, x, vx, t)
-    
+
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']
     coeff = splitting['order']['coeffs']
@@ -41,18 +34,28 @@ def scheme(
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a': # advect x
+
+            # the advection along characteristics are calculated
+            # a priori and stored in x.CFL.numbers[stage[s],:,:],
+            # where stage[s] labels the (sub)stage of the full time step.
+            # Hence, all the information needed to accomplish the
+            # advection of each cell is communicated by passing
+            # the stage[s] argument below along with x.CFL.numbers
+            # which permits the advection distances to be accessed
+            # as needed.
+
             fe = DECSKS.lib.convect_configuration.scheme(
                     fe,
-                    s,n,
-                    sim_params,
+                    int(stage[s]), n,
+                    sim_params, c,
                     z = x,
                     vz = vx,
                     charge = -1)
 
             fi = DECSKS.lib.convect_configuration.scheme(
                     fi,
-                    s,n,
-                    sim_params,
+                    int(stage[s]),n,
+                    sim_params, c,
                     z = x,
                     vz = vx,
                     charge = 1)
