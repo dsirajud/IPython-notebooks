@@ -1695,7 +1695,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   PyArrayObject *__pyx_t_7 = NULL;
   int __pyx_t_8;
   int __pyx_t_9;
-  int __pyx_t_10;
+  long __pyx_t_10;
   int __pyx_t_11;
   int __pyx_t_12;
   int __pyx_t_13;
@@ -1827,7 +1827,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_nonneg = np.zeros((dim1, dim2))
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_neg = np.zeros((dim1, dim2))             # <<<<<<<<<<<<<<
  * 
- *     for i in range(dim1):
+ *     for j in range(dim2):
  */
   __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
@@ -1889,71 +1889,71 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   /* "DECSKS/lib/remap.pyx":44
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_neg = np.zeros((dim1, dim2))
  * 
- *     for i in range(dim1):             # <<<<<<<<<<<<<<
- *         for j in range(dim2):
- *             if CFL[i,j] >= 0:
+ *     for j in range(dim2):             # <<<<<<<<<<<<<<
+ *         # CFL[0,j] = CFL[1,j] = ... = const, we choose to examine (0,j) arbitrarily
+ *         if CFL[0,j] >= 0:
  */
-  __pyx_t_8 = __pyx_v_dim1;
+  __pyx_t_8 = __pyx_v_dim2;
   for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
-    __pyx_v_i = __pyx_t_9;
+    __pyx_v_j = __pyx_t_9;
 
-    /* "DECSKS/lib/remap.pyx":45
- * 
- *     for i in range(dim1):
- *         for j in range(dim2):             # <<<<<<<<<<<<<<
- *             if CFL[i,j] >= 0:
+    /* "DECSKS/lib/remap.pyx":46
+ *     for j in range(dim2):
+ *         # CFL[0,j] = CFL[1,j] = ... = const, we choose to examine (0,j) arbitrarily
+ *         if CFL[0,j] >= 0:             # <<<<<<<<<<<<<<
+ *             for i in range(dim1):
  *                 f_nonneg[i,j] = f[i,j]
  */
-    __pyx_t_10 = __pyx_v_dim2;
-    for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
-      __pyx_v_j = __pyx_t_11;
+    __pyx_t_10 = 0;
+    __pyx_t_11 = __pyx_v_j;
+    __pyx_t_12 = -1;
+    if (__pyx_t_10 < 0) {
+      __pyx_t_10 += __pyx_pybuffernd_CFL.diminfo[0].shape;
+      if (unlikely(__pyx_t_10 < 0)) __pyx_t_12 = 0;
+    } else if (unlikely(__pyx_t_10 >= __pyx_pybuffernd_CFL.diminfo[0].shape)) __pyx_t_12 = 0;
+    if (__pyx_t_11 < 0) {
+      __pyx_t_11 += __pyx_pybuffernd_CFL.diminfo[1].shape;
+      if (unlikely(__pyx_t_11 < 0)) __pyx_t_12 = 1;
+    } else if (unlikely(__pyx_t_11 >= __pyx_pybuffernd_CFL.diminfo[1].shape)) __pyx_t_12 = 1;
+    if (unlikely(__pyx_t_12 != -1)) {
+      __Pyx_RaiseBufferIndexError(__pyx_t_12);
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    }
+    __pyx_t_13 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_CFL.rcbuffer->pybuffer.buf, __pyx_t_10, __pyx_pybuffernd_CFL.diminfo[0].strides, __pyx_t_11, __pyx_pybuffernd_CFL.diminfo[1].strides)) >= 0.0) != 0);
+    if (__pyx_t_13) {
 
-      /* "DECSKS/lib/remap.pyx":46
- *     for i in range(dim1):
- *         for j in range(dim2):
- *             if CFL[i,j] >= 0:             # <<<<<<<<<<<<<<
+      /* "DECSKS/lib/remap.pyx":47
+ *         # CFL[0,j] = CFL[1,j] = ... = const, we choose to examine (0,j) arbitrarily
+ *         if CFL[0,j] >= 0:
+ *             for i in range(dim1):             # <<<<<<<<<<<<<<
  *                 f_nonneg[i,j] = f[i,j]
- *             else:
+ *         else:
  */
-      __pyx_t_12 = __pyx_v_i;
-      __pyx_t_13 = __pyx_v_j;
-      __pyx_t_14 = -1;
-      if (__pyx_t_12 < 0) {
-        __pyx_t_12 += __pyx_pybuffernd_CFL.diminfo[0].shape;
-        if (unlikely(__pyx_t_12 < 0)) __pyx_t_14 = 0;
-      } else if (unlikely(__pyx_t_12 >= __pyx_pybuffernd_CFL.diminfo[0].shape)) __pyx_t_14 = 0;
-      if (__pyx_t_13 < 0) {
-        __pyx_t_13 += __pyx_pybuffernd_CFL.diminfo[1].shape;
-        if (unlikely(__pyx_t_13 < 0)) __pyx_t_14 = 1;
-      } else if (unlikely(__pyx_t_13 >= __pyx_pybuffernd_CFL.diminfo[1].shape)) __pyx_t_14 = 1;
-      if (unlikely(__pyx_t_14 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_14);
-        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      }
-      __pyx_t_15 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_CFL.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_CFL.diminfo[0].strides, __pyx_t_13, __pyx_pybuffernd_CFL.diminfo[1].strides)) >= 0.0) != 0);
-      if (__pyx_t_15) {
+      __pyx_t_12 = __pyx_v_dim1;
+      for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_12; __pyx_t_14+=1) {
+        __pyx_v_i = __pyx_t_14;
 
-        /* "DECSKS/lib/remap.pyx":47
- *         for j in range(dim2):
- *             if CFL[i,j] >= 0:
+        /* "DECSKS/lib/remap.pyx":48
+ *         if CFL[0,j] >= 0:
+ *             for i in range(dim1):
  *                 f_nonneg[i,j] = f[i,j]             # <<<<<<<<<<<<<<
- *             else:
- *                 f_neg[i,j] = f[i,j]
+ *         else:
+ *             for i in range(dim1):
  */
-        __pyx_t_14 = __pyx_v_i;
+        __pyx_t_15 = __pyx_v_i;
         __pyx_t_16 = __pyx_v_j;
         __pyx_t_17 = -1;
-        if (__pyx_t_14 < 0) {
-          __pyx_t_14 += __pyx_pybuffernd_f.diminfo[0].shape;
-          if (unlikely(__pyx_t_14 < 0)) __pyx_t_17 = 0;
-        } else if (unlikely(__pyx_t_14 >= __pyx_pybuffernd_f.diminfo[0].shape)) __pyx_t_17 = 0;
+        if (__pyx_t_15 < 0) {
+          __pyx_t_15 += __pyx_pybuffernd_f.diminfo[0].shape;
+          if (unlikely(__pyx_t_15 < 0)) __pyx_t_17 = 0;
+        } else if (unlikely(__pyx_t_15 >= __pyx_pybuffernd_f.diminfo[0].shape)) __pyx_t_17 = 0;
         if (__pyx_t_16 < 0) {
           __pyx_t_16 += __pyx_pybuffernd_f.diminfo[1].shape;
           if (unlikely(__pyx_t_16 < 0)) __pyx_t_17 = 1;
         } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_f.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __pyx_t_17 = __pyx_v_i;
         __pyx_t_18 = __pyx_v_j;
@@ -1968,16 +1968,28 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_18 >= __pyx_pybuffernd_f_nonneg.diminfo[1].shape)) __pyx_t_19 = 1;
         if (unlikely(__pyx_t_19 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_19);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
-        *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_f_nonneg.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_f_nonneg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f.rcbuffer->pybuffer.buf, __pyx_t_14, __pyx_pybuffernd_f.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_f.diminfo[1].strides));
-        goto __pyx_L7;
+        *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_f_nonneg.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_f_nonneg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_f.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_f.diminfo[1].strides));
       }
-      /*else*/ {
+      goto __pyx_L5;
+    }
+    /*else*/ {
 
-        /* "DECSKS/lib/remap.pyx":49
+      /* "DECSKS/lib/remap.pyx":50
  *                 f_nonneg[i,j] = f[i,j]
- *             else:
+ *         else:
+ *             for i in range(dim1):             # <<<<<<<<<<<<<<
+ *                 f_neg[i,j] = f[i,j]
+ * 
+ */
+      __pyx_t_12 = __pyx_v_dim1;
+      for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_12; __pyx_t_14+=1) {
+        __pyx_v_i = __pyx_t_14;
+
+        /* "DECSKS/lib/remap.pyx":51
+ *         else:
+ *             for i in range(dim1):
  *                 f_neg[i,j] = f[i,j]             # <<<<<<<<<<<<<<
  * 
  *     return f_nonneg, f_neg
@@ -1995,7 +2007,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_20 >= __pyx_pybuffernd_f.diminfo[1].shape)) __pyx_t_21 = 1;
         if (unlikely(__pyx_t_21 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_21);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 49; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __pyx_t_21 = __pyx_v_i;
         __pyx_t_22 = __pyx_v_j;
@@ -2010,21 +2022,21 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_22 >= __pyx_pybuffernd_f_neg.diminfo[1].shape)) __pyx_t_23 = 1;
         if (unlikely(__pyx_t_23 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_23);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 49; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_f_neg.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_f_neg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_f.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_f.diminfo[1].strides));
       }
-      __pyx_L7:;
     }
+    __pyx_L5:;
   }
 
-  /* "DECSKS/lib/remap.pyx":51
+  /* "DECSKS/lib/remap.pyx":53
  *                 f_neg[i,j] = f[i,j]
  * 
  *     return f_nonneg, f_neg             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 53; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_f_nonneg));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_f_nonneg));

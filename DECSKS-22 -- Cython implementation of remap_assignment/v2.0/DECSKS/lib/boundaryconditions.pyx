@@ -9,7 +9,6 @@ ctypedef np.float64_t DTYPE_t
 ctypedef np.int64_t DTYPEINT_t
 
 # PYTHON METHODS
-
 def periodic(f_old,
              Uf,
              z,
@@ -37,6 +36,7 @@ def periodic(f_old,
     f_old, Uf returned for symmetry with nonperiodic routine below
     """
     z.postpointmesh[k,:,:] = np.mod(z.postpointmesh[k,:,:], z.N)
+    vz.postpointmesh[k,:,:] = vz.prepointmesh
 
     return f_old, Uf
 
@@ -86,6 +86,61 @@ def nonperiodic(f_old,
                                               sim_params,
                                               z, vz)
 
+
+    vz.postpointmesh[k,:,:] = vz.prepointmesh
+
+    return f_old, Uf
+
+def symmetric(f_old,
+                Uf,
+                z,
+                vz,
+                sim_params,
+                charge,
+                k = 0
+                ):
+    """orchestrates applying nonperiodic boundary conditions
+    to the array w with total active grid points Nw. Nonperiodic
+    boundary conditions require handling both left and right
+    boundaries
+
+    inputs:
+    f_old -- (ndarray, ndim=2) density array
+    z -- (instance) phase space variable being evolved
+
+    outputs:
+    f_old -- (ndarray, ndim=2) density with both left and right
+             nonperiodic BCs enforced
+    Uf -- (ndarray, ndim=2) high order fluxes with both left and right
+             nonperiodic BCs enforced
+
+
+    z returned (no changes) for symmetry with periodic routine above
+    """
+    # lower boundary
+    f_old, Uf = eval(sim_params['BC'][z.str]['lower'] +
+                           '_lower_boundary')(f_old,
+                                              Uf,
+                                              z.postpointmesh[k,:,:],
+                                              vz.prepointmesh,
+                                              z.N, vz.N, k, charge,
+                                              sim_params,
+                                              z, vz)
+
+    # upper boundary
+    f_old, Uf = eval(sim_params['BC'][z.str]['upper'] +
+                           '_upper_boundary')(f_old,
+                                              Uf,
+                                              z.postpointmesh[k,:,:],
+                                              vz.prepointmesh,
+                                              z.N, vz.N, k, charge,
+                                              sim_params,
+                                              z, vz)
+
+
+
+    # vz.postpointmesh[k,:,:] to be set in boundaryconditions.symmetric_lower_boundary
+    # or boundaryconditions.symmtric_upper_boundary (if coded)
 
     return f_old, Uf
 

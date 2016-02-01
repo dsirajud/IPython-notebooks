@@ -218,9 +218,9 @@ def remap_step(
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
     f_k1 = np.zeros_like(f_template)
-    f_k1  = DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-    f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-    f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
+    f_k1  = DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
+    f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
+    f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
 
 
     # Prepare for remapping to k2
@@ -243,8 +243,8 @@ def remap_step(
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
     f_k2 = np.zeros_like(f_template)
-    f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.prepointmesh, f_k2.shape[0], f_k2.shape[1])
-    f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.prepointmesh, f_k2.shape[0], f_k2.shape[1])
+    f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
+    f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
 
     f_remapped = f_k1 + f_k2
 

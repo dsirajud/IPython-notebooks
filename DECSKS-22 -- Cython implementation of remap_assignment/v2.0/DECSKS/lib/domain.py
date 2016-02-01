@@ -28,6 +28,13 @@ class Setup:
             self.prepoints = np.arange(self.N)
             self.prepointmesh = np.array(np.outer( self.prepoints, np.ones([1, sim_params['active_dims'][1]]) ), dtype = int)
 
+            postpointmesh_dims = [2]
+            for dim in sim_params['active_dims']:
+                postpointmesh_dims.append(dim)
+            # container, to be filled at each timestep with postpoint index map
+            self.postpointmesh = np.zeros(postpointmesh_dims, dtype = int)
+
+
         elif dim is not None and var.lower() != 't':
             # var = 'v', dim = 'x', 'y' or 'z'
             # instantiates vx, vy, or vz
@@ -336,6 +343,7 @@ def velocity_advection_prep(f_initial, z, vz):
 
     vz.prepointmesh = np.transpose(vz.prepointmesh)
     vz.prepointvaluemesh = np.transpose(vz.prepointvaluemesh)
+    vz.postpointmesh = np.transpose(vz.postpointmesh, (0,2,1))
 
     return f_initial, z, vz
 
@@ -397,7 +405,7 @@ def velocity_advection_postproc(f_remapped, z, vz):
     z.CFL.int = np.transpose(z.CFL.int)
 
     vz.prepointmesh = np.transpose(vz.prepointmesh)
-
+    vz.postpointmesh = np.transpose(vz.postpointmesh, (0,2,1))
     return f_remapped, z, vz
 
 def extract_active_grid(f_total_grid, sim_params):

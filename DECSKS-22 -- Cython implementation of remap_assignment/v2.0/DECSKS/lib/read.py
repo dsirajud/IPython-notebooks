@@ -126,6 +126,22 @@ def inputfile(filename):
     BC['vz']['lower'] = safe_eval(lines[48][lines[48].find('=')+1:].strip())
     BC['vz']['upper'] = safe_eval(lines[49][lines[49].find('=')+1:].strip())
 
+
+    # the following strings are used to call the orchestrator function
+    #
+    #     lib.boundaryconditons.periodic
+    #     lib.boundaryconditions.nonperiodic
+    #     lib.boundaryconditions.symmetric
+    #
+    # in lib.convect_configuration.remap_step or lib.convect_velocity.remap
+    # to apply the BCs specified in params.dat
+
+    # BCs can have three types: periodic, nonperiodic, or symmetric
+    # while technically, a symmetric condition can be subsumed under one of the
+    # previous two categories, we reserve a special orchestrator in
+    # lib.boundaryconditions for symmetric boundaries to avoid unnecessary
+    # repeat assignments to vz.postpointmesh (see implementation for this
+    # esoteric reason)
     for var in ['x', 'y', 'z', 'vx', 'vy', 'vz']:
         if BC[var]['lower'] == 'periodic' and BC[var]['upper'] == 'periodic':
             BC[var]['type'] = 'periodic'
@@ -133,6 +149,8 @@ def inputfile(filename):
             BC[var]['type'] = 'incompatible periodic BCs specified'
         elif BC[var]['lower'] != 'periodic' and BC[var]['upper'] == 'periodic':
             BC[var]['type'] = 'incompatible periodic BCs specified'
+        elif BC[var]['lower'] == 'symmetric' or BC[var]['upper'] == 'symmetric':
+            BC[var]['type'] = 'symmetric'
         else:
             BC[var]['type'] = 'nonperiodic'
 

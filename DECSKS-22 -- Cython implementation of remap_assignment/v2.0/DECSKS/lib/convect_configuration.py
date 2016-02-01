@@ -223,10 +223,9 @@ def remap_step(
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
     f_k1 = np.zeros_like(f_template)
-    f_k1  = DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-    f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-    f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-
+    f_k1  = DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
+    f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
+    f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
 
     # Prepare for remapping to k2
     # We do not need the information in f_template, and Uf_template hereafter, so we may modify these directly
@@ -248,8 +247,8 @@ def remap_step(
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
     f_k2 = np.zeros_like(f_template)
-    f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.prepointmesh, f_k2.shape[0], f_k2.shape[1])
-    f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.prepointmesh, f_k2.shape[0], f_k2.shape[1])
+    f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
+    f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
 
     f_remapped = f_k1 + f_k2
 
@@ -353,67 +352,6 @@ def flux_limiter(
     Uf = np.where(Uf_neg.mask == False, Uf_neg.data, Uf_pos.data)
 
     return Uf
-
-def remap_assignment(
-        sim_params,
-        f_old,
-        s,
-        Uf,
-        z,
-        vz,
-        charge,
-        index = 'nearest'
-        ):
-    """Remaps the z.N MCs to Eulerian mesh at indices k1 and k2
-
-    inputs:
-    sim_params -- (dict) simulation parameters
-    f_old -- (ndarray, dim=2) density from previous time step
-    Uf -- (ndarray, dim=2) normalized flux originating from each
-          prepointmesh location [i,j]
-    z -- (instance) phase space variable being evolved
-    vz -- (instance) generalized velocity
-    charge -- (int) -1 or +1 indicates the sign of the charge and
-              magnitude in units of electronic charge multiples
-    index -- (str) 'nearest' or 'contiguous' is a kwarg that
-             determines the form of the remap rule (i.e.
-             amounts to determining if we assign a proportion
-             zeta vs. (1 - zeta))
-
-    outputs:
-    f_new -- (ndarray, dim=2) density with f_old remapped to
-             according to the mapping
-
-            [z.prepointmesh, vz.prepointmesh] --> [k, vz.prepointmesh]
-
-    """
-
-    f_k1 = np.copy(f_old)
-    f_k2 = np.zeros_like(f_old)
-    Uf_k1 = np.copy(Uf)
-
-    f_k1, Uf_k1 = \
-      eval(sim_params['boundarycondition_function_handle'][z.str])(
-          f_k1, Uf_k1, z, vz, sim_params, charge, k = 0)
-
-
-    Uf_k1_nonneg, Uf_k1_neg = DECSKS.lib.remap.sift(f_old, vz.prepointmesh)
-
-    f_k1  = DECSKS.lib.remap.assignment(f_k1, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-    f_k1 += DECSKS.lib.remap.assignment(Uf_k1_neg, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-    f_k1 -= DECSKS.lib.remap.assignment(Uf_k1_nonneg, z.postpointmesh[0,:,:], vz.prepointmesh, f_k1.shape[0], f_k1.shape[1])
-
-    f_old, Uf = \
-      eval(sim_params['boundarycondition_function_handle'][z.str])(
-          f_old, Uf, z, vz, sim_params, charge, k = 1)
-
-
-
-    Uf_k2_nonneg, Uf_k2_neg = DECSKS.lib.remap.sift(f_old, vz.prepointmesh)
-    f_k2 -= DECSKS.lib.remap.assignment(Uf_k2_neg, z.postpointmesh[1,:,:], vz.prepointmesh, f_k2.shape[0], f_k2.shape[1])
-    f_k2 += DECSKS.lib.remap.assignment(Uf_k2_nonneg, z.postpointmesh[1,:,:], vz.prepointmesh, f_k2.shape[0], f_k2.shape[1])
-
-    return f_k1 + f_k2
 
 def finalize_density_periodic(sim_params, f_remapped, f_final, z, vz):
     """

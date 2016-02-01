@@ -41,11 +41,13 @@ def sift(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):
     cdef np.ndarray[DTYPE_t, ndim=2] f_nonneg = np.zeros((dim1, dim2))
     cdef np.ndarray[DTYPE_t, ndim=2] f_neg = np.zeros((dim1, dim2))
 
-    for i in range(dim1):
-        for j in range(dim2):
-            if CFL[i,j] >= 0:
+    for j in range(dim2):
+        # CFL[0,j] = CFL[1,j] = ... = const, we choose to examine (0,j) arbitrarily
+        if CFL[0,j] >= 0:
+            for i in range(dim1):
                 f_nonneg[i,j] = f[i,j]
-            else:
+        else:
+            for i in range(dim1):
                 f_neg[i,j] = f[i,j]
-
+                
     return f_nonneg, f_neg

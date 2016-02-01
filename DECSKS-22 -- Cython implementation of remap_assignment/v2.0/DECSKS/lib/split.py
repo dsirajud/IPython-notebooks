@@ -34,7 +34,6 @@ def scheme(
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a': # advect x
-
             # the advection along characteristics are calculated
             # a priori and stored in x.CFL.numbers[stage[s],:,:],
             # where stage[s] labels the (sub)stage of the full time step.
@@ -62,7 +61,6 @@ def scheme(
 
         elif coeff[s] == 'b': # advect vx
             # calculate electric field at most recent positions of ions and electrons
-            #                Ex = DECSKS.lib.fieldsolvers.compute_electric_field_fourier(fe, fi, x, vx, n-1, sim_params)
             Ex = eval(sim_params['compute_electric_field_function_handle'])(fe, fi, x, vx, sim_params)
 
             # advect electron velocities

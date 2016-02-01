@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+
+import numpy as np
+import pylab as plt
+
+params = {'legend.fontsize': 12,
+          'legend.linewidth': 2}
+plt.rcParams.update(params)
+
+# Plot the electrostatic energy of the system
+
+infile = open('s13-01/out_WE','r')
+lines = infile.readlines()
+
+WE = []
+for line in lines:
+    WE.append(eval(line))
+
+WE = np.array(WE)
+WE = WE / WE[0] # normalize
+
+Nt = 60
+dt = 1.0
+T = 60.
+
+t = np.zeros(Nt+1) # includes t = 0
+t = np.linspace(0,T, Nt+1)
+
+plt.semilogy(t, WE, 'o',
+             label = '$GE = \mathcal{O}(\Delta x^{21},\,\Delta v^{21}, \, \Delta t^4)$, $N_x = 8,\, N_v = 256$')
+
+# LINEAR THEORY, WE = WE[0] exp(-2*gamma*t), if
+#                E = E[0] exp(jw_r t) exp(-gamma t)
+#                normalize: WE / WE[0] = exp(-gamma*t)
+
+gamma = 0.153359 # damping constant
+
+WE_linear = np.exp(-2*gamma*t)
+
+plt.semilogy(t, WE_linear, '--m', linewidth = 2, label = 'Linear theory')
+
+
+
+# decorate plot
+plt.grid()
+plt.xlabel('time', fontsize = 14)
+plt.ylabel('Normalized electrostatic energy, $W_E/W_{E0}$', fontsize = 12)
+plt.legend(loc = 'lower left')
+plt.savefig('Landau_WE_corrected.png')
+plt.clf()
+

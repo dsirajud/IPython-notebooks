@@ -5,7 +5,7 @@
 # 1D1V Vlasov-Poisson system, two species                                     #
 #                                                                             #
 #     __author__     = David Sirajuddin                                       #
-#     __version__    = 2.0                                                    #
+#     __version__    = 2.1                                                    #
 #     __email__      = sirajuddin@wisc.edu                                    #
 #     __status__     = in development                                         #
 #                                                                             #
