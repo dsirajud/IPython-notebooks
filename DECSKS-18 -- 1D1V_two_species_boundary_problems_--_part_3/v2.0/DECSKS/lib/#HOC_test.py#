@@ -57,3 +57,22 @@ def Beta_matrix_v(sim_params, z, vz):
     B = np.where(mask_neg == True, beta_neg.data, beta_pos.data)
 
     return B
+
+
+for s in range(len(stage)):
+    if coeff[s] == 'a':
+        split_coeff = splitting[coeff[s]][int(stage[s])]
+        self.compute_numbers(z, vz, split_coeff*t.width, stage[s])
+    else:
+        pass
+
+
+
+
+
+
+
+
+
+
+

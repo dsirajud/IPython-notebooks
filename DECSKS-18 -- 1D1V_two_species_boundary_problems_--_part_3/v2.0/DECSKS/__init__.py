@@ -1,5 +1,7 @@
 import lib.boundaryconditions
 import lib.convect
+import lib.convect_configuration
+import lib.convect_velocity
 import lib.diagnostics
 import lib.domain
 import lib.density
@@ -11,3 +13,4 @@ import lib.read
 import lib.status
 import lib.split
 import lib.velocityfields
+import lib.remap

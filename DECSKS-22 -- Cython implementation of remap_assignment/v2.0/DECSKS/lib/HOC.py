@@ -84,7 +84,19 @@ def Beta_matrix(sim_params, z, vz):
     return B
 
 def Beta_matrix_3D(sim_params, z, vz, s):
-    """constructs the B matrix, whose columns are
+    """This routine is called from HOC.correctors_on_configuration.
+
+    The only difference between this method and the Beta_matrix
+    method is that this method expects a 3D z.CFL.frac array, whose
+    first dimensino corresopnds to the stage of the split scheme.
+    Hence, it is only of use for the advection of configuration, whose
+    stage-wise CFL numbes are constant from one full time step to the
+    next, given that the velocity values are tied to a grid. This is not
+    true for the velocity variables' CFL numbers, as they depend self-consistently
+    on the accelerations which are not tied to any grid, hence their values
+    are not known a priori, but are calculated at each time step.
+
+    The following routine constructs the B matrix, whose columns are
     the beta vectors (shape = N x 1) for each value
     of the generalized velocity for the advecting
     variable z.
@@ -95,7 +107,6 @@ def Beta_matrix_3D(sim_params, z, vz, s):
     sim_params -- (dict) simulation parameters
     z.CFL.frac -- (ndarray, ndim=2) contains the fractional CFL numbers
                   for every [i,j]
-
 
     outputs:
 
@@ -172,10 +183,7 @@ def correctors(sim_params, z, vz):
 
     outputs:
     c -- (ndarray, ndim=2) correction coefficients
-         with shape = (N, z_notadv.N)
-         where z_notadv means the not advecting phase
-         space variable in the scope of a 2D advection
-         implementation
+         with shape = (N, vz.N)
 
          per DECSKS-09 notation, the tensor c is given by
 
@@ -219,7 +227,9 @@ def correctors_on_configuration(sim_params, z, vz, t):
         of vz.prepointvaluemesh[:,j]
     """
 
-    # compute CFL numbers for every substage in a split scheme
+    # compute CFL numbers for every substage in a split scheme, this relies on
+    # designating (as already coded in lib.split.scheme) that configuration
+    # advection is the 'a' step, not 'b' in the splitting process
 
     dim1 = sim_params['splitting']['number_of_substeps']['a'] + 1 # index = 0 not used
     dim2 = sim_params['N']
@@ -227,7 +237,7 @@ def correctors_on_configuration(sim_params, z, vz, t):
 
     B = np.zeros([dim1, dim2, dim3])
     c = np.zeros([dim1, dim2, dim3])
-    
+
     for s in range(1,dim1):
         B[s,:,:] = Beta_matrix_3D(sim_params, z, vz, s)
         c[s,:,:] = sim_params['I_alternating'].dot(B[s,:,:])

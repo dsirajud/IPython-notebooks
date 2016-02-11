@@ -5,7 +5,7 @@
 # 1D1V Vlasov-Poisson system, two species                                     #
 #                                                                             #
 #     __author__     = David Sirajuddin                                       #
-#     __version__    = 2.0                                                    #
+#     __version__    = 2.1                                                    #
 #     __email__      = sirajuddin@wisc.edu                                    #
 #     __status__     = in development                                         #
 #                                                                             #
@@ -33,7 +33,6 @@ import DECSKS
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-import os
 
 # =========================================================================== #
 
@@ -66,20 +65,7 @@ Plot(n = 0)
 Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
 Plot(n = 0)
 
-plt.plot(np.arange(0+1),sim_params['sigma_n']['x']['lower'][0], linewidth = 2, label = r'$\sigma(t, x= -10)$')
-plt.plot(np.arange(0+1),sim_params['sigma_n']['x']['upper'][0], linewidth = 2, label = r'$\sigma(t, x= +10)$')
-plt.grid()
-plt.xlim( 0, 500)
-plt.ylim( -2000, 7000)
-
-plt.xlabel(r'time step $n$', fontsize = 18)
-plt.ylabel(r'$\sigma(t,x)$', fontsize = 18)
-plt.legend(loc = 'best')
-plt.savefig('charge_density_%03d.png' % 0)
-plt.clf()
-
 print 'simulation has started, status updates are broadcasted after each timestep'
-print os.getcwd()
 for n in t.stepnumbers:
     fe, fi = DECSKS.lib.split.scheme(
         fe, fi,
@@ -88,21 +74,7 @@ for n in t.stepnumbers:
         sim_params
         )
 
-    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
-    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
 
-    plt.plot(np.arange(n+1),sim_params['sigma_n']['x']['lower'][:n+1], linewidth = 2, label = r'$\sigma(t, x= -10)$')
-    plt.plot(np.arange(n+1),sim_params['sigma_n']['x']['upper'][:n+1], linewidth = 2, label = r'$\sigma(t, x= +10)$')
-    plt.grid()
-    plt.xlim( 0, 500)
-    plt.ylim( -2000, 7000)
-
-    plt.xlabel(r'time step $n$', fontsize = 18)
-    plt.ylabel(r'$\sigma(t,x)$', fontsize = 18)
-    plt.legend(loc = 'best')
-    plt.savefig('charge_density_%03d.png' % n)
-    plt.clf()
-    
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
     Plot(n)
     Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')

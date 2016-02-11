@@ -126,6 +126,22 @@ def inputfile(filename):
     BC['vz']['lower'] = safe_eval(lines[48][lines[48].find('=')+1:].strip())
     BC['vz']['upper'] = safe_eval(lines[49][lines[49].find('=')+1:].strip())
 
+
+    # the following strings are used to call the orchestrator function
+    #
+    #     lib.boundaryconditons.periodic
+    #     lib.boundaryconditions.nonperiodic
+    #     lib.boundaryconditions.symmetric
+    #
+    # in lib.convect_configuration.remap_step or lib.convect_velocity.remap
+    # to apply the BCs specified in params.dat
+
+    # BCs can have three types: periodic, nonperiodic, or symmetric
+    # while technically, a symmetric condition can be subsumed under one of the
+    # previous two categories, we reserve a special orchestrator in
+    # lib.boundaryconditions for symmetric boundaries to avoid unnecessary
+    # repeat assignments to vz.postpointmesh (see implementation for this
+    # esoteric reason)
     for var in ['x', 'y', 'z', 'vx', 'vy', 'vz']:
         if BC[var]['lower'] == 'periodic' and BC[var]['upper'] == 'periodic':
             BC[var]['type'] = 'periodic'
@@ -133,6 +149,8 @@ def inputfile(filename):
             BC[var]['type'] = 'incompatible periodic BCs specified'
         elif BC[var]['lower'] != 'periodic' and BC[var]['upper'] == 'periodic':
             BC[var]['type'] = 'incompatible periodic BCs specified'
+        elif BC[var]['lower'] == 'symmetric' or BC[var]['upper'] == 'symmetric':
+            BC[var]['type'] = 'symmetric'
         else:
             BC[var]['type'] = 'nonperiodic'
 
@@ -539,7 +557,7 @@ def splitting_coefficients(filepath, split_scheme):
     coeff = splitting['order']['coeffs'] = a, b, a, b, ...
     stage = splitting['order']['stages'] = 1, 1, 2, 2, ...
     access ith coefficient by
-    splitting[ coeff[i]][int(stage[i])]
+    splitting[coeff[i]][int(stage[i])]
     """
     infile = open(filepath, 'r')
     lines = infile.readlines()
@@ -553,8 +571,9 @@ def splitting_coefficients(filepath, split_scheme):
         b1 = eval(lines[16][lines[16].find('=')+1:].strip())
         b2 = eval(lines[17][lines[17].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 2, b = 2)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2],
                             b = [None, b1, b2])
 
@@ -570,8 +589,9 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[38][lines[38].find('=')+1:].strip())
         b4 = eval(lines[39][lines[39].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -587,8 +607,9 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[60][lines[60].find('=')+1:].strip())
         b4 = eval(lines[61][lines[61].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -612,8 +633,9 @@ def splitting_coefficients(filepath, split_scheme):
         b5 = eval(lines[89][lines[89].find('=')+1:].strip())
         b6 = eval(lines[90][lines[90].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 6, b = 6)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4, a5, a6],
                             b = [None, b1, b2, b3, b4, b5, b6])
 
@@ -642,8 +664,9 @@ def splitting_coefficients(filepath, split_scheme):
         b6 = eval(lines[124][lines[124].find('=')+1:].strip())
         b7 = eval(lines[125][lines[125].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 8, b = 7)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4, a5, a6, a7, a8],
                             b = [None, b1, b2, b3, b4, b5, b6, b7])
 

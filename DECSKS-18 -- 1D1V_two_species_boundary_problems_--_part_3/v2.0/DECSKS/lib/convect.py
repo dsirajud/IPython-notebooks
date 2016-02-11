@@ -415,7 +415,7 @@ def remap_assignment(
         # APPLY BOUNDARY CONDITIONS
         # e.g. for absorbing boundaries, we zero out all prepoint density entries
         # which exit the domain
-        f_BCs_applied, Uf_BCs_applied, z = \
+        f_BCs_applied, Uf_BCs_applied = \
           eval(sim_params['boundarycondition_function_handle'][z.str])(
               f_BCs_applied, Uf_BCs_applied, z, vz, sim_params, charge, k = 0)
 
@@ -439,7 +439,7 @@ def remap_assignment(
         # APPLY BOUNDARY CONDITIONS
         # e.g. for absorbing boundaries, we zero out all prepoint density entries
         # which exit the domain
-        f_old, Uf, z = \
+        f_old, Uf,  = \
           eval(sim_params['boundarycondition_function_handle'][z.str])(
               f_old, Uf, z, vz, sim_params, charge, k = 1)
 

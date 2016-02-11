@@ -96,7 +96,7 @@ density profile: cosine 22-bell, ion cosine 22-bell
     triangle
     triple gaussian bell
 --------------------------------------------------------------------------------
-split scheme = O6-4
+split scheme = LF2
 splitting coeffs in filename (in ./etc/): params_splitting_coeffs.dat
 
 #   split scheme options
