@@ -25,8 +25,6 @@ def scheme(
     # compute all CFL numbers for configuration variables beforehand
     x.CFL.compute_all_numbers(sim_params, x, vx, t)
     c = DECSKS.lib.HOC.correctors_on_configuration(sim_params, x, vx, t)
-    print c[1,:,1]
-    print c[1,:,-1]
 
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']
@@ -36,6 +34,7 @@ def scheme(
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a': # advect x
+
             # the advection along characteristics are calculated
             # a priori and stored in x.CFL.numbers[stage[s],:,:],
             # where stage[s] labels the (sub)stage of the full time step.
@@ -63,6 +62,7 @@ def scheme(
 
         elif coeff[s] == 'b': # advect vx
             # calculate electric field at most recent positions of ions and electrons
+            #                Ex = DECSKS.lib.fieldsolvers.compute_electric_field_fourier(fe, fi, x, vx, n-1, sim_params)
             Ex = eval(sim_params['compute_electric_field_function_handle'])(fe, fi, x, vx, sim_params)
 
             # advect electron velocities

@@ -1,0 +1,9 @@
+$$\underline{\underline{d}}_{,,j} = \left(\begin{array}{cccccccc}
+d^{(0)}_{0,j} & d^{(0)}_{1,j} & \cdots & \cdots & \cdots & d^{(0)}_{N_x-2,j} &d d^{(0)}_{N_x-1,j} \\
+d^{(1)}_{0,j}n & d^{(1)}_{1,j} & \cdots & \cdots & \cdots & d^{(1)}_{N_x-2,j} & d^{(1)}_{N_x-1,j} \\
+\vdots  & \vdots & &  &  & \vdots & \vdots \\
+\vdots & \vdots & &  &  & \vdots & \vdots \\d
+d^{(N-2)}_{0,j}  & d^{(N-2)}_{1,j} & \cdots & \cdots & \cdots & d^{(N-2)}_{N_x-2,j} & d^{(N-2)}_{N_x-1,j} \\
+d^{(N-1)}_{0,j} & d^{(N-1)}_{1,j} & \cdots & \cdots & \cdots & d^{(N-1)}_{N_x-2,j} & d^{(N-1)}_{N_x-1,j} 
+\end{array}\right)_{N\times N_{vx}}
+$$

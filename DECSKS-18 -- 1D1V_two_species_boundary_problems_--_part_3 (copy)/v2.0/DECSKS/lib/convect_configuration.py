@@ -227,7 +227,7 @@ def remap_step(
     f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
     f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
 
-
+    print f_k1[z.N/2:, vz.N/2]
     # store an array of indices which indicate the "special" entries, i.e. those that are around the edges and whcih require both
     # the partner flux and the non-partner fluxes
 

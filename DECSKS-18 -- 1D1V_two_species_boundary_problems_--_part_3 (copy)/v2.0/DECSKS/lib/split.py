@@ -25,8 +25,6 @@ def scheme(
     # compute all CFL numbers for configuration variables beforehand
     x.CFL.compute_all_numbers(sim_params, x, vx, t)
     c = DECSKS.lib.HOC.correctors_on_configuration(sim_params, x, vx, t)
-    print c[1,:,1]
-    print c[1,:,-1]
 
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']

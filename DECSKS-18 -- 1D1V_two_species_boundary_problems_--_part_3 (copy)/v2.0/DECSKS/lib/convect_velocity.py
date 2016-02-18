@@ -4,8 +4,8 @@ import numpy.ma as ma
 
 def scheme(
     f_initial,
-    s,n,
-    sim_params, c,
+    n,
+    sim_params,
     z,
     vz,
     charge = -1
@@ -19,8 +19,8 @@ def scheme(
              else, f[n,:,:]
     n -- (int) time step
     sim_params -- (dict) simulation parameters
-    z -- (instance) generic phase space variable (x,y, or physical z)
-    vz -- (instance) generalized velocity for z (vx, vy, or physical vz)
+    z -- (instance) phase space variable (vx, vy, or physical vz)
+    vz -- (instance) generalized velocity for z (accelerations ax, ay, az)
 
 
     outputs:
@@ -32,13 +32,15 @@ def scheme(
     f_final = np.zeros(f_initial.shape)
     f_initial = DECSKS.lib.domain.extract_active_grid(f_initial, sim_params)
 
+    # tranpose objects so that variation is across columns, not rows
+    f_initial, z, vz = DECSKS.lib.domain.velocity_advection_prep(f_initial, z, vz)
+
     # (1) ADVECT DENSITY AND COMPUTE CORRESPONDING FLUXES
-    z.postpointmesh = advection_step(s,z)
+    z.postpointmesh = advection_step(z)
 
     # compute high order fluxes
     Uf = flux(
-        sim_params, c,
-        s,
+        sim_params,
         f_initial,
         z, vz
         )
@@ -48,7 +50,7 @@ def scheme(
                        sim_params,
                        f_initial,
                        Uf,
-                       s, n,
+                       n,
                        z,
                        vz,
                        charge
@@ -62,7 +64,7 @@ def scheme(
 
     return f_final
 #---------------------------------------------------------------------------  #
-def advection_step(s,z):
+def advection_step(z):
     """Pushes each z.prepointmesh (index) value by the advection *along each
     column j* (i.e. constant vz.prepointvaluemesh)
     as prescribed by its generalized velocity vz.prepointmeshvalues[:,j].
@@ -76,7 +78,6 @@ def advection_step(s,z):
     the orchestrator routine, lib.convect.scheme, above.
 
     inputs:
-    s -- (int) stage of the split scheme
     z -- (instance) phase space variable equipped with (among other attributes)
 
             z.prepointmesh -- (ndarray, ndim=2) initial [i,j] prepoint indices of all MCs
@@ -121,14 +122,13 @@ def advection_step(s,z):
       since we are speaking of one index, not a duple as concerns the postpointmesh
       object
     """
+
     # NOTE: we must use the sign on the CFL numbers as it is not interchangeable with the
     # velocity values given high order splitting methods require negative splitting coefficients
     # hence the direction of the trajectory is not just dependent on vz.prepointvaluemesh but
     # also on vz.prepointvaluemesh*(split_coeff*t.width)
-
-
-    z.postpointmesh[0,:,:] = z.prepointmesh + z.CFL.int[s,:,:]
-    z.postpointmesh[1,:,:] = np.sign(z.CFL.numbers[s,:,:]).astype(int) + z.postpointmesh[0,:,:]
+    z.postpointmesh[0,:,:] = z.prepointmesh + z.CFL.int
+    z.postpointmesh[1,:,:] = np.sign(z.CFL.numbers).astype(int) + z.postpointmesh[0,:,:]
 
     return z.postpointmesh
 
@@ -136,7 +136,7 @@ def remap_step(
         sim_params,
         f_template,
         Uf_template,
-        s, n,
+        n,
         z,
         vz,
         charge
@@ -176,11 +176,6 @@ def remap_step(
                             on why this is named as Uf_template rather
                             than Uf_old.
 
-    s -- (int) current splitting stage; used to access the pre-computed
-            correctors c, which depend on the stage. Note, for physical
-            velocity (e.g. in lib.convect_velocity) we must compute the
-            correctors in each pass as these are not tied to any grid
-            hence are difference from one full time step to the next
     n  -- (int) current time step
     z -- (instance) phase space variable
     vz -- (instance) generalized velocity variable for phase space variable z
@@ -213,7 +208,7 @@ def remap_step(
       eval(sim_params['boundarycondition_function_handle'][z.str])(
           f_copy, Uf_copy, z, vz, sim_params, charge, k = 0)
 
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_copy, z.CFL.numbers[s,:,:])
+    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_copy, z.CFL.numbers)
 
     # remap all [i,j] to postpoints [k1, j], we assign per the piecewise rule:
     #
@@ -228,15 +223,6 @@ def remap_step(
     f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
 
 
-    # store an array of indices which indicate the "special" entries, i.e. those that are around the edges and whcih require both
-    # the partner flux and the non-partner fluxes
-
-    # edge_postpoints = np.where(0 <= z.postpointmesh[0,:,:] <= 1)
-    # gives the (i,j) pairs, only need to base diagnostic off of one k1 or k2
-
-
-
-
     # Prepare for remapping to k2
     # We do not need the information in f_template, and Uf_template hereafter, so we may modify these directly
 
@@ -247,7 +233,7 @@ def remap_step(
       eval(sim_params['boundarycondition_function_handle'][z.str])(
           f_template, Uf_template, z, vz, sim_params, charge, k = 1)
 
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_template, z.CFL.numbers[s,:,:])
+    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_template, z.CFL.numbers)
 
     # remap all [i,j] to postpoints [k2, j], we assign per the piecewise rule:
     #
@@ -266,8 +252,7 @@ def remap_step(
 
 # ........................................................................... #
 def flux(
-        sim_params, c,
-        s,
+        sim_params,
         f_old,
         z, vz
         ):
@@ -288,10 +273,7 @@ def flux(
                Uf[i,j] = sum c[q,j]*d[q,i,j] over q = 0, 1, ... N-1
                        = f_old + (high order corrections)
     """
-
-    # the correctors c[s,q,j] were calculated prior to the simulation start
-    # inside lib.split
-
+    c = DECSKS.lib.HOC.correctors(sim_params, z, vz)
     # evaluate derivatives q = 0, 1, 2, ... N-1 (zeroeth is density itself)
 
     # calls lib.derivatives.fd or lib.derivatives.fourier based on the
@@ -302,15 +284,14 @@ def flux(
     # compute high order fluxes column-by-column
     Uf = np.zeros(f_old.shape)
     for j in range(vz.N):
-        Uf[:,j] = c[s,:,j].dot(d[:,:,j])
+        Uf[:,j] = c[:,j].dot(d[:,:,j])
 
     # enforce flux limiter to ensure positivity and restrict numerical overflow
-    Uf = flux_limiter(s, f_old, Uf, z)
+    Uf = flux_limiter(f_old, Uf, z)
 
     return Uf
 
 def flux_limiter(
-        s,
         f_old,
         Uf,
         z):
@@ -339,10 +320,10 @@ def flux_limiter(
           i.e. the computational savings is at least a factor of 10
     """
     # local masked array (ma) copy of CFL.frac used to leave CFL.frac unchanged
-    Uf_ma = ma.array(z.CFL.frac[s,:,:])
+    Uf_ma = ma.array(z.CFL.frac)
 
     # mask negative values, keep positives
-    Uf_ma[z.CFL.frac[s,:,:] < 0] = ma.masked
+    Uf_ma[z.CFL.frac < 0] = ma.masked
 
     # assign the mask to a zero matrix of same size for pairwise ma.minimum/maximum operations below
     zeros = ma.zeros(Uf.shape)
@@ -387,6 +368,8 @@ def finalize_density_periodic(sim_params, f_remapped, f_final, z, vz):
                              f_final[:, z2.Ngridpoints - 1] = f_new[:,0]
     """
 
+    f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
+
     # assign all active grid points to grid values on f_final, the indexing is unnecessary
     # but included for transparency, f_final (total grid) contains an extra column and
     # row as compared to f_remapped (active grid)
@@ -407,6 +390,8 @@ def finalize_density_absorbing(sim_params, f_remapped, f_final, z, vz):
     """
     finalizes density function assuming x nonperiodic, vx periodic
     """
+
+    f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
 
     # assign all active grid points to grid values on f_final
     f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped
