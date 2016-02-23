@@ -1124,7 +1124,8 @@ static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_pf_6DECSKS_3lib_5remap_assignment(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_f_old, PyArrayObject *__pyx_v_map1, PyArrayObject *__pyx_v_map2, int __pyx_v_dim1, int __pyx_v_dim2); /* proto */
-static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_f, PyArrayObject *__pyx_v_CFL); /* proto */
+static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_Uf); /* proto */
+static PyObject *__pyx_pf_6DECSKS_3lib_5remap_4sift_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_f, PyArrayObject *__pyx_v_CFL); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static char __pyx_k_B[] = "B";
@@ -1142,6 +1143,7 @@ static char __pyx_k_i[] = "i";
 static char __pyx_k_j[] = "j";
 static char __pyx_k_l[] = "l";
 static char __pyx_k_q[] = "q";
+static char __pyx_k_Uf[] = "Uf";
 static char __pyx_k_Zd[] = "Zd";
 static char __pyx_k_Zf[] = "Zf";
 static char __pyx_k_Zg[] = "Zg";
@@ -1163,16 +1165,19 @@ static char __pyx_k_int64[] = "int64";
 static char __pyx_k_numpy[] = "numpy";
 static char __pyx_k_range[] = "range";
 static char __pyx_k_zeros[] = "zeros";
+static char __pyx_k_Uf_neg[] = "Uf_neg";
 static char __pyx_k_import[] = "__import__";
 static char __pyx_k_float64[] = "float64";
 static char __pyx_k_DTYPEINT[] = "DTYPEINT";
 static char __pyx_k_f_nonneg[] = "f_nonneg";
+static char __pyx_k_sift_old[] = "sift_old";
+static char __pyx_k_Uf_nonneg[] = "Uf_nonneg";
 static char __pyx_k_ValueError[] = "ValueError";
 static char __pyx_k_assignment[] = "assignment";
 static char __pyx_k_RuntimeError[] = "RuntimeError";
 static char __pyx_k_DECSKS_lib_remap[] = "DECSKS.lib.remap";
 static char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
-static char __pyx_k_home_dsirajud_Work_IPython_note[] = "/home/dsirajud/Work/IPython-notebooks/DECSKS-22 -- Cython implementation of remap_assignment/v2.0/DECSKS/lib/remap.pyx";
+static char __pyx_k_home_dsirajud_Work_IPython_note[] = "/home/dsirajud/Work/IPython-notebooks/DECSKS-18 -- 1D1V_two_species_boundary_problems_--_part_3/v2.0/DECSKS/lib/remap.pyx";
 static char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
@@ -1186,6 +1191,9 @@ static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
 static PyObject *__pyx_n_s_RuntimeError;
+static PyObject *__pyx_n_s_Uf;
+static PyObject *__pyx_n_s_Uf_neg;
+static PyObject *__pyx_n_s_Uf_nonneg;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_assignment;
 static PyObject *__pyx_n_s_dim1;
@@ -1211,6 +1219,7 @@ static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_sift;
+static PyObject *__pyx_n_s_sift_old;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_zeros;
@@ -1222,8 +1231,10 @@ static PyObject *__pyx_tuple__5;
 static PyObject *__pyx_tuple__6;
 static PyObject *__pyx_tuple__7;
 static PyObject *__pyx_tuple__9;
+static PyObject *__pyx_tuple__11;
 static PyObject *__pyx_codeobj__8;
 static PyObject *__pyx_codeobj__10;
+static PyObject *__pyx_codeobj__12;
 
 /* "DECSKS/lib/remap.pyx":12
  * 
@@ -1549,7 +1560,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_assignment(CYTHON_UNUSED PyObject 
  *             f_new[map1[i,j], map2[i,j]] += f_old[i,j]
  *     return f_new             # <<<<<<<<<<<<<<
  * 
- * def sift(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):
+ * def sift(np.ndarray[DTYPE_t, ndim=2] Uf):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_f_new));
@@ -1595,16 +1606,441 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_assignment(CYTHON_UNUSED PyObject 
 /* "DECSKS/lib/remap.pyx":23
  *     return f_new
  * 
- * def sift(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ * def sift(np.ndarray[DTYPE_t, ndim=2] Uf):             # <<<<<<<<<<<<<<
  *     """
  *     inputs:
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6DECSKS_3lib_5remap_2sift[] = "\n    inputs:\n    f -- (ndarray, ndim=2, dtype = float64) density like object\n    vz -- (ndarray, ndim=2, dtype = float64) generalized velocity grid\n\n    output:\n    f_nonneg, f_neg -- (ndarrays, ndim=2, dtype = float64) containers holding\n                    density like entires from f according to\n\n                    pos -- for each f[i,j] such that its vz[i,j] >= 0\n                    neg -- for each f[i,j] such that its vz[i,j] < 0\n\n    ";
-static PyMethodDef __pyx_mdef_6DECSKS_3lib_5remap_3sift = {"sift", (PyCFunction)__pyx_pw_6DECSKS_3lib_5remap_3sift, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6DECSKS_3lib_5remap_2sift};
-static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObject *__pyx_v_Uf); /*proto*/
+static char __pyx_doc_6DECSKS_3lib_5remap_2sift[] = "\n    inputs:\n    Uf -- (ndarray, ndim=2, dtype = float64) flux like object\n\n    output:\n    Uf_nonneg, Uf_neg -- (ndarrays, ndim=2, dtype = float64) containers holding\n                    density like entires from f according to\n\n                    pos -- for each f[i,j] such that its CFL[i,j] >= 0\n                    neg -- for each f[i,j] such that its CFL[i,j] < 0\n\n                    note that\n\n    ";
+static PyMethodDef __pyx_mdef_6DECSKS_3lib_5remap_3sift = {"sift", (PyCFunction)__pyx_pw_6DECSKS_3lib_5remap_3sift, METH_O, __pyx_doc_6DECSKS_3lib_5remap_2sift};
+static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObject *__pyx_v_Uf) {
+  CYTHON_UNUSED int __pyx_lineno = 0;
+  CYTHON_UNUSED const char *__pyx_filename = NULL;
+  CYTHON_UNUSED int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("sift (wrapper)", 0);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_Uf), __pyx_ptype_5numpy_ndarray, 1, "Uf", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_r = __pyx_pf_6DECSKS_3lib_5remap_2sift(__pyx_self, ((PyArrayObject *)__pyx_v_Uf));
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_Uf) {
+  int __pyx_v_i;
+  int __pyx_v_j;
+  int __pyx_v_dim1;
+  int __pyx_v_dim2;
+  PyArrayObject *__pyx_v_Uf_nonneg = 0;
+  PyArrayObject *__pyx_v_Uf_neg = 0;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_Uf;
+  __Pyx_Buffer __pyx_pybuffer_Uf;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_Uf_neg;
+  __Pyx_Buffer __pyx_pybuffer_Uf_neg;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_Uf_nonneg;
+  __Pyx_Buffer __pyx_pybuffer_Uf_nonneg;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyArrayObject *__pyx_t_6 = NULL;
+  PyArrayObject *__pyx_t_7 = NULL;
+  int __pyx_t_8;
+  int __pyx_t_9;
+  int __pyx_t_10;
+  int __pyx_t_11;
+  int __pyx_t_12;
+  int __pyx_t_13;
+  int __pyx_t_14;
+  int __pyx_t_15;
+  int __pyx_t_16;
+  int __pyx_t_17;
+  int __pyx_t_18;
+  int __pyx_t_19;
+  int __pyx_t_20;
+  int __pyx_t_21;
+  int __pyx_t_22;
+  int __pyx_t_23;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("sift", 0);
+  __pyx_pybuffer_Uf_nonneg.pybuffer.buf = NULL;
+  __pyx_pybuffer_Uf_nonneg.refcount = 0;
+  __pyx_pybuffernd_Uf_nonneg.data = NULL;
+  __pyx_pybuffernd_Uf_nonneg.rcbuffer = &__pyx_pybuffer_Uf_nonneg;
+  __pyx_pybuffer_Uf_neg.pybuffer.buf = NULL;
+  __pyx_pybuffer_Uf_neg.refcount = 0;
+  __pyx_pybuffernd_Uf_neg.data = NULL;
+  __pyx_pybuffernd_Uf_neg.rcbuffer = &__pyx_pybuffer_Uf_neg;
+  __pyx_pybuffer_Uf.pybuffer.buf = NULL;
+  __pyx_pybuffer_Uf.refcount = 0;
+  __pyx_pybuffernd_Uf.data = NULL;
+  __pyx_pybuffernd_Uf.rcbuffer = &__pyx_pybuffer_Uf;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_Uf.rcbuffer->pybuffer, (PyObject*)__pyx_v_Uf, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __pyx_pybuffernd_Uf.diminfo[0].strides = __pyx_pybuffernd_Uf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Uf.diminfo[0].shape = __pyx_pybuffernd_Uf.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Uf.diminfo[1].strides = __pyx_pybuffernd_Uf.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Uf.diminfo[1].shape = __pyx_pybuffernd_Uf.rcbuffer->pybuffer.shape[1];
+
+  /* "DECSKS/lib/remap.pyx":39
+ *     """
+ *     cdef int i, j
+ *     cdef int dim1 = Uf.shape[0]             # <<<<<<<<<<<<<<
+ *     cdef int dim2 = Uf.shape[1]
+ * 
+ */
+  __pyx_v_dim1 = (__pyx_v_Uf->dimensions[0]);
+
+  /* "DECSKS/lib/remap.pyx":40
+ *     cdef int i, j
+ *     cdef int dim1 = Uf.shape[0]
+ *     cdef int dim2 = Uf.shape[1]             # <<<<<<<<<<<<<<
+ * 
+ *     cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+ */
+  __pyx_v_dim2 = (__pyx_v_Uf->dimensions[1]);
+
+  /* "DECSKS/lib/remap.pyx":42
+ *     cdef int dim2 = Uf.shape[1]
+ * 
+ *     cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))             # <<<<<<<<<<<<<<
+ *     cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_dim1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_dim2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_4);
+  PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_4);
+  __pyx_t_2 = 0;
+  __pyx_t_4 = 0;
+  __pyx_t_4 = NULL;
+  if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  if (!__pyx_t_4) {
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+  } else {
+    __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    __Pyx_GIVEREF(__pyx_t_5);
+    PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_t_5);
+    __pyx_t_5 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = ((PyArrayObject *)__pyx_t_1);
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer, (PyObject*)__pyx_t_6, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {
+      __pyx_v_Uf_nonneg = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer.buf = NULL;
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    } else {__pyx_pybuffernd_Uf_nonneg.diminfo[0].strides = __pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Uf_nonneg.diminfo[0].shape = __pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Uf_nonneg.diminfo[1].strides = __pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Uf_nonneg.diminfo[1].shape = __pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer.shape[1];
+    }
+  }
+  __pyx_t_6 = 0;
+  __pyx_v_Uf_nonneg = ((PyArrayObject *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "DECSKS/lib/remap.pyx":43
+ * 
+ *     cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+ *     cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))             # <<<<<<<<<<<<<<
+ * 
+ *     for j in range(dim2):
+ */
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_dim1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_dim2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5);
+  __pyx_t_3 = 0;
+  __pyx_t_5 = 0;
+  __pyx_t_5 = NULL;
+  if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+    }
+  }
+  if (!__pyx_t_5) {
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+  } else {
+    __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
+    __Pyx_GIVEREF(__pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_t_4);
+    __pyx_t_4 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_7 = ((PyArrayObject *)__pyx_t_1);
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {
+      __pyx_v_Uf_neg = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer.buf = NULL;
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 43; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    } else {__pyx_pybuffernd_Uf_neg.diminfo[0].strides = __pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Uf_neg.diminfo[0].shape = __pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Uf_neg.diminfo[1].strides = __pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Uf_neg.diminfo[1].shape = __pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer.shape[1];
+    }
+  }
+  __pyx_t_7 = 0;
+  __pyx_v_Uf_neg = ((PyArrayObject *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "DECSKS/lib/remap.pyx":45
+ *     cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+ * 
+ *     for j in range(dim2):             # <<<<<<<<<<<<<<
+ *         for i in range(dim1):
+ *             if Uf[i,j] >= 0:
+ */
+  __pyx_t_8 = __pyx_v_dim2;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_j = __pyx_t_9;
+
+    /* "DECSKS/lib/remap.pyx":46
+ * 
+ *     for j in range(dim2):
+ *         for i in range(dim1):             # <<<<<<<<<<<<<<
+ *             if Uf[i,j] >= 0:
+ *                 Uf_nonneg[i,j] = Uf[i,j]
+ */
+    __pyx_t_10 = __pyx_v_dim1;
+    for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+      __pyx_v_i = __pyx_t_11;
+
+      /* "DECSKS/lib/remap.pyx":47
+ *     for j in range(dim2):
+ *         for i in range(dim1):
+ *             if Uf[i,j] >= 0:             # <<<<<<<<<<<<<<
+ *                 Uf_nonneg[i,j] = Uf[i,j]
+ *             else:
+ */
+      __pyx_t_12 = __pyx_v_i;
+      __pyx_t_13 = __pyx_v_j;
+      __pyx_t_14 = -1;
+      if (__pyx_t_12 < 0) {
+        __pyx_t_12 += __pyx_pybuffernd_Uf.diminfo[0].shape;
+        if (unlikely(__pyx_t_12 < 0)) __pyx_t_14 = 0;
+      } else if (unlikely(__pyx_t_12 >= __pyx_pybuffernd_Uf.diminfo[0].shape)) __pyx_t_14 = 0;
+      if (__pyx_t_13 < 0) {
+        __pyx_t_13 += __pyx_pybuffernd_Uf.diminfo[1].shape;
+        if (unlikely(__pyx_t_13 < 0)) __pyx_t_14 = 1;
+      } else if (unlikely(__pyx_t_13 >= __pyx_pybuffernd_Uf.diminfo[1].shape)) __pyx_t_14 = 1;
+      if (unlikely(__pyx_t_14 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_14);
+        {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      }
+      __pyx_t_15 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_Uf.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_Uf.diminfo[0].strides, __pyx_t_13, __pyx_pybuffernd_Uf.diminfo[1].strides)) >= 0.0) != 0);
+      if (__pyx_t_15) {
+
+        /* "DECSKS/lib/remap.pyx":48
+ *         for i in range(dim1):
+ *             if Uf[i,j] >= 0:
+ *                 Uf_nonneg[i,j] = Uf[i,j]             # <<<<<<<<<<<<<<
+ *             else:
+ *                 Uf_neg[i,j] = Uf[i,j]
+ */
+        __pyx_t_14 = __pyx_v_i;
+        __pyx_t_16 = __pyx_v_j;
+        __pyx_t_17 = -1;
+        if (__pyx_t_14 < 0) {
+          __pyx_t_14 += __pyx_pybuffernd_Uf.diminfo[0].shape;
+          if (unlikely(__pyx_t_14 < 0)) __pyx_t_17 = 0;
+        } else if (unlikely(__pyx_t_14 >= __pyx_pybuffernd_Uf.diminfo[0].shape)) __pyx_t_17 = 0;
+        if (__pyx_t_16 < 0) {
+          __pyx_t_16 += __pyx_pybuffernd_Uf.diminfo[1].shape;
+          if (unlikely(__pyx_t_16 < 0)) __pyx_t_17 = 1;
+        } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_Uf.diminfo[1].shape)) __pyx_t_17 = 1;
+        if (unlikely(__pyx_t_17 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_17);
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        }
+        __pyx_t_17 = __pyx_v_i;
+        __pyx_t_18 = __pyx_v_j;
+        __pyx_t_19 = -1;
+        if (__pyx_t_17 < 0) {
+          __pyx_t_17 += __pyx_pybuffernd_Uf_nonneg.diminfo[0].shape;
+          if (unlikely(__pyx_t_17 < 0)) __pyx_t_19 = 0;
+        } else if (unlikely(__pyx_t_17 >= __pyx_pybuffernd_Uf_nonneg.diminfo[0].shape)) __pyx_t_19 = 0;
+        if (__pyx_t_18 < 0) {
+          __pyx_t_18 += __pyx_pybuffernd_Uf_nonneg.diminfo[1].shape;
+          if (unlikely(__pyx_t_18 < 0)) __pyx_t_19 = 1;
+        } else if (unlikely(__pyx_t_18 >= __pyx_pybuffernd_Uf_nonneg.diminfo[1].shape)) __pyx_t_19 = 1;
+        if (unlikely(__pyx_t_19 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_19);
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        }
+        *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_Uf_nonneg.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_Uf_nonneg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_Uf.rcbuffer->pybuffer.buf, __pyx_t_14, __pyx_pybuffernd_Uf.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_Uf.diminfo[1].strides));
+        goto __pyx_L7;
+      }
+      /*else*/ {
+
+        /* "DECSKS/lib/remap.pyx":50
+ *                 Uf_nonneg[i,j] = Uf[i,j]
+ *             else:
+ *                 Uf_neg[i,j] = Uf[i,j]             # <<<<<<<<<<<<<<
+ * 
+ *     return Uf_nonneg, Uf_neg
+ */
+        __pyx_t_19 = __pyx_v_i;
+        __pyx_t_20 = __pyx_v_j;
+        __pyx_t_21 = -1;
+        if (__pyx_t_19 < 0) {
+          __pyx_t_19 += __pyx_pybuffernd_Uf.diminfo[0].shape;
+          if (unlikely(__pyx_t_19 < 0)) __pyx_t_21 = 0;
+        } else if (unlikely(__pyx_t_19 >= __pyx_pybuffernd_Uf.diminfo[0].shape)) __pyx_t_21 = 0;
+        if (__pyx_t_20 < 0) {
+          __pyx_t_20 += __pyx_pybuffernd_Uf.diminfo[1].shape;
+          if (unlikely(__pyx_t_20 < 0)) __pyx_t_21 = 1;
+        } else if (unlikely(__pyx_t_20 >= __pyx_pybuffernd_Uf.diminfo[1].shape)) __pyx_t_21 = 1;
+        if (unlikely(__pyx_t_21 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_21);
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        }
+        __pyx_t_21 = __pyx_v_i;
+        __pyx_t_22 = __pyx_v_j;
+        __pyx_t_23 = -1;
+        if (__pyx_t_21 < 0) {
+          __pyx_t_21 += __pyx_pybuffernd_Uf_neg.diminfo[0].shape;
+          if (unlikely(__pyx_t_21 < 0)) __pyx_t_23 = 0;
+        } else if (unlikely(__pyx_t_21 >= __pyx_pybuffernd_Uf_neg.diminfo[0].shape)) __pyx_t_23 = 0;
+        if (__pyx_t_22 < 0) {
+          __pyx_t_22 += __pyx_pybuffernd_Uf_neg.diminfo[1].shape;
+          if (unlikely(__pyx_t_22 < 0)) __pyx_t_23 = 1;
+        } else if (unlikely(__pyx_t_22 >= __pyx_pybuffernd_Uf_neg.diminfo[1].shape)) __pyx_t_23 = 1;
+        if (unlikely(__pyx_t_23 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_23);
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        }
+        *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_Uf_neg.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_Uf_neg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_Uf.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_Uf.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_Uf.diminfo[1].strides));
+      }
+      __pyx_L7:;
+    }
+  }
+
+  /* "DECSKS/lib/remap.pyx":52
+ *                 Uf_neg[i,j] = Uf[i,j]
+ * 
+ *     return Uf_nonneg, Uf_neg             # <<<<<<<<<<<<<<
+ * 
+ * def sift_old(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 52; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_INCREF(((PyObject *)__pyx_v_Uf_nonneg));
+  __Pyx_GIVEREF(((PyObject *)__pyx_v_Uf_nonneg));
+  PyTuple_SET_ITEM(__pyx_t_1, 0, ((PyObject *)__pyx_v_Uf_nonneg));
+  __Pyx_INCREF(((PyObject *)__pyx_v_Uf_neg));
+  __Pyx_GIVEREF(((PyObject *)__pyx_v_Uf_neg));
+  PyTuple_SET_ITEM(__pyx_t_1, 1, ((PyObject *)__pyx_v_Uf_neg));
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "DECSKS/lib/remap.pyx":23
+ *     return f_new
+ * 
+ * def sift(np.ndarray[DTYPE_t, ndim=2] Uf):             # <<<<<<<<<<<<<<
+ *     """
+ *     inputs:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_Uf.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("DECSKS.lib.remap.sift", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_Uf.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_Uf_neg.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_Uf_nonneg.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_Uf_nonneg);
+  __Pyx_XDECREF((PyObject *)__pyx_v_Uf_neg);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "DECSKS/lib/remap.pyx":54
+ *     return Uf_nonneg, Uf_neg
+ * 
+ * def sift_old(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ *     """
+ *     inputs:
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6DECSKS_3lib_5remap_5sift_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6DECSKS_3lib_5remap_4sift_old[] = "\n    inputs:\n    f -- (ndarray, ndim=2, dtype = float64) density like object\n    vz -- (ndarray, ndim=2, dtype = float64) generalized velocity grid\n\n    output:\n    f_nonneg, f_neg -- (ndarrays, ndim=2, dtype = float64) containers holding\n                    density like entires from f according to\n\n                    pos -- for each f[i,j] such that its vz[i,j] >= 0\n                    neg -- for each f[i,j] such that its vz[i,j] < 0\n\n    ";
+static PyMethodDef __pyx_mdef_6DECSKS_3lib_5remap_5sift_old = {"sift_old", (PyCFunction)__pyx_pw_6DECSKS_3lib_5remap_5sift_old, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6DECSKS_3lib_5remap_4sift_old};
+static PyObject *__pyx_pw_6DECSKS_3lib_5remap_5sift_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_f = 0;
   PyArrayObject *__pyx_v_CFL = 0;
   int __pyx_lineno = 0;
@@ -1612,7 +2048,7 @@ static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObje
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("sift (wrapper)", 0);
+  __Pyx_RefNannySetupContext("sift_old (wrapper)", 0);
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_f,&__pyx_n_s_CFL,0};
     PyObject* values[2] = {0,0};
@@ -1633,11 +2069,11 @@ static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObje
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_CFL)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("sift", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("sift_old", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "sift") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "sift_old") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1650,15 +2086,15 @@ static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObje
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("sift", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("sift_old", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("DECSKS.lib.remap.sift", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("DECSKS.lib.remap.sift_old", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_f), __pyx_ptype_5numpy_ndarray, 1, "f", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_CFL), __pyx_ptype_5numpy_ndarray, 1, "CFL", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_6DECSKS_3lib_5remap_2sift(__pyx_self, __pyx_v_f, __pyx_v_CFL);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_f), __pyx_ptype_5numpy_ndarray, 1, "f", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_CFL), __pyx_ptype_5numpy_ndarray, 1, "CFL", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_r = __pyx_pf_6DECSKS_3lib_5remap_4sift_old(__pyx_self, __pyx_v_f, __pyx_v_CFL);
 
   /* function exit code */
   goto __pyx_L0;
@@ -1669,7 +2105,7 @@ static PyObject *__pyx_pw_6DECSKS_3lib_5remap_3sift(PyObject *__pyx_self, PyObje
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_f, PyArrayObject *__pyx_v_CFL) {
+static PyObject *__pyx_pf_6DECSKS_3lib_5remap_4sift_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_f, PyArrayObject *__pyx_v_CFL) {
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_dim1;
@@ -1712,7 +2148,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("sift", 0);
+  __Pyx_RefNannySetupContext("sift_old", 0);
   __pyx_pybuffer_f_nonneg.pybuffer.buf = NULL;
   __pyx_pybuffer_f_nonneg.refcount = 0;
   __pyx_pybuffernd_f_nonneg.data = NULL;
@@ -1731,16 +2167,16 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   __pyx_pybuffernd_CFL.rcbuffer = &__pyx_pybuffer_CFL;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f.rcbuffer->pybuffer, (PyObject*)__pyx_v_f, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f.rcbuffer->pybuffer, (PyObject*)__pyx_v_f, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_f.diminfo[0].strides = __pyx_pybuffernd_f.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_f.diminfo[0].shape = __pyx_pybuffernd_f.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_f.diminfo[1].strides = __pyx_pybuffernd_f.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_f.diminfo[1].shape = __pyx_pybuffernd_f.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_CFL.rcbuffer->pybuffer, (PyObject*)__pyx_v_CFL, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_CFL.rcbuffer->pybuffer, (PyObject*)__pyx_v_CFL, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_CFL.diminfo[0].strides = __pyx_pybuffernd_CFL.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_CFL.diminfo[0].shape = __pyx_pybuffernd_CFL.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_CFL.diminfo[1].strides = __pyx_pybuffernd_CFL.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_CFL.diminfo[1].shape = __pyx_pybuffernd_CFL.rcbuffer->pybuffer.shape[1];
 
-  /* "DECSKS/lib/remap.pyx":38
+  /* "DECSKS/lib/remap.pyx":69
  *     """
  *     cdef int i, j
  *     cdef int dim1 = f.shape[0]             # <<<<<<<<<<<<<<
@@ -1749,7 +2185,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
  */
   __pyx_v_dim1 = (__pyx_v_f->dimensions[0]);
 
-  /* "DECSKS/lib/remap.pyx":39
+  /* "DECSKS/lib/remap.pyx":70
  *     cdef int i, j
  *     cdef int dim1 = f.shape[0]
  *     cdef int dim2 = f.shape[1]             # <<<<<<<<<<<<<<
@@ -1758,23 +2194,23 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
  */
   __pyx_v_dim2 = (__pyx_v_f->dimensions[1]);
 
-  /* "DECSKS/lib/remap.pyx":41
+  /* "DECSKS/lib/remap.pyx":72
  *     cdef int dim2 = f.shape[1]
  * 
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_nonneg = np.zeros((dim1, dim2))             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_neg = np.zeros((dim1, dim2))
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_dim1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_dim1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_dim2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_dim2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2);
@@ -1793,28 +2229,28 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_5);
     PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_t_5);
     __pyx_t_5 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_6 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer, (PyObject*)__pyx_t_6, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_f_nonneg = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.buf = NULL;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 41; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 72; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_f_nonneg.diminfo[0].strides = __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_f_nonneg.diminfo[0].shape = __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_f_nonneg.diminfo[1].strides = __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_f_nonneg.diminfo[1].shape = __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -1822,23 +2258,23 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   __pyx_v_f_nonneg = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "DECSKS/lib/remap.pyx":42
+  /* "DECSKS/lib/remap.pyx":73
  * 
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_nonneg = np.zeros((dim1, dim2))
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_neg = np.zeros((dim1, dim2))             # <<<<<<<<<<<<<<
  * 
  *     for j in range(dim2):
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_dim1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_dim1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_dim2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_dim2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
@@ -1857,28 +2293,28 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_7 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f_neg.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_5remap_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_f_neg = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.buf = NULL;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 73; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_f_neg.diminfo[0].strides = __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_f_neg.diminfo[0].shape = __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_f_neg.diminfo[1].strides = __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_f_neg.diminfo[1].shape = __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -1886,7 +2322,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   __pyx_v_f_neg = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "DECSKS/lib/remap.pyx":44
+  /* "DECSKS/lib/remap.pyx":75
  *     cdef np.ndarray[DTYPE_t, ndim=2] f_neg = np.zeros((dim1, dim2))
  * 
  *     for j in range(dim2):             # <<<<<<<<<<<<<<
@@ -1897,7 +2333,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
     __pyx_v_j = __pyx_t_9;
 
-    /* "DECSKS/lib/remap.pyx":46
+    /* "DECSKS/lib/remap.pyx":77
  *     for j in range(dim2):
  *         # CFL[0,j] = CFL[1,j] = ... = const, we choose to examine (0,j) arbitrarily
  *         if CFL[0,j] >= 0:             # <<<<<<<<<<<<<<
@@ -1917,12 +2353,12 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
     } else if (unlikely(__pyx_t_11 >= __pyx_pybuffernd_CFL.diminfo[1].shape)) __pyx_t_12 = 1;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 46; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 77; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     }
     __pyx_t_13 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_CFL.rcbuffer->pybuffer.buf, __pyx_t_10, __pyx_pybuffernd_CFL.diminfo[0].strides, __pyx_t_11, __pyx_pybuffernd_CFL.diminfo[1].strides)) >= 0.0) != 0);
     if (__pyx_t_13) {
 
-      /* "DECSKS/lib/remap.pyx":47
+      /* "DECSKS/lib/remap.pyx":78
  *         # CFL[0,j] = CFL[1,j] = ... = const, we choose to examine (0,j) arbitrarily
  *         if CFL[0,j] >= 0:
  *             for i in range(dim1):             # <<<<<<<<<<<<<<
@@ -1933,7 +2369,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
       for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_12; __pyx_t_14+=1) {
         __pyx_v_i = __pyx_t_14;
 
-        /* "DECSKS/lib/remap.pyx":48
+        /* "DECSKS/lib/remap.pyx":79
  *         if CFL[0,j] >= 0:
  *             for i in range(dim1):
  *                 f_nonneg[i,j] = f[i,j]             # <<<<<<<<<<<<<<
@@ -1953,7 +2389,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_16 >= __pyx_pybuffernd_f.diminfo[1].shape)) __pyx_t_17 = 1;
         if (unlikely(__pyx_t_17 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_17);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 79; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __pyx_t_17 = __pyx_v_i;
         __pyx_t_18 = __pyx_v_j;
@@ -1968,7 +2404,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_18 >= __pyx_pybuffernd_f_nonneg.diminfo[1].shape)) __pyx_t_19 = 1;
         if (unlikely(__pyx_t_19 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_19);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 79; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_f_nonneg.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_f_nonneg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_f.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_f.diminfo[1].strides));
       }
@@ -1976,7 +2412,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
     }
     /*else*/ {
 
-      /* "DECSKS/lib/remap.pyx":50
+      /* "DECSKS/lib/remap.pyx":81
  *                 f_nonneg[i,j] = f[i,j]
  *         else:
  *             for i in range(dim1):             # <<<<<<<<<<<<<<
@@ -1987,7 +2423,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
       for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_12; __pyx_t_14+=1) {
         __pyx_v_i = __pyx_t_14;
 
-        /* "DECSKS/lib/remap.pyx":51
+        /* "DECSKS/lib/remap.pyx":82
  *         else:
  *             for i in range(dim1):
  *                 f_neg[i,j] = f[i,j]             # <<<<<<<<<<<<<<
@@ -2007,7 +2443,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_20 >= __pyx_pybuffernd_f.diminfo[1].shape)) __pyx_t_21 = 1;
         if (unlikely(__pyx_t_21 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_21);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         __pyx_t_21 = __pyx_v_i;
         __pyx_t_22 = __pyx_v_j;
@@ -2022,7 +2458,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
         } else if (unlikely(__pyx_t_22 >= __pyx_pybuffernd_f_neg.diminfo[1].shape)) __pyx_t_23 = 1;
         if (unlikely(__pyx_t_23 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_23);
-          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 51; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+          {__pyx_filename = __pyx_f[0]; __pyx_lineno = 82; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         }
         *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f_neg.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_f_neg.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_f_neg.diminfo[1].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_5remap_DTYPE_t *, __pyx_pybuffernd_f.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_f.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_f.diminfo[1].strides));
       }
@@ -2030,13 +2466,13 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
     __pyx_L5:;
   }
 
-  /* "DECSKS/lib/remap.pyx":53
+  /* "DECSKS/lib/remap.pyx":84
  *                 f_neg[i,j] = f[i,j]
  * 
  *     return f_nonneg, f_neg             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 53; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 84; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_f_nonneg));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_f_nonneg));
@@ -2048,10 +2484,10 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "DECSKS/lib/remap.pyx":23
- *     return f_new
+  /* "DECSKS/lib/remap.pyx":54
+ *     return Uf_nonneg, Uf_neg
  * 
- * def sift(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ * def sift_old(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
  *     """
  *     inputs:
  */
@@ -2070,7 +2506,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_5remap_2sift(CYTHON_UNUSED PyObject *__py
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_f_neg.rcbuffer->pybuffer);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_f_nonneg.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("DECSKS.lib.remap.sift", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("DECSKS.lib.remap.sift_old", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
@@ -4120,6 +4556,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
+  {&__pyx_n_s_Uf, __pyx_k_Uf, sizeof(__pyx_k_Uf), 0, 0, 1, 1},
+  {&__pyx_n_s_Uf_neg, __pyx_k_Uf_neg, sizeof(__pyx_k_Uf_neg), 0, 0, 1, 1},
+  {&__pyx_n_s_Uf_nonneg, __pyx_k_Uf_nonneg, sizeof(__pyx_k_Uf_nonneg), 0, 0, 1, 1},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_assignment, __pyx_k_assignment, sizeof(__pyx_k_assignment), 0, 0, 1, 1},
   {&__pyx_n_s_dim1, __pyx_k_dim1, sizeof(__pyx_k_dim1), 0, 0, 1, 1},
@@ -4145,6 +4584,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_sift, __pyx_k_sift, sizeof(__pyx_k_sift), 0, 0, 1, 1},
+  {&__pyx_n_s_sift_old, __pyx_k_sift_old, sizeof(__pyx_k_sift_old), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
   {&__pyx_n_s_zeros, __pyx_k_zeros, sizeof(__pyx_k_zeros), 0, 0, 1, 1},
@@ -4244,14 +4684,26 @@ static int __Pyx_InitCachedConstants(void) {
   /* "DECSKS/lib/remap.pyx":23
  *     return f_new
  * 
- * def sift(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ * def sift(np.ndarray[DTYPE_t, ndim=2] Uf):             # <<<<<<<<<<<<<<
  *     """
  *     inputs:
  */
-  __pyx_tuple__9 = PyTuple_Pack(8, __pyx_n_s_f, __pyx_n_s_CFL, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_dim1, __pyx_n_s_dim2, __pyx_n_s_f_nonneg, __pyx_n_s_f_neg); if (unlikely(!__pyx_tuple__9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__9 = PyTuple_Pack(7, __pyx_n_s_Uf, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_dim1, __pyx_n_s_dim2, __pyx_n_s_Uf_nonneg, __pyx_n_s_Uf_neg); if (unlikely(!__pyx_tuple__9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_dsirajud_Work_IPython_note, __pyx_n_s_sift, 23, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 7, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_dsirajud_Work_IPython_note, __pyx_n_s_sift, 23, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+
+  /* "DECSKS/lib/remap.pyx":54
+ *     return Uf_nonneg, Uf_neg
+ * 
+ * def sift_old(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ *     """
+ *     inputs:
+ */
+  __pyx_tuple__11 = PyTuple_Pack(8, __pyx_n_s_f, __pyx_n_s_CFL, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_dim1, __pyx_n_s_dim2, __pyx_n_s_f_nonneg, __pyx_n_s_f_neg); if (unlikely(!__pyx_tuple__11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple__11);
+  __Pyx_GIVEREF(__pyx_tuple__11);
+  __pyx_codeobj__12 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_dsirajud_Work_IPython_note, __pyx_n_s_sift_old, 54, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4419,13 +4871,25 @@ PyMODINIT_FUNC PyInit_remap(void)
   /* "DECSKS/lib/remap.pyx":23
  *     return f_new
  * 
- * def sift(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ * def sift(np.ndarray[DTYPE_t, ndim=2] Uf):             # <<<<<<<<<<<<<<
  *     """
  *     inputs:
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6DECSKS_3lib_5remap_3sift, NULL, __pyx_n_s_DECSKS_lib_remap); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_sift, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "DECSKS/lib/remap.pyx":54
+ *     return Uf_nonneg, Uf_neg
+ * 
+ * def sift_old(np.ndarray[DTYPE_t, ndim=2] f, np.ndarray[DTYPE_t, ndim=2] CFL):             # <<<<<<<<<<<<<<
+ *     """
+ *     inputs:
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6DECSKS_3lib_5remap_5sift_old, NULL, __pyx_n_s_DECSKS_lib_remap); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_sift_old, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 54; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "DECSKS/lib/remap.pyx":1

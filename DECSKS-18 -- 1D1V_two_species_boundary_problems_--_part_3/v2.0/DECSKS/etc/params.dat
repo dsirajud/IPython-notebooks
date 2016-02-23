@@ -16,7 +16,7 @@ Requirements for value entry:
 Number of grid points, x = 240
 lower boundary value ax = -10.
 upper boundary value bx = 10.
-lower boundary condition = absorbing
+lower boundary condition = symmetric
 upper boundary condition = absorbing
 
 Number of grid points, y = None
@@ -129,8 +129,8 @@ Potential (phi) boundary conditions (currently only support periodic BCs on E)
 -  if value is determined per periodic boundary conditions, this section is ignored
 -  if value is fixed at a value, denote with numerical value
 
-lower boundary condition on x = self-consistent
-upper boundary condition on x = self-consistent
+lower boundary condition on x = -8
+upper boundary condition on x = 8
 
 lower boundary condition on y = None
 upper boundary condition on y = None

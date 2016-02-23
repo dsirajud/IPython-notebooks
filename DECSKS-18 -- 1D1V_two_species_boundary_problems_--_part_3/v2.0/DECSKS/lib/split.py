@@ -25,8 +25,6 @@ def scheme(
     # compute all CFL numbers for configuration variables beforehand
     x.CFL.compute_all_numbers(sim_params, x, vx, t)
     c = DECSKS.lib.HOC.correctors_on_configuration(sim_params, x, vx, t)
-    print c[1,:,1]
-    print c[1,:,-1]
 
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']
@@ -51,6 +49,7 @@ def scheme(
                     sim_params, c,
                     z = x,
                     vz = vx,
+                    split_coeff = split_coeff,
                     charge = -1)
 
             fi = DECSKS.lib.convect_configuration.scheme(
@@ -59,6 +58,7 @@ def scheme(
                     sim_params, c,
                     z = x,
                     vz = vx,
+                    split_coeff = split_coeff,
                     charge = 1)
 
         elif coeff[s] == 'b': # advect vx
@@ -74,6 +74,7 @@ def scheme(
                 sim_params,
                 z = vx,
                 vz = ax,
+                split_coeff = split_coeff,
                 charge = -1)
 
             # advect ion velocities
@@ -85,6 +86,7 @@ def scheme(
                 sim_params,
                 z = vx,
                 vz = ax,
+                split_coeff = split_coeff,                
                 charge = 1)
 
     toc = time.time()

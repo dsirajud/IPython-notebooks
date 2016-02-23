@@ -9,11 +9,13 @@ ctypedef np.float64_t DTYPE_t
 ctypedef np.int64_t DTYPEINT_t
 
 # PYTHON METHODS
-def periodic(f_old,
+def periodic(f_k,
+             f_old,
              Uf,
              z,
              vz,
              sim_params,
+             split_coeff,
              charge,
              k = 0
              ):
@@ -38,13 +40,15 @@ def periodic(f_old,
     z.postpointmesh[k,:,:] = np.mod(z.postpointmesh[k,:,:], z.N)
     vz.postpointmesh[k,:,:] = vz.prepointmesh
 
-    return f_old, Uf
+    return f_k, f_old, Uf
 
-def nonperiodic(f_old,
+def nonperiodic(f_k,
+                f_old,
                 Uf,
                 z,
                 vz,
                 sim_params,
+                split_coeff,
                 charge,
                 k = 0
                 ):
@@ -89,13 +93,15 @@ def nonperiodic(f_old,
 
     vz.postpointmesh[k,:,:] = vz.prepointmesh
 
-    return f_old, Uf
+    return f_k, f_old, Uf
 
-def symmetric(f_old,
+def symmetric(f_k,
+              f_old,
                 Uf,
                 z,
                 vz,
                 sim_params,
+                split_coeff,
                 charge,
                 k = 0
                 ):
@@ -118,12 +124,16 @@ def symmetric(f_old,
     z returned (no changes) for symmetry with periodic routine above
     """
     # lower boundary
-    f_old, Uf = eval(sim_params['BC'][z.str]['lower'] +
-                           '_lower_boundary')(f_old,
+    
+    f_k, f_old, Uf = eval(sim_params['BC'][z.str]['lower'] +
+                           '_lower_boundary')(f_k,
+                                              f_old,
                                               Uf,
                                               z.postpointmesh[k,:,:],
                                               vz.prepointmesh,
-                                              z.N, vz.N, k, charge,
+                                              z.N, vz.N, k,
+                                              split_coeff,
+                                              charge,
                                               sim_params,
                                               z, vz)
 
@@ -142,7 +152,7 @@ def symmetric(f_old,
     # vz.postpointmesh[k,:,:] to be set in boundaryconditions.symmetric_lower_boundary
     # or boundaryconditions.symmtric_upper_boundary (if coded)
 
-    return f_old, Uf
+    return f_k, f_old, Uf
 
 # CYTHON METHODS
 @cython.boundscheck(False)
@@ -233,7 +243,8 @@ def charge_collection_upper_boundary(
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
-        int Nz, int Nvz, int k, int charge,
+        int Nz, int Nvz, int k,
+        int charge,
         sim_params,
         z, vz
         ):
@@ -264,34 +275,181 @@ def charge_collection_upper_boundary(
 
 @cython.boundscheck(False)
 def symmetric_lower_boundary(
+        np.ndarray[DTYPE_t, ndim=2] f_k,
         np.ndarray[DTYPE_t, ndim=2] f_old,
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
-        int Nz, int Nvz, int k, int charge,
+        int Nz, int Nvz, int k,
+        float split_coeff,
+        int charge,
         sim_params,
         z, vz
         ):
 
-    # vars here are typed as C data types to minimize python interaction
-
-    # for every exiting particle (zpostpointmesh[i,j] < 0), there is a corresponding
-    # entering particle of identical size that reaches (-zpostpoint[i,j] > 0)
-
-    # whose prepoint velocity is oppositely directed to the exiting particle (vzprepointvaluemesh[i,j] < 0)
-    # and thus has vzprepointmesh[i,j] = Nvz - 1 - vzprepoinmesh[i,j], which will produce
-    # the required index that references the positive velocity (vzprepointvaluemesh[i, Nvz - 1 - j]) of identical magnitude, provided the user has set up
-    # a symmetry velocity grid
-
     cdef int i, j
-    for i in range(Nz):
-        for j in range(Nvz):
-            if zpostpointmesh[i,j] < 0:
-                Uf_old[i,j] = 0
-                zpostpointmesh[i,j] = -i  # set postpoint at the absorber
-                vzprepointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
+    if k == 0:
+        if Nvz % 2 == 0: # number of z gridpoints is even
+            if split_coeff >= 0: # then vz < 0 particles can exit on left, 0 <= j <= Nvz // 2
+                for j in range(0, Nvz / 2):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
 
-    z.postpointmesh[k,:,:] = zpostpointmesh
-    vz.postpointmesh[k,:,:] = vzprepointmesh
+                        elif z.postpointmesh[k,i,j] == 0:
 
-    return f_old, Uf_old
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k += f_old[i,j]
+                            f_k += Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+            else: # split_coeff < 0: then vz > 0 particles can exit on left, Nvz // 2 <= j <= Nvz-1
+                for j in range(Nvz / 2, Nvz):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k += f_old[i,j]
+                            f_k += Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+        else: # number of z gridpoints is odd (Nvz % 2 == 1), can skip over median index j; saves Nx loops
+            if split_coeff >= 0: # then vz < 0 particles can exit on left, 0 <= j <= Nvz // 2
+                for j in range(0, Nvz / 2):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k += f_old[i,j]
+                            f_k += Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+            else: # split_coeff < 0: then vz > 0 particles can exit on left, Nvz // 2 <= j <= Nvz-1
+                for j in range(Nvz / 2 + 1, Nvz):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k += f_old[i,j]
+                            f_k += Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+
+    if k == 1:
+        if Nvz % 2 == 0: # number of z gridpoints is even
+            if split_coeff >= 0: # then vz < 0 particles can exit on left, 0 <= j <= Nvz // 2
+                for j in range(0, Nvz / 2):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vz.postpointmesh[k,i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k -= Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+            else: # split_coeff < 0: then vz > 0 particles can exit on left, Nvz // 2 <= j <= Nvz-1
+                for j in range(Nvz / 2, Nvz):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vz.postpointmesh[k,i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k -= Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+        else: # number of z gridpoints is odd (Nvz % 2 == 1), can skip over median index j; saves Nx loops
+            if split_coeff >= 0: # then vz < 0 particles can exit on left, 0 <= j <= Nvz // 2
+                for j in range(0, Nvz / 2):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k -= Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vz.postpointmesh[k,i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+            else: # split_coeff < 0: then vz > 0 particles can exit on left, Nvz // 2 <= j <= Nvz-1
+                for j in range(Nvz / 2 + 1, Nvz):
+                    for i in range(Nz):
+                        if z.postpointmesh[k,i,j] < 0:
+                            # prepare for partner remap in lib.convect.remap_step
+                            z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j]
+
+                        elif z.postpointmesh[k,i,j] == 0:
+
+                            # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
+                            f_k -= Uf_old[i,j]
+
+                            # prepare for partner remap in lib.convect.remap_step
+                            # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
+                            vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
+                            Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
+
+
+    return f_k, f_old, Uf_old

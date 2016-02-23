@@ -8,6 +8,7 @@ def scheme(
     sim_params,
     z,
     vz,
+    split_coeff,
     charge = -1
     ):
     """Solves a collection of 1D advection (in z) equations by convected scheme
@@ -53,6 +54,7 @@ def scheme(
                        n,
                        z,
                        vz,
+                       split_coeff,
                        charge
                        )
 
@@ -139,6 +141,7 @@ def remap_step(
         n,
         z,
         vz,
+        split_coeff,
         charge
         ):
     """Orchestrates remapping of all advected moving cells to the grid,
@@ -196,6 +199,9 @@ def remap_step(
     splitting routine (one variable evolved at a time)
     """
 
+    f_k1 = np.zeros_like(f_template)
+    f_k2 = np.zeros_like(f_template)
+
     f_copy = np.copy(f_template)
     Uf_copy = np.copy(Uf_template)
 
@@ -204,11 +210,11 @@ def remap_step(
     # apply boundary conditions for density packets reaching [k1, j]
     # here, we pass k = 0 as a parameter, as it refers to z.postpointmesh[k,:,:]
     # and k1 corresponds to the storage k = 0
-    f_copy, Uf_copy = \
+    f_k1, f_copy, Uf_copy = \
       eval(sim_params['boundarycondition_function_handle'][z.str])(
-          f_copy, Uf_copy, z, vz, sim_params, charge, k = 0)
+          f_k1, f_copy, Uf_copy, z, vz, sim_params, split_coeff, charge, k = 0)
 
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_copy, z.CFL.numbers)
+    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_copy)
 
     # remap all [i,j] to postpoints [k1, j], we assign per the piecewise rule:
     #
@@ -217,8 +223,8 @@ def remap_step(
     #                      f_copy[i,j] + Uf_copy[i,j] if CFL < 0
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
-    f_k1 = np.zeros_like(f_template)
-    f_k1  = DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
+
+    f_k1 += DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
     f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
     f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
 
@@ -229,11 +235,11 @@ def remap_step(
     # apply boundary conditions for density packets reaching [k2, j]
     # here, we pass k = 0 as a parameter, as it refers to z.postpointmesh[k,:,:]
     # and k2 corresponds to the storage k = 1
-    f_template, Uf_template = \
+    f_k2, f_template, Uf_template = \
       eval(sim_params['boundarycondition_function_handle'][z.str])(
-          f_template, Uf_template, z, vz, sim_params, charge, k = 1)
+          f_k2, f_template, Uf_template, z, vz, sim_params, split_coeff, charge, k = 1)
 
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_template, z.CFL.numbers)
+    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_template)
 
     # remap all [i,j] to postpoints [k2, j], we assign per the piecewise rule:
     #
@@ -242,7 +248,7 @@ def remap_step(
     #                      +Uf_template[i,j] if CFL < 0
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
-    f_k2 = np.zeros_like(f_template)
+
     f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
     f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
 

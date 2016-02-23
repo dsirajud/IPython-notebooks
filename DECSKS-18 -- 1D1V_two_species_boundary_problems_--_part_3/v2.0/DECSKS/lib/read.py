@@ -149,7 +149,7 @@ def inputfile(filename):
             BC[var]['type'] = 'incompatible periodic BCs specified'
         elif BC[var]['lower'] != 'periodic' and BC[var]['upper'] == 'periodic':
             BC[var]['type'] = 'incompatible periodic BCs specified'
-        elif BC[var]['lower'] == 'symmetric' or BC[var]['upper'] == 'symmetric':
+        elif BC[var]['lower'] == 'symmetric':
             BC[var]['type'] = 'symmetric'
         else:
             BC[var]['type'] = 'nonperiodic'
