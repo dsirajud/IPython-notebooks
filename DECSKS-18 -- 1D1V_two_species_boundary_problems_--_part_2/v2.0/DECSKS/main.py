@@ -39,7 +39,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-07.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -64,10 +64,10 @@ sim_params['mu'] = 1836.15267389 # mass ratio mi / me for Hydrogen, needed for i
 
     #DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,0,x,vx)
 
-    #Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
-    #Plot(n = 0)
-    #Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
-    #Plot(n = 0)
+Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
+Plot(n = 0)
+Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
+Plot(n = 0)
 
 print 'simulation has started, status updates are broadcasted after each timestep'
 
@@ -82,9 +82,9 @@ for n in t.stepnumbers:
     sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
     sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
-    #    Plot(n)
-    #    Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
-    #    Plot(n)
+    Plot(n)
+    Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
+    Plot(n)
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat
@@ -95,12 +95,24 @@ sigma_n_left = sim_params['sigma_n']['x']['lower']
 sigma_n_right = sim_params['sigma_n']['x']['upper']
 
 trange = np.arange(t.N+1)
-plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma(t, x= -10)$')
-plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma(t, x= +10)$')
+plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
+plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
 plt.grid()
 plt.xlabel(r'time step $n$', fontsize = 18)
-plt.ylabel(r'$\sigma(t,x)$', fontsize = 18)
+plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
 plt.legend(loc = 'best')
+plt.figure()
+
+
+phi_left = 1/2. * sim_params['sigma_n']['x']['lower'] # E = -1/2 sigma, phi = 1/2 sigma, here sigma = ni - ne
+phi_right = 1/2. * sim_params['sigma_n']['x']['upper']
+plt.plot(trange,phi_left, linewidth = 2, label = r'$\phi (t, x= -10)$')
+plt.plot(trange,phi_right, linewidth = 2, label = r'$\phi (t, x= +10)$')
+plt.grid()
+plt.xlabel(r'time step $n$', fontsize = 18)
+plt.ylabel(r'$\phi (t,x)$', fontsize = 18)
+plt.legend(loc = 'best')
+
 plt.show()
 
 toc = time.clock()

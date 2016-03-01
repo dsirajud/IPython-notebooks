@@ -107,7 +107,7 @@ def absorbing_lower_boundary(f_old, Uf, zpostpointmesh):
 
 def absorbing_upper_boundary(f_old, Uf, zpostpointmesh, z):
 
-    f_old = np.where(zpostpointmesh >= z.N-1, 0, f_old)
-    Uf = np.where(zpostpointmesh >= z.N-1, 0, Uf)
+    f_old = np.where(zpostpointmesh >= z.N, 0, f_old)
+    Uf = np.where(zpostpointmesh >= z.N, 0, Uf)
 
     return f_old, Uf

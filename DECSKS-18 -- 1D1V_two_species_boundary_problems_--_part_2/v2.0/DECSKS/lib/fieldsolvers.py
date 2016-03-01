@@ -332,12 +332,12 @@ def Poisson_DBC_1D1V_2S(fe, fi,
     phi_DBC = np.zeros(x.N)
 
     if sim_params['BC']['x']['phi']['lower'] == 'self-consistent':
-        phi_DBC[0] = -1/2. * sim_params['sigma']['x']['lower']
+        phi_DBC[0] = 1/2. * sim_params['sigma']['x']['lower'] # sigma = "ni - ne", oppositely defined from n_total
     else:
         phi_DBC[0] = sim_params['BC']['x']['phi']['lower']
 
     if sim_params['BC']['x']['phi']['upper'] == 'self-consistent':
-        phi_DBC[-1] = -1/2. * sim_params['sigma']['x']['upper']
+        phi_DBC[-1] = 1/2. * sim_params['sigma']['x']['upper'] # sigma = "ni - ne", oppositely defined from n_total
     else:
         phi_DBC[-1] = sim_params['BC']['x']['phi']['upper']
 
