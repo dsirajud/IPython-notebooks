@@ -84,8 +84,11 @@ def inputfile(filename):
         except NameError:
             return s.lower()
 
-    # --------------------------------------------------------------------------
-    # Boundary conditions
+    # ==========================================================================
+    # Boundary conditions dictionary -- contains dist. function BCs as well as phi
+
+        # BC['x', 'y', or 'z']['lower' or 'upper'] = dist. function BCs
+        # BC['phi'] = electric potential phi BCs (read in near the end of this method)
 
     # stored as a dictionary of dictionaries, access as
     # BC['z']['upper'] and BC['z']['lower'] for z = {x, y, ...}
@@ -101,7 +104,7 @@ def inputfile(filename):
 
     # subdictionaries with key/values {'lower' : BC_value, and 'upper' : BC_value}
 
-    # will throw an error if numbers are inputted as BCs in etc/params.dat
+    # DECSKS will throw an error if numbers are inputted as BCs in etc/params.dat
     BC['x'] = {}
     BC['x']['lower'] = safe_eval(lines[18][lines[18].find('=')+1:].strip())
     BC['x']['upper'] = safe_eval(lines[19][lines[19].find('=')+1:].strip())
@@ -151,7 +154,6 @@ def inputfile(filename):
     # Note: for periodic BCs:  Nz_active = Nz - 1
     #       for all other BCs: Nz_active = Nz
 
-    # TODO this is acknowledged as being redundant, but more specific than the lists
     # active_dims vs. total_dims
     if BC['x']['lower'] == 'periodic' and BC['x']['upper'] == 'periodic' and Nx is not None:
         Nx_active  = Nx - 1
@@ -204,12 +206,14 @@ def inputfile(filename):
     # for periodic BCs, the number of active dims is not equal to the
     # total number of dims, we evolve "Nz-1" gridpoints, then assign
     # the Nth point by periodicity as equal to the 0th point. Hence,
-    # a distinction is needed between active dims and total dims
-    # where we note they are identical in all cases but periodic BCs.
+    # we refer to "active dims" as the number of grid points that are evolved
+    # on a grid, whereas "total dims" refers to the total number present.
+    # in non-periodic cases, the number of active gridpoitns = number
+    # of total gridpoints.
 
-    # TODO as mentioned above, this is now a redundant set of total grid points
-    # as compared to active grid points. At some point, need to trace where
-    # this is actually used in the code and replace or remove it
+    # store lists containing number of total and active gridpoints
+    # this is acknowledged as redundant given the above storing as Nx_active, Ny_active,
+    # etc., but these objects are used in legacy methods inside DECSKS
 
     # initialize lists
     total_dims = []
@@ -435,14 +439,42 @@ def inputfile(filename):
     A_matrix['0'] = A_pos
     A_matrix['-1'] = A_neg
 
+    # --------------------------------------------------------------------------
+    # Boundary conditions on potential phi
 
-    # ---------------------------------------------------------------------
-    # 6th order finite difference Poisson solver for periodic BCs
-    # (stored as keys 'D' [difference matrix] and 'B' [inhomogeneity])
+    BC['x']['phi'] = {}
+    BC['x']['phi']['DBC'] = {}
+    BC['x']['phi']['NBC'] = {}
 
-    Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC)
+    BC['x']['phi']['DBC']['lower'] = safe_eval(lines[131][lines[193].find('=')+1:].strip())
+    BC['x']['phi']['DBC']['upper'] = safe_eval(lines[132][lines[194].find('=')+1:].strip())
 
-    # TODO specialize right now to just be x, vx. Figure out how to generalize later with higher dimensions
+    BC['x']['phi']['NBC']['lower'] = safe_eval(lines[131][lines[196].find('=')+1:].strip())
+    BC['x']['phi']['NBC']['upper'] = safe_eval(lines[132][lines[197].find('=')+1:].strip())
+
+    BC['y']['phi'] = {}
+    BC['y']['phi']['DBC'] = {}
+    BC['y']['phi']['NBC'] = {}
+
+    BC['y']['phi']['DBC']['lower'] = safe_eval(lines[131][lines[199].find('=')+1:].strip())
+    BC['y']['phi']['DBC']['upper'] = safe_eval(lines[132][lines[200].find('=')+1:].strip())
+
+    BC['y']['phi']['NBC']['lower'] = safe_eval(lines[131][lines[202].find('=')+1:].strip())
+    BC['y']['phi']['NBC']['upper'] = safe_eval(lines[132][lines[203].find('=')+1:].strip())
+
+    BC['z']['phi'] = {}
+    BC['z']['phi']['DBC'] = {}
+    BC['z']['phi']['NBC'] = {}
+
+    BC['z']['phi']['DBC']['lower'] = safe_eval(lines[131][lines[205].find('=')+1:].strip())
+    BC['z']['phi']['DBC']['upper'] = safe_eval(lines[132][lines[206].find('=')+1:].strip())
+
+    BC['z']['phi']['NBC']['lower'] = safe_eval(lines[131][lines[208].find('=')+1:].strip())
+    BC['z']['phi']['NBC']['upper'] = safe_eval(lines[132][lines[209].find('=')+1:].strip())
+
+    # --------------------------------------------------------------------------
+    # fieldsolver function handle string for electric field
+
     compute_electric_field_function_handle_prefix = "DECSKS.lib.fieldsolvers.compute_electric_field_"
 
     if BC['x']['type'] == 'periodic':
@@ -450,20 +482,11 @@ def inputfile(filename):
         compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_periodic'))
     else:
         compute_electric_field_function_handle = "".join((compute_electric_field_function_handle_prefix, HOC['x'].lower()))
-        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_dirichlet'))
+        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_nonperiodic'))
 
-    BC['x']['phi'] = {}
-    BC['x']['phi']['lower'] = safe_eval(lines[131][lines[131].find('=')+1:].strip())
-    BC['x']['phi']['upper'] = safe_eval(lines[132][lines[132].find('=')+1:].strip())
-
-    BC['y']['phi'] = {}
-    BC['y']['phi']['lower'] = safe_eval(lines[134][lines[134].find('=')+1:].strip())
-    BC['y']['phi']['upper'] = safe_eval(lines[135][lines[135].find('=')+1:].strip())
-
-    BC['z']['phi'] = {}
-    BC['z']['phi']['lower'] = safe_eval(lines[137][lines[137].find('=')+1:].strip())
-    BC['z']['phi']['upper'] = safe_eval(lines[138][lines[138].find('=')+1:].strip())
-
+    # ---------------------------------------------------------------------
+    # 6th order finite difference Poisson solver for periodic BCs
+    # (stored as keys 'D' [difference matrix] and 'B' [inhomogeneity])
 
     sigma = {}
     sigma_n = {}
@@ -477,6 +500,10 @@ def inputfile(filename):
         sigma['x']['upper'] = 0    # initialize to zero charge at time zero
         sigma_n['x']['upper'] = np.zeros(Nt + 1)  # this was put in for charge history plots
         BC['x']['upper'] = 'charge_collection'
+
+    Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC)
+
+
 
     derivative_method = {}
     derivative_method_prefix = 'DECSKS.lib.derivatives'
@@ -1195,7 +1222,8 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
     # Nx is the number of active nodes in configuration
     if BC['x']['type'] == 'periodic':
         # periodic boundaries
-        Nx -= 1
+        Nx -= 1 # number of active grid points,
+                # final grid point is assigned by periodicity after each time step
 
         # Assemble FD matrix B
         B = np.zeros([Nx, Nx])

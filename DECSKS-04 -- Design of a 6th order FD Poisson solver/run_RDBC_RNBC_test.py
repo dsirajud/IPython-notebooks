@@ -1,0 +1,25 @@
+import matplotlib.pyplot as plt
+from RDBC_RNBC_test import *
+
+import numpy as np
+
+Nx = 1000
+a, b = 0., 1.
+x = np.linspace(a, b, Nx)
+
+n = np.cos(2*np.pi * x)
+
+phi_exact = 1 / (4 * np.pi ** 2) * (x - np.cos(2*np.pi * x)) + 1.
+
+phi = Poisson_6th_RDBC_RNBC(n, Nx, a, b, RDBC = 1., RNBC = 1/(4*np.pi**2))
+
+NBC_line = 1/(4*np.pi ** 2) * x + (1 - 1 / (4*np.pi ** 2) * (1 - 0))
+
+plt.plot(x, phi_exact, linewidth = 6, label = 'Exact')
+plt.hold('on')
+plt.plot(x, phi, linewidth = 6, linestyle = '--', label = 'numerical')
+plt.plot(x, NBC_line, linewidth = 6, linestyle = '--', color = 'purple', label = r'line with slope = $1/(4\pi^2)$')
+plt.hold('off')
+plt.grid()
+plt.title(r'$N_x = 1000, \partial_x^2 \phi = \cos (2\pi x)$', fontsize = 20)
+plt.legend(loc = 'best')

@@ -39,7 +39,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-07.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -52,8 +52,6 @@ t = DECSKS.lib.domain.Setup(sim_params, var = 't')
 # set up two species
 fe, fi = DECSKS.lib.density.setup(sim_params, t, x, vx) # NOTE mu and tau in ion density must match those just below
 
-print fe.shape
-print fe.dtype
 # store total mass for conservation checks, TODO do not need the x phase space variable pass in this function
 sim_params['me_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fe[0,:,:], x, sim_params)))
 sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi[0,:,:], x, sim_params)))
@@ -79,8 +77,6 @@ for n in t.stepnumbers:
         sim_params
         )
 
-    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
-    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
     Plot(n)
     Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
@@ -90,30 +86,6 @@ for n in t.stepnumbers:
     # in ./etc/params.dat
     #    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,n,x,vx)
     DECSKS.lib.status.check_and_clean(t, n, tic, rm_plots)
-
-sigma_n_left = sim_params['sigma_n']['x']['lower']
-sigma_n_right = sim_params['sigma_n']['x']['upper']
-
-trange = np.arange(t.N+1)
-plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
-plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
-plt.grid()
-plt.xlabel(r'time step $n$', fontsize = 18)
-plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
-plt.legend(loc = 'best')
-plt.figure()
-
-
-phi_left = 1/2. * sim_params['sigma_n']['x']['lower'] # E = -1/2 sigma, phi = 1/2 sigma, here sigma = ni - ne
-phi_right = 1/2. * sim_params['sigma_n']['x']['upper']
-plt.plot(trange,phi_left, linewidth = 2, label = r'$\phi (t, x= -10)$')
-plt.plot(trange,phi_right, linewidth = 2, label = r'$\phi (t, x= +10)$')
-plt.grid()
-plt.xlabel(r'time step $n$', fontsize = 18)
-plt.ylabel(r'$\phi (t,x)$', fontsize = 18)
-plt.legend(loc = 'best')
-
-plt.show()
 
 toc = time.clock()
 simtime = toc - tic
