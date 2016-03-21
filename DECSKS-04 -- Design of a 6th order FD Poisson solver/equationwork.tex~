@@ -1,0 +1,32 @@
+we solve for the general solution for options 1 - 5 (note that the general solution for all are the same, even nif the NBC is applied as in option 5, at the opposite end of the boundary, this is unique to our problem as the solubility condition requires an equality in both NBCs given the source function integrates to zero): 
+
+\begin{eqnarray*}
+\partial_x^2\phi & = & \cos (2\pi x) \\
+\Rightarrow \partial_x\phi & = & \frac{1}{2\pi} \sin (2 \pi x) + A \\
+\Rightarrow \partial_x \phi (0) & = & a  =  0 + A \quad \Rightarrow \quad A = a \\
+\Rightarrow \partial_x\phi (x) & = & \sin (2 \pi x) + a \\
+&&\\
+\Rightarrow \phi (x) & = & -\frac{1}{4\pi^2}\cos (2\pi x) + ax + B \\
+\end{eqnarray*}
+
+Enforcing the conditions for options 1 - 5, we have the following solutions labelled by option number:
+
+<ol>
+<li>$\phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2}$
+<li>$\phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2} - a$
+<li>$\phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2} + b$
+<li>$\phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2} + b' - a$
+<li>$\phi (x)  = -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2}$
+</ol>
+
+Notice that option 1 and 5 have the exact same solution, as expected.
+
+In a plasma, what will matter is the potential difference at a particular point $\phi (x)$. For example, consider the difference between the potential at $x$ and $x = 0$, we have the following differences $\Delta \phi (x) = \phi (x) - \phi (0)$ for each option:
+
+<ol>
+<li>$\Delta \phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2}$
+<li>$\Delta \phi (x)  =  \phi (x) - \phi (0) = \left[-\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2} - a\right] - [-\frac{1}{4\pi^2} + 0 + \frac{1}{4\pi^2} - a] = -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2}$
+<li>$\phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2} + b$
+<li>$\phi (x)  =  -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2} + b' - a$
+<li>$\phi (x)  = -\frac{1}{4\pi^2}\cos (2\pi x) + ax + \frac{1}{4\pi^2}$
+</ol>

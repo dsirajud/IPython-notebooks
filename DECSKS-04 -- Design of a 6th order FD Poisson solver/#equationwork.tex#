@@ -1,0 +1,15 @@
+## J.1.1 Non-uniqueness of the Neumann problem
+
+Just as before we posit the existence of two unique solutions and discern if such a circumstance is possible. Introduce two candidate solutions of the Poisson problem $\phi_1(\vec{x})$ and $\phi_2(\vec{x})$ that satisfy the same Neumann boundary condition:
+
+$$\frac{\partial \phi_1}{\partial n} = \frac{\partial \phi_2}{\partial n}, \quad \vec{x}\in S$$
+
+as before we have the error function $\Phi(\vec{x}) = \phi_1(\vec{x}) - \phi_2(\vec{x})$ which satisfies the homogeneous boundary condition
+
+$$\frac{\partial \Phi}{\partial n}  = \frac{\partial \phi_1}{\partial n} = \frac{\partial \phi_2}{\partial n} = 0, \quad \vec{x}\inS$$
+
+which correspondingly satisfies the Laplace equation  $\nabla^2\Phi = 0$. We examine again the related integral and work in the Neumann boundary condition, i.e. consider
+
+$$J = \int (\vec{\nabla}\Phi)^2 dV = \int \vec{\nabla}\cdot (\Phi \vec{\nabla}\Phi) dV = \oint_S \hat{n}\cdot (\Phi \vec{\nabla}\Phi) dS = \oint_S (\Phi\frac{\partial \Phi }{\partial n}) = 0$$
+
+where this time it is the Neumann condition that produces the zero result. Recalling that $$J = \int (\vec{\nabla}\Phi)^2 dV$$ this implies that $\vec{\nabla}\Phi = 0 \Rightarrow \Phi (\vec{x} = c$ for $\vec{x}\in V$ for $c\in mathbb{R}$. But, note there is no restriction on the function value $\Phi (\vec{x}\in S)$, we rather only require $\partial\Phi / \partial n = 0$ on $S$, thus this time our conclusion $\Phi = c$ is permissible and we can note $\Phi = \phi_1 - \phi_2 = c$ to have the general relationshiop $\phi_1(\vec{x}) = \phi_2(\vec{x}) + c$ and by differentiating this equation we still have the condition $\partial \phi_1(\vec{x}\in S)\partial n = \partial\phi_2(\vec{x}\in S) / \partial n$. Thus, the uniqueness condition on the Neumann problem is a non-uniqueness condition, it is possible to have $\phi_1(\vec{x}) = \phi_2(\vec{x}) + c$. So the Neumann problem has infinitely many solutions.

@@ -1,0 +1,23 @@
+## J.1.1 Non-uniqueness of the Neumann problem
+
+Just as before we posit the existence of two unique solutions and discern if such a circumstance is possible. Introduce two candidate solutions of the Poisson problem $\phi_1(\vec{x})$ and $\phi_2(\vec{x})$ that satisfy the same Neumann boundary condition:
+
+$$\frac{\partial \phi_1}{\partial n} = \frac{\partial \phi_2}{\partial n}, \quad \vec{x}\in S$$
+
+as before we have the error function $\Phi(\vec{x}) = \phi_1(\vec{x}) - \phi_2(\vec{x})$ which satisfies the homogeneous boundary condition
+
+$$\frac{\partial \Phi}{\partial n}  = \frac{\partial \phi_1}{\partial n} = \frac{\partial \phi_2}{\partial n} = 0, \quad \vec{x}\inS$$
+
+which correspondingly satisfies the Laplace equation  $\nabla^2\Phi = 0$. We examine again the related integral and work in the Neumann boundary condition, i.e. consider
+
+$$J = \int (\vec{\nabla}\Phi)^2 dV = \int \vec{\nabla}\cdot (\Phi \vec{\nabla}\Phi) dV = \oint_S \hat{n}\cdot (\Phi \vec{\nabla}\Phi) dS = \oint_S (\Phi\frac{\partial \Phi }{\partial n}) = 0$$
+
+where this time it is the Neumann condition that produces the zero result.
+
+
+
+
+
+
+
+which follows from the boundary condition on $\Phi (\vec{x}\in S) = 0$. This implies $J = \int dV (\vec{\nabla}\Phi)^2 = 0 \Righarrow \Phi = c$ in $\vec{x}\in V$, but it was just discussed that $\Phi (\vec{x}) = c$ implies $c = 0$ which means $\phi_1$ and $\phi_2$ are the same. Which contradicts the original claim that they were distinct. Thus, we see the solution to the Dirichlet Poisson problem is unique. 
