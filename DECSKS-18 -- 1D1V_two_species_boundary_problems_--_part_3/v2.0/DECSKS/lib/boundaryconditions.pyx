@@ -19,10 +19,15 @@ def periodic(f_k,
              charge,
              k = 0
              ):
-    """Applies periodic boundary conditions to
-    postpointmesh
+    """Applies periodic boundary conditions to postpointmesh on
+    the active (variable being evolved) z.
+
+    For such a scenario, the postpointmesh for the generalized
+    velocity vz will remain the same as periodic boundary conditions
+    will not produce any changes in vz.
 
     inputs:
+    f_k -- (ndarray, ndim=2)
     f_old -- (ndarray, ndim=2) density array
     z -- (instance) phase space variable being evolved
 
@@ -71,24 +76,20 @@ def nonperiodic(f_k,
     z returned (no changes) for symmetry with periodic routine above
     """
     # lower boundary
-    f_old, Uf = eval(sim_params['BC'][z.str]['lower'] +
-                           '_lower_boundary')(f_old,
-                                              Uf,
-                                              z.postpointmesh[k,:,:],
-                                              vz.prepointmesh,
-                                              z.N, vz.N, k, charge,
-                                              sim_params,
-                                              z, vz)
+    f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['lower'])(f_old, Uf,
+                                                                                                  z.postpointmesh[k,:,:],
+                                                                                                  vz.prepointmesh,
+                                                                                                  z.N, vz.N, k, charge,
+                                                                                                  sim_params,
+                                                                                                  z, vz)
 
     # upper boundary
-    f_old, Uf = eval(sim_params['BC'][z.str]['upper'] +
-                           '_upper_boundary')(f_old,
-                                              Uf,
-                                              z.postpointmesh[k,:,:],
-                                              vz.prepointmesh,
-                                              z.N, vz.N, k, charge,
-                                              sim_params,
-                                              z, vz)
+    f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['upper'])(f_old, Uf,
+                                                                                                  z.postpointmesh[k,:,:],
+                                                                                                  vz.prepointmesh,
+                                                                                                  z.N, vz.N, k, charge,
+                                                                                                  sim_params,
+                                                                                                  z, vz)
 
 
     vz.postpointmesh[k,:,:] = vz.prepointmesh
@@ -123,29 +124,25 @@ def symmetric(f_k,
 
     z returned (no changes) for symmetry with periodic routine above
     """
-    # lower boundary
-    
-    f_k, f_old, Uf = eval(sim_params['BC'][z.str]['lower'] +
-                           '_lower_boundary')(f_k,
-                                              f_old,
-                                              Uf,
-                                              z.postpointmesh[k,:,:],
-                                              vz.prepointmesh,
-                                              z.N, vz.N, k,
-                                              split_coeff,
-                                              charge,
-                                              sim_params,
-                                              z, vz)
+    # lower boundary, since the symmetric boundary condition orchestrator has been called, this means
+    # the lower boundary condition routine will be lib.boundaryconditions.symmetric_lower_boundary
+    f_k, f_old, Uf =  eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['lower'])(f_k,
+                                                                                                         f_old, Uf,
+                                                                                                         z.postpointmesh[k,:,:],
+                                                                                                         vz.prepointmesh,
+                                                                                                         z.N, vz.N, k,
+                                                                                                         split_coeff,
+                                                                                                         charge,
+                                                                                                         sim_params,
+                                                                                                         z, vz)
 
     # upper boundary
-    f_old, Uf = eval(sim_params['BC'][z.str]['upper'] +
-                           '_upper_boundary')(f_old,
-                                              Uf,
-                                              z.postpointmesh[k,:,:],
-                                              vz.prepointmesh,
-                                              z.N, vz.N, k, charge,
-                                              sim_params,
-                                              z, vz)
+    f_old, Uf =  eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['upper'])(f_old, Uf,
+                                                                                                    z.postpointmesh[k,:,:],
+                                                                                                    vz.prepointmesh,
+                                                                                                    z.N, vz.N, k, charge,
+                                                                                                    sim_params,
+                                                                                                    z, vz)
 
 
 
@@ -203,7 +200,7 @@ def absorbing_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
     return f_old, Uf_old
 
 @cython.boundscheck(False)
-def charge_collection_lower_boundary(
+def collector_lower_boundary(
         np.ndarray[DTYPE_t, ndim=2] f_old,
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
@@ -238,7 +235,7 @@ def charge_collection_lower_boundary(
     return f_old, Uf_old
 
 @cython.boundscheck(False)
-def charge_collection_upper_boundary(
+def collector_upper_boundary(
         np.ndarray[DTYPE_t, ndim=2] f_old,
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
@@ -294,7 +291,7 @@ def symmetric_lower_boundary(
                 for j in range(0, Nvz / 2):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -305,7 +302,7 @@ def symmetric_lower_boundary(
                             f_k += f_old[i,j]
                             f_k += Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -314,7 +311,7 @@ def symmetric_lower_boundary(
                 for j in range(Nvz / 2, Nvz):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -325,7 +322,7 @@ def symmetric_lower_boundary(
                             f_k += f_old[i,j]
                             f_k += Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -335,7 +332,7 @@ def symmetric_lower_boundary(
                 for j in range(0, Nvz / 2):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -346,7 +343,7 @@ def symmetric_lower_boundary(
                             f_k += f_old[i,j]
                             f_k += Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -355,7 +352,7 @@ def symmetric_lower_boundary(
                 for j in range(Nvz / 2 + 1, Nvz):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -366,7 +363,7 @@ def symmetric_lower_boundary(
                             f_k += f_old[i,j]
                             f_k += Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -378,7 +375,7 @@ def symmetric_lower_boundary(
                 for j in range(0, Nvz / 2):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vz.postpointmesh[k,i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -388,7 +385,7 @@ def symmetric_lower_boundary(
                             # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
                             f_k -= Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -397,7 +394,7 @@ def symmetric_lower_boundary(
                 for j in range(Nvz / 2, Nvz):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vz.postpointmesh[k,i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -407,7 +404,7 @@ def symmetric_lower_boundary(
                             # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
                             f_k -= Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -417,7 +414,7 @@ def symmetric_lower_boundary(
                 for j in range(0, Nvz / 2):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -427,7 +424,7 @@ def symmetric_lower_boundary(
                             # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
                             f_k -= Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vz.postpointmesh[k,i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
@@ -436,7 +433,7 @@ def symmetric_lower_boundary(
                 for j in range(Nvz / 2 + 1, Nvz):
                     for i in range(Nz):
                         if z.postpointmesh[k,i,j] < 0:
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j]
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j]
@@ -446,7 +443,7 @@ def symmetric_lower_boundary(
                             # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
                             f_k -= Uf_old[i,j]
 
-                            # prepare for partner remap in lib.convect.remap_step
+                            # prepare for partner remap in lib.convect_configuration.remap_step
                             # z.postpointmesh[k,i,j] = -z.postpointmesh[k,i,j] = 0 already
                             vz.postpointmesh[k,i,j] = Nvz - 1 - vzprepointmesh[i,j]
                             Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner

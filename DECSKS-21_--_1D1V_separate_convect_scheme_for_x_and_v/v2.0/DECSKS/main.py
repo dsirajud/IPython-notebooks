@@ -74,9 +74,6 @@ for n in t.stepnumbers:
         sim_params
         )
 
-    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
-    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
-
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
     Plot(n)
     Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')

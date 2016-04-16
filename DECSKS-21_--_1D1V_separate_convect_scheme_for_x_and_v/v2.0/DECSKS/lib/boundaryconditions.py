@@ -105,9 +105,6 @@ def nonperiodic(f_old,
 
     return f_old, Uf, z
 
-def symmetric_lower_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge):
-    f_entering = np.where(zpostpointmesh < 0, f_old, 0) # = f_exiting
-    Uf_entering = np.where(zpostpointmesh < 0, -Uf, Uf)
 
 def absorbing_lower_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge):
 
@@ -123,34 +120,3 @@ def absorbing_upper_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charg
 
     return f_old, Uf
 
-def charge_collection_lower_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge):
-
-    # this discriminates vx vs. x, as the boundary condition function handle
-    # sim_params['BC'][z.str]['lower' or 'upper'] for z.str = 'vx' is never set to 'charge_collection'
-    # in lib.read
-    f_absorbed = np.where(z.postpointmesh <= 0, f_old, 0)
-    sigma_n = np.sum(vz.prepointmesh * f_absorbed * vz.width)
-
-    # passed by reference, original value is modified, no need for explicit return
-    sim_params['sigma'][z.str]['lower'] = \
-      sim_params['sigma'][z.str]['lower'] + charge*sigma_n
-
-    f_old, Uf = absorbing_lower_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge)
-
-    return f_old, Uf
-
-def charge_collection_upper_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge):
-
-    # this discriminates vx vs. x, as the boundary condition function handle
-    # sim_params['BC'][z.str]['lower' or 'upper'] for z.str = 'vx' is never set to 'charge_collection'
-    # in lib.read
-    f_absorbed = np.where(z.postpointmesh <= 0, f_old, 0)
-    sigma_n = np.sum(vz.prepointmesh * f_absorbed * vz.width)
-
-    # passed by reference, no need for explicit return
-    sim_params['sigma'][z.str]['upper'] = \
-      sim_params['sigma'][z.str]['upper'] + charge*sigma_n
-
-    f_old, Uf = absorbing_upper_boundary(f_old, Uf, zpostpointmesh, z, vz, sim_params, charge)
-
-    return f_old, Uf

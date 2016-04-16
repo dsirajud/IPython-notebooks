@@ -62,7 +62,6 @@ def scheme(
 
         elif coeff[s] == 'b': # advect vx
             # calculate electric field at most recent positions of ions and electrons
-            #                Ex = DECSKS.lib.fieldsolvers.compute_electric_field_fourier(fe, fi, x, vx, n-1, sim_params)
             Ex = eval(sim_params['compute_electric_field_function_handle'])(fe, fi, x, vx, sim_params)
 
             # advect electron velocities

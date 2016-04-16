@@ -1,0 +1,19 @@
+import numpy as np
+cimport numpy as np
+cimport cython
+
+DTYPE = np.float64
+DTYPEINT = np.int64
+
+ctypedef np.float64_t DTYPE_t
+ctypedef np.int64_t DTYPEINT_t
+
+def flux(np.ndarray[DTYPE_t, ndim=2] c,
+         np.ndarray[DTYPE_t, ndim=3] d,
+         np.ndarray[DTYPEINT_t, ndim=2] vz_true_prepointmesh)
+
+    cdef int dim0 = d.shape[0]
+    cdef int dim1 = d.shape[1]
+    cdef int dim2 = d.shape[2]
+
+    

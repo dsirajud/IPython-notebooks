@@ -211,10 +211,8 @@ def remap_step(
     # here, we pass k = 0 as a parameter, as it refers to z.postpointmesh[k,:,:]
     # and k1 corresponds to the storage k = 0
     f_k1, f_copy, Uf_copy = \
-      eval(sim_params['boundarycondition_function_handle'][z.str])(
+      eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
           f_k1, f_copy, Uf_copy, z, vz, sim_params, split_coeff, charge, k = 0)
-
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_copy)
 
     # remap all [i,j] to postpoints [k1, j], we assign per the piecewise rule:
     #
@@ -224,6 +222,17 @@ def remap_step(
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
 
+    #        f_k1 = 0
+    #        f_k1 += f_copy
+    #        f_k1 -= Uf_copy[i,j]  for all such [i,j] corresponding to CFL >= 0
+    #        f_k1 += Uf_copy[i,j]  for all such [i,j] CFL < 0
+    #
+    # Notice that we only require different treatment for the flux Uf terms. Hence, we only require
+    # sifting the flux.
+    #
+    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift_flux(Uf_copy)
+
+    # remap all at once
     f_k1 += DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
     f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
     f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
@@ -236,10 +245,8 @@ def remap_step(
     # here, we pass k = 0 as a parameter, as it refers to z.postpointmesh[k,:,:]
     # and k2 corresponds to the storage k = 1
     f_k2, f_template, Uf_template = \
-      eval(sim_params['boundarycondition_function_handle'][z.str])(
+      eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
           f_k2, f_template, Uf_template, z, vz, sim_params, split_coeff, charge, k = 1)
-
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_template)
 
     # remap all [i,j] to postpoints [k2, j], we assign per the piecewise rule:
     #
@@ -248,6 +255,16 @@ def remap_step(
     #                      +Uf_template[i,j] if CFL < 0
     #
     # we accomplish the above through the following set of operations in order to minimize the computational cost
+
+    #        f_k2 = 0
+    #        f_k2 += f_copy
+    #        f_k2 -= Uf_copy[i,j]  for all such [i,j] corresponding to CFL >= 0
+    #        f_k2 += Uf_copy[i,j]  for all such [i,j] CFL < 0
+    #
+    # Notice that we only require different treatment for the flux Uf terms. Hence, we only require
+    # sifting the flux.
+    #
+    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift_flux(Uf_template)
 
     f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
     f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])

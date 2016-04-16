@@ -39,7 +39,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-02.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-06.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e

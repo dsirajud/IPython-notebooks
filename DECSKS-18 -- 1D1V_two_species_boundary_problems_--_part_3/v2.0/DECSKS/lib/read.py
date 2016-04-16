@@ -2,6 +2,18 @@ import numpy as np
 import linecache
 import scipy.misc
 
+class InputError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+def safe_eval(s):
+    try:
+        return eval(s)
+    except NameError:
+        return s.lower()
+
 def inputfile(filename):
     """Reads the input file and returns a dictionary containing
     simulation parameters, sim_params. Function called from
@@ -25,36 +37,30 @@ def inputfile(filename):
     ax = eval(lines[16][lines[16].find('=')+1:].strip())
     bx = eval(lines[17][lines[17].find('=')+1:].strip())
 
-    Ny = eval(lines[21][lines[21].find('=')+1:].strip())
-    ay = eval(lines[22][lines[22].find('=')+1:].strip())
-    by = eval(lines[23][lines[23].find('=')+1:].strip())
+    Ny = eval(lines[19][lines[19].find('=')+1:].strip())
+    ay = eval(lines[20][lines[20].find('=')+1:].strip())
+    by = eval(lines[21][lines[21].find('=')+1:].strip())
 
-    Nz = eval(lines[27][lines[27].find('=')+1:].strip())
-    az = eval(lines[28][lines[28].find('=')+1:].strip())
-    bz = eval(lines[29][lines[29].find('=')+1:].strip())
+    Nz = eval(lines[23][lines[23].find('=')+1:].strip())
+    az = eval(lines[24][lines[24].find('=')+1:].strip())
+    bz = eval(lines[25][lines[25].find('=')+1:].strip())
 
-    Nvx = eval(lines[33][lines[33].find('=')+1:].strip())
-    avx = eval(lines[34][lines[34].find('=')+1:].strip())
-    bvx = eval(lines[35][lines[35].find('=')+1:].strip())
+    Nvx = eval(lines[27][lines[27].find('=')+1:].strip())
+    avx = eval(lines[28][lines[28].find('=')+1:].strip())
+    bvx = eval(lines[29][lines[29].find('=')+1:].strip())
 
-    Nvy = eval(lines[39][lines[39].find('=')+1:].strip())
-    avy = eval(lines[40][lines[40].find('=')+1:].strip())
-    bvy = eval(lines[41][lines[41].find('=')+1:].strip())
+    Nvy = eval(lines[31][lines[31].find('=')+1:].strip())
+    avy = eval(lines[32][lines[32].find('=')+1:].strip())
+    bvy = eval(lines[33][lines[33].find('=')+1:].strip())
 
-    Nvz = eval(lines[45][lines[45].find('=')+1:].strip())
-    avz = eval(lines[46][lines[46].find('=')+1:].strip())
-    bvz = eval(lines[47][lines[47].find('=')+1:].strip())
+    Nvz = eval(lines[35][lines[35].find('=')+1:].strip())
+    avz = eval(lines[36][lines[36].find('=')+1:].strip())
+    bvz = eval(lines[37][lines[37].find('=')+1:].strip())
 
-    Nt = eval(lines[51][lines[51].find('=')+1:].strip())
-    T = eval(lines[52][lines[52].find('=')+1:].strip())
+    Nt = eval(lines[39][lines[39].find('=')+1:].strip())
+    T = eval(lines[40][lines[40].find('=')+1:].strip())
 
-    N = eval(lines[58][lines[58].find('=')+1:].strip())
-
-    # --------------------------------------------------------------------------
-    # Broadcast notification regarding start of simulation and order of solver
-
-    print "\nStarting 1D1V Vlasov-Poisson simulation"
-    print "\nadvection solver: LTE order %d" % (N+1)
+    N = eval(lines[46][lines[46].find('=')+1:].strip())
 
    # --------------------------------------------------------------------------
     # list of phase space variables used, in etc/params.dat must set unused
@@ -74,129 +80,208 @@ def inputfile(filename):
     if Nvz is not None:
         phasespace_vars.append('vz')
 
-    # --------------------------------------------------------------------------
-    # safe eval function: returns eval if successful (is a valid Name for a python
-    # object), else returns the lowercase version of the string
-
-    def safe_eval(s):
-        try:
-            return eval(s)
-        except NameError:
-            return s.lower()
-
-    # --------------------------------------------------------------------------
-    # Boundary conditions
-
-    # stored as a dictionary of dictionaries, access as
-    # BC['z']['upper'] and BC['z']['lower'] for z = {x, y, ...}
+    # ==========================================================================
+    # Boundary conditions dictionary -- contains dist. function BCs as well as phi
 
     BC = {}
-    # main dictionary with key/values {'x' : {'lower' : value, 'upper : value},
-    #                                 {'y' : {'lower' : value, 'upper : value},
-    #                                 {'z' : {'lower' : value, 'upper : value},
-    #                                 {'vx' : {'lower' : value, 'upper : value},
-    #                                 {'vy' : {'lower' : value, 'upper : value},
-    #                                 {'vz' : {'lower' : value, 'upper : value},
+    BC['f'] = {}
+    BC['phi'] = {}
 
+    # BC['f'] = BC dict on distribution function f
 
-    # subdictionaries with key/values {'lower' : BC_value, and 'upper' : BC_value}
+    #     BC['f']['x'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['f']['y'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['f']['z'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['f']['vx'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['f']['vy'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['f']['vz'] = {'lower' : lower_value, 'upper' : upper_value}
 
-    # will throw an error if numbers are inputted as BCs in etc/params.dat
-    BC['x'] = {}
-    BC['x']['lower'] = safe_eval(lines[18][lines[18].find('=')+1:].strip())
-    BC['x']['upper'] = safe_eval(lines[19][lines[19].find('=')+1:].strip())
+    # BC['phi'] = BC dict on electric potential phi
 
-    BC['y'] = {}
-    BC['y']['lower'] = safe_eval(lines[24][lines[24].find('=')+1:].strip())
-    BC['y']['upper'] = safe_eval(lines[25][lines[25].find('=')+1:].strip())
-
-    BC['z'] = {}
-    BC['z']['lower'] = safe_eval(lines[30][lines[30].find('=')+1:].strip())
-    BC['z']['upper'] = safe_eval(lines[31][lines[31].find('=')+1:].strip())
-
-    BC['vx'] = {}
-    BC['vx']['lower'] = safe_eval(lines[36][lines[36].find('=')+1:].strip())
-    BC['vx']['upper'] = safe_eval(lines[37][lines[37].find('=')+1:].strip())
-
-    BC['vy'] = {}
-    BC['vy']['lower'] = safe_eval(lines[42][lines[42].find('=')+1:].strip())
-    BC['vy']['upper'] = safe_eval(lines[43][lines[43].find('=')+1:].strip())
-
-    BC['vz'] = {}
-    BC['vz']['lower'] = safe_eval(lines[48][lines[48].find('=')+1:].strip())
-    BC['vz']['upper'] = safe_eval(lines[49][lines[49].find('=')+1:].strip())
-
-
-    # the following strings are used to call the orchestrator function
+    #     BC['phi']['x'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['phi']['y'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['phi']['z'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['phi']['vx'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['phi']['vy'] = {'lower' : lower_value, 'upper' : upper_value}
+    #     BC['phi']['vz'] = {'lower' : lower_value, 'upper' : upper_value}
     #
-    #     lib.boundaryconditons.periodic
-    #     lib.boundaryconditions.nonperiodic
-    #     lib.boundaryconditions.symmetric
+    # subdict objects that give keyword descriptions that match method names in lib.boundaryconditions and lib.fieldsolvers
+    # include, for var in phasespace_vars:
     #
-    # in lib.convect_configuration.remap_step or lib.convect_velocity.remap
-    # to apply the BCs specified in params.dat
+    # BC['f'][var]['type'] and BC['phi'][var]['type']
+    #
+    # these are used to assemble function handle strings that select the corresponding routine needed for the specified BCs
 
-    # BCs can have three types: periodic, nonperiodic, or symmetric
-    # while technically, a symmetric condition can be subsumed under one of the
-    # previous two categories, we reserve a special orchestrator in
-    # lib.boundaryconditions for symmetric boundaries to avoid unnecessary
-    # repeat assignments to vz.postpointmesh (see implementation for this
-    # esoteric reason)
-    for var in ['x', 'y', 'z', 'vx', 'vy', 'vz']:
-        if BC[var]['lower'] == 'periodic' and BC[var]['upper'] == 'periodic':
-            BC[var]['type'] = 'periodic'
-        elif BC[var]['lower'] == 'periodic' and BC[var]['upper'] != 'periodic':
-            BC[var]['type'] = 'incompatible periodic BCs specified'
-        elif BC[var]['lower'] != 'periodic' and BC[var]['upper'] == 'periodic':
-            BC[var]['type'] = 'incompatible periodic BCs specified'
-        elif BC[var]['lower'] == 'symmetric':
-            BC[var]['type'] = 'symmetric'
+
+    BC_infilename = './etc/' + lines[106][lines[106].find(':')+1:].strip()
+    BC_infile = open(BC_infilename, 'r')
+    BC_infile_lines = BC_infile.readlines()
+
+    # DECSKS will throw an error if numbers are inputted as BCs in etc/params.dat
+
+    # strings are stored as lowercase as they are used in an eval statement to access
+    # the relevant method in lib.boundaryconditions. e.g. 'absorbing' is accessed as
+    # either eval('lib.boundaryconditions.absorbing_lower_boundary') or
+    # eval('lib.boundaryconditions.absorbing_upper_boundary') in lib.convect.remap_step
+
+    BC['f']['x'] = {}
+    BC['f']['x']['lower'] = safe_eval(BC_infile_lines[40][BC_infile_lines[40].find('=')+1:].strip())
+    BC['f']['x']['upper'] = safe_eval(BC_infile_lines[41][BC_infile_lines[41].find('=')+1:].strip())
+
+    BC['f']['y'] = {}
+    BC['f']['y']['lower'] = safe_eval(BC_infile_lines[43][BC_infile_lines[43].find('=')+1:].strip())
+    BC['f']['y']['upper'] = safe_eval(BC_infile_lines[44][BC_infile_lines[44].find('=')+1:].strip())
+
+    BC['f']['z'] = {}
+    BC['f']['z']['lower'] = safe_eval(BC_infile_lines[46][BC_infile_lines[46].find('=')+1:].strip())
+    BC['f']['z']['upper'] = safe_eval(BC_infile_lines[47][BC_infile_lines[47].find('=')+1:].strip())
+
+    BC['f']['vx'] = {}
+    BC['f']['vx']['lower'] = safe_eval(BC_infile_lines[55][BC_infile_lines[55].find('=')+1:].strip())
+    BC['f']['vx']['upper'] = safe_eval(BC_infile_lines[56][BC_infile_lines[56].find('=')+1:].strip())
+
+    BC['f']['vy'] = {}
+    BC['f']['vy']['lower'] = safe_eval(BC_infile_lines[58][BC_infile_lines[58].find('=')+1:].strip())
+    BC['f']['vy']['upper'] = safe_eval(BC_infile_lines[59][BC_infile_lines[59].find('=')+1:].strip())
+
+    BC['f']['vz'] = {}
+    BC['f']['vz']['lower'] = safe_eval(BC_infile_lines[61][BC_infile_lines[61].find('=')+1:].strip())
+    BC['f']['vz']['upper'] = safe_eval(BC_infile_lines[62][BC_infile_lines[62].find('=')+1:].strip())
+
+    # make all BCs lowercase strings so they can be used to construct the function strings in lib.boundaryconditions module
+    # whose names are all lowercase
+
+    # if an accepted boundary condition synonym as been used, change value to the name it goes by in lib.boundaryconditions
+    # check that all inputs for evolved phase space variables are recognized keywords and are compatible with the
+    # boundary at which they are indicated
+    for var in phasespace_vars:
+        for boundary in ['lower', 'upper']:
+            BC['f'][var][boundary] = BC['f'][var][boundary].lower()
+            if BC['f'][var][boundary] == 'open' or BC['f'][var][boundary] == 'cutoff':
+                print "\nCourtesy notice to user: the boundary condition %s was selected for the distribution function on %s at the %s boundary in params_boundaryconditions.dat; " % (BC['f'][var][boundary].upper(), var, boundary)
+                print "this is a recognized input synonym for a '%s' condition. Changing value stored to BC['f']['%s']['%s'] = '%s'\n" % ('ABSORBING', var, boundary, 'ABSORBING')
+                print "Please regard any warnings/error messages that cite the keyword '%s' with this change in mind\n" %  ('ABSORBING')
+                BC['f'][var][boundary] = 'absorbing'
+
+            elif BC['f'][var][boundary] == 'collector':
+                pass
+
+            elif BC['f'][var][boundary] == 'absorbing':
+                pass
+
+            elif BC['f'][var][boundary] == 'symmetry':
+                if boundary == 'upper':
+                    raise NotImplementedError('a symmetric UPPER boundary condition on the distribution function was specified in params_boundaryconditions.dat; however, DECSKS only has functionality to permit lower boundary symmetry.')
+                elif boundary == 'lower':
+                    print "\nCourtesy notice to user: the boundary condition %s was selected for the distribution function on %s at the %s boundary in params_boundaryconditions.dat; " % (BC['f'][var][boundary].upper(), var, boundary)
+                    print "this is a recognized input synonym for a '%s' condition. Changing value stored to BC['f']['%s']['%s'] = '%s'\n" % ('SYMMETRIC', var, boundary, 'SYMMETRIC')
+                    print "Please regard any warnings/error messages that cite the keyword '%s' with this change in mind\n" %  ('SYMMETRIC')
+                    BC['f'][var][boundary] = 'symmetric'
+
+            elif BC['f'][var][boundary] == 'symmetric':
+                if boundary == 'lower':
+                    pass
+                elif boundary == 'upper':
+                    raise NotImplementedError('a symmetric UPPER boundary condition on the distribution function was specified in params_boundaryconditions.dat; however, DECSKS only has functionality to permit lower boundary symmetry.')
+
+            elif BC['f'][var][boundary] == 'periodic':
+                pass
+
+            else: # inputs do not match any options
+                print '\nThe invalid keyword %s was specified in params_boundaryconditions.dat on the variable %s at the %s boundary\n' % (BC['f'][var][boundary].upper(), var, boundary)
+                raise InputError('inputs are restricted to those listed as options in params_boundaryconditions.dat')
+
+    # above we have checked for valid input. Next, check for compatible inputs (if 'periodic' is selected, it must be selected for both
+    # upper and lower bounds) and store a descriptor that toggles the correct orchestrator
+    # function in lib.boundaryconditions module ('periodic' vs. 'nonperiodic')
+    for var in phasespace_vars:
+        if BC['f'][var]['lower'] == 'periodic' and BC['f'][var]['upper'] == 'periodic':
+            BC['f'][var]['type'] = 'periodic'
+
+        elif BC['f'][var]['lower'] == 'symmetric' and BC['f'][var]['upper'] != 'periodic':
+            BC['f'][var]['type'] = 'symmetric'
+
+        elif BC['f'][var]['lower'] == 'symmetric' and BC['f'][var]['upper'] == 'periodic':
+            print "\nThe following boundary conditions specified in params_boundaryconditions.dat:"
+            print "\nlower boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+            print "upper boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['upper'].upper())
+
+            print "\nare inconsistent. Cannot combine a symmetric lower boundary with a periodic upper boundary condition. Periodic boundary conditions involve both boundaries (both boundaries would have to be set to PERIODIC)\n"
+
+            raise InputError('cannot combine a symmetric lower boundary condition with a periodic upper boundary condition for the distribution function. Check inputs in boundaryconditions.dat and change the upper bound to be of non-periodic type')
+
+        elif BC['f'][var]['lower'] == 'periodic' and BC['f'][var]['upper'] != 'periodic':
+            print "\nThe following boundary conditions specified in params_boundaryconditions.dat:"
+            print "\nlower boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+            print "upper boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['upper'].upper())
+
+            print "\nare inconsistent. Cannot combine periodic and non-periodic boundary conditions on same variable for distribution function, check inputs in params_boundaryconditions.dat')"
+
+            raise InputError('cannot combine periodic and non-periodic boundary conditions on same variable for distribution function, check inputs in params_boundaryconditions.dat')
+        elif BC['f'][var]['lower'] != 'periodic' and BC['f'][var]['upper'] == 'periodic':
+            print "\nThe following boundary conditions specified in params_boundaryconditions.dat:"
+            print "\nlower boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+            print "upper boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['upper'].upper())
+
+            print "\nare inconsistent. Cannot combine periodic and non-periodic boundary conditions on same variable for distribution function, check inputs in params_boundaryconditions.dat')"
+
+            raise InputError('cannot combine periodic and non-periodic boundary conditions on same variable for distribution function, check inputs in params_boundaryconditions.dat')
         else:
-            BC[var]['type'] = 'nonperiodic'
+            BC['f'][var]['type'] = 'nonperiodic'
 
-    boundarycondition_function_handle_prefix = 'DECSKS.lib.boundaryconditions'
+    distribution_function_boundarycondition_orchestrator_prefix = 'DECSKS.lib.boundaryconditions'
 
-    # create a dictionary for every phase space variable simulated
-    boundarycondition_function_handle = {}
+    # create a dictionary of function handles that call either
+    # the 'periodic', 'nonperiodic', or 'symmetric' orchestrator in lib.boundaryconditions
+    #
+    # i.e. we form the string handle for each active variable var:
+    #
+    # distribution_function_boundarycondition_orchestrator_handle[var] =
+    #
+    #                 DECSKS.lib.boundaryconditions.periodic
+    #                 DECSKS.lib.boundaryconditions.nonperiodic
+    #                 DECSKS.lib.boundaryconditions.symmetric
+
+    distribution_function_boundarycondition_orchestrator_handle = {}
 
     for var in phasespace_vars:
-        boundarycondition_function_handle[var] = ".".join(
-            (boundarycondition_function_handle_prefix, BC[var]['type']))
+        distribution_function_boundarycondition_orchestrator_handle[var] = ".".join(
+            (distribution_function_boundarycondition_orchestrator_prefix, BC['f'][var]['type']))
 
     # --------------------------------------------------------------------------
     # Store number of active gridpoints for every phase space variable
     #
-    # Note: for periodic BCs:  Nz_active = Nz - 1
+    # Note: for periodic BCs:  Nz_active = Nz - 1, we evolve Nz_active nodes and assign by periodicity the f[Nz-1] = f[0]
     #       for all other BCs: Nz_active = Nz
 
-    # TODO this is acknowledged as being redundant, but more specific than the lists
     # active_dims vs. total_dims
-    if BC['x']['lower'] == 'periodic' and BC['x']['upper'] == 'periodic' and Nx is not None:
+    # note a generalized loop cannot be used  as assignments cannot be made under an assembled string with eval
+    if BC['f']['x']['lower'] == 'periodic' and BC['f']['x']['upper'] == 'periodic' and Nx is not None:
         Nx_active  = Nx - 1
     else:
         Nx_active = Nx
 
-    if BC['y']['lower'] == 'periodic' and BC['y']['upper'] == 'periodic' and Ny is not None:
+    if BC['f']['y']['lower'] == 'periodic' and BC['f']['y']['upper'] == 'periodic' and Ny is not None:
         Ny_active  = Ny - 1
     else:
         Ny_active = Ny
 
-    if BC['z']['lower'] == 'periodic' and BC['z']['upper'] == 'periodic' and Nz is not None:
+    if BC['f']['z']['lower'] == 'periodic' and BC['f']['z']['upper'] == 'periodic' and Nz is not None:
         Nz_active  = Nz - 1
     else:
         Nz_active = Nz
 
-    if BC['vx']['lower'] == 'periodic' and BC['vx']['upper'] == 'periodic' and Nvx is not None:
+    if BC['f']['vx']['lower'] == 'periodic' and BC['f']['vx']['upper'] == 'periodic' and Nvx is not None:
         Nvx_active  = Nvx - 1
     else:
         Nvx_active = Nvx
 
-    if BC['vy']['lower'] == 'periodic' and BC['vy']['upper'] == 'periodic' and Nvy is not None:
+    if BC['f']['vy']['lower'] == 'periodic' and BC['f']['vy']['upper'] == 'periodic' and Nvy is not None:
         Nvy_active  = Nvy - 1
     else:
         Nvy_active = Nvy
 
-    if BC['vz']['lower'] == 'periodic' and BC['vz']['upper'] == 'periodic' and Nvz is not None:
+    if BC['f']['vz']['lower'] == 'periodic' and BC['f']['vz']['upper'] == 'periodic' and Nvz is not None:
         Nvz_active  = Nvz - 1
     else:
         Nvz_active = Nvz
@@ -207,54 +292,65 @@ def inputfile(filename):
     # store as uppercase
 
     HOC = {}
-    HOC['x'] = lines[68][lines[68].find(':')+1:].strip().upper()
-    HOC['y'] = lines[69][lines[69].find(':')+1:].strip().upper()
-    HOC['z'] = lines[70][lines[70].find(':')+1:].strip().upper()
+    HOC['x'] = safe_eval(lines[56][lines[56].find(':')+1:].strip())
+    HOC['y'] = safe_eval(lines[57][lines[57].find(':')+1:].strip())
+    HOC['z'] = safe_eval(lines[58][lines[58].find(':')+1:].strip())
 
-    HOC['vx'] = lines[72][lines[72].find(':')+1:].strip().upper()
-    HOC['vy'] = lines[73][lines[73].find(':')+1:].strip().upper()
-    HOC['vz'] = lines[74][lines[74].find(':')+1:].strip().upper()
+    HOC['vx'] = safe_eval(lines[60][lines[60].find(':')+1:].strip())
+    HOC['vy'] = safe_eval(lines[61][lines[61].find(':')+1:].strip())
+    HOC['vz'] = safe_eval(lines[62][lines[62].find(':')+1:].strip())
 
-    print "will step through %d-dimensional solution in variables: %s" % (len(phasespace_vars), phasespace_vars)
-    for var in phasespace_vars:
-        print "high order correction method on %s: %s" % (var, HOC[var])
+    # make all non-None inputs capitalized
+    for key in HOC.keys():
+        if HOC[key] is not None:
+            HOC[key] = HOC[key].upper()
+        else:
+            pass
 
-    # for periodic BCs, the number of active dims is not equal to the
-    # total number of dims, we evolve "Nz-1" gridpoints, then assign
-    # the Nth point by periodicity as equal to the 0th point. Hence,
-    # a distinction is needed between active dims and total dims
-    # where we note they are identical in all cases but periodic BCs.
+    # check for valid inputs
+    for key in HOC.keys():
+        if HOC[key] is not None:
+            if type(HOC[key]) != str:
+                raise InputError('A non-string entry was found as a high order correction specification. Only FD or FOURIER are accepted')
+            elif HOC[key] != 'FD' and HOC[key] != 'FOURIER':
+                print "\nThe following high order correction was specified in params.dat, but is not recognized:"
+                print "\nHigh order correction on %s: %s\n" % (key, HOC[key].upper())
+                print "only FD and FOURIER are accepted keywords\n"
+                raise InputError('An unrecognized high order correction was specified. Only FD or FOURIER are accepted')
 
-    # TODO as mentioned above, this is now a redundant set of total grid points
-    # as compared to active grid points. At some point, need to trace where
-    # this is actually used in the code and replace or remove it
+            elif HOC[key] == 'FOURIER' and BC['f'][key]['type'] != 'periodic': # Fourier corrections use trigonometric derivatives, which rely on periodicity of the underlying functions
+                print "\nThe following boundary conditions specified in params_boundaryconditions.dat:"
+                print "\nlower boundary condition on f for the variable %s: %s" % (key, BC['f'][key]['lower'].upper())
+                print "upper boundary condition on f fore the variable %s: %s\n\n" % (key, BC['f'][key]['upper'].upper())
+
+                print "are inconsistent with the high order correction specified in params.dat:"
+                print "\nhigh order correction on %s: %s\n\n" % (key, HOC[var].upper())
+
+                print "FOURIER high order corrections only make sense for periodic systems (if this is the intention, the BCs on f and phi must be set to PERIODIC in params_boundaryconditions.dat)\n"
+
+                raise InputError('Fourier corrections on a variable only make sense for periodic systems. The boundary conditions on the distribution function were read-in as not periodic for this variable.')
+            elif eval('N' + key) is None:
+                raise InputError('a variable not involved in the simulation (its number of grid points was specified as None) must also have its high order correction method specified as None. While reading in the input deck, the aforementioned expectation was not met. Please revisit the entries (number of grid points) and high order correction specification.')
+
+    # store lists containing number of total and active gridpoints
+    # this is acknowledged as redundant given the above storing as Nx_active, Ny_active,
+    # etc., but these objects are used in legacy methods inside DECSKS
 
     # initialize lists
-    total_dims = []
-    active_dims = []
+    total_dims = [] # e.g. in 1D1V this could contain [Nx, Nvx]
+    active_dims = [] # e.g. in 1D1V this could contain [Nx_active, Nvx_active]
 
-    # strip all whitespace in each entry
     for var in phasespace_vars:
         total_dims.append(eval('N' + var))
+        active_dims.append(eval('N' + var + '_active'))
 
-        if ( (BC[var]['lower'] == 'periodic') and (BC[var]['upper'] == 'periodic') ):
-            active_dims.append(eval('N' + var) - 1)
-        else:
-            active_dims.append(eval('N' + var))
-
-    # TODO this is a misleading name, should be numvars
     numdims = len(phasespace_vars)
-
     # --------------------------------------------------------------------------
-    # Initial density specification
-    #
-    # the following establishes a difference between the number of densities
-    # specified in etc/params.dat. Should there be two, the solver is a two
-    # species Vlasov solver. If only one, then a cold background will be
-    # automatically computed (TODO)
+    # Initial density specification (2 species)
 
+    mu = safe_eval(lines[68][lines[68].find(':')+1:].strip())
 
-    densities_list = lines[79][lines[79].find(':')+1:].strip().split(', ')
+    densities_list = lines[69][lines[69].find(':')+1:].strip().split(', ')
     for i in range(len(densities_list)):
         densities_list[i] = densities_list[i].lower()
 
@@ -268,21 +364,15 @@ def inputfile(filename):
         print "electrons: %s" % density['electrons']
         print "ions:      %s\n" % density['ions']
 
-    elif len(densities_list) == 1: # if one species return a string
-        density = densities_list[0]
-        print "one species (electron) simulation with initial density: %s" % density
-        # TODO compute cold background, store both this and the above
-        # in a common dictionary as above for two species.
-
     # --------------------------------------------------------------------------
-    # Split scheme specification
+    # split scheme specification
 
-    split_scheme = lines[98][lines[98].find('=')+1:].strip()
+    split_scheme = lines[81][lines[81].find('=')+1:].strip()
     split_scheme = split_scheme.upper()
     print "split scheme: %s\n\n" % split_scheme
 
     # filepath to splitting coefficient tables
-    filename  = lines[99][lines[99].find(':')+1:].strip()
+    filename  = lines[82][lines[82].find(':')+1:].strip()
     filepath = './etc/' + filename
 
     # get splitting coefficients for chosen scheme
@@ -294,48 +384,49 @@ def inputfile(filename):
     # --------------------------------------------------------------------------
     # Plot window specification (used in lib.plots.Setup)
 
-    xmin = eval(lines[113][lines[113].find('=')+1:].strip())
-    xmax = eval(lines[114][lines[114].find('=')+1:].strip())
-    ymin = eval(lines[116][lines[116].find('=')+1:].strip())
-    ymax = eval(lines[117][lines[117].find('=')+1:].strip())
+    xmin = eval(lines[96][lines[96].find('=')+1:].strip())
+    xmax = eval(lines[97][lines[97].find('=')+1:].strip())
+    ymin = eval(lines[99][lines[99].find('=')+1:].strip())
+    ymax = eval(lines[100][lines[100].find('=')+1:].strip())
 
     plot_params = dict(xmin = xmin, xmax = xmax,
                        ymin = ymin, ymax = ymax)
 
-    record_outputs = lines[120][lines[120].find(':')+1:].strip()
+    record_outputs = lines[103][lines[103].find(':')+1:].strip()
     record_outputs = record_outputs.lower()
 
     if record_outputs == 'yes':
         # output filepath setup
-        filename = lines[121][lines[121].find(':')+1:].strip()
+        filename = lines[104][lines[104].find(':')+1:].strip()
         filepath = './etc/' + filename
         outfiles = output_files(filepath) # dictionary of opened files
     else:
         outfiles = None
 
     # --------------------------------------------------------------------------
-    # MISC STORAGE (e.g. stored matrices that are used routinely)
+    # DICTIONARIES AND MATRICES RELEVANT FOR HIGH ORDER CORRECTION APPLICATIONS
     #
-    # dictionaries and matrices relevant for high order correction applications
-    #
-    # Constructing the finite different weight matricies, W.
+
+    # Constructing the finite different weight matrices, W.
     #-------------------------------------------------------
     #    requires: (dict) FD_schemes
     #
     #    Note: FD_schemes is only needed to construct W. W is what is used in
     #          the simulation. Hence, the building routine for FD_schemes
     #          is not optimized, since it happens before the simulation starts
-    #          and hence is not a source of repeated computational cost.
+    #          and is not a source of repeated computational cost.
     #
     # FD_schemes is a dictionary containing the families of every order derivative
     # needed for the indicated global error N in etc/params.dat, i.e. all schemes
     # of various degrees of asymmetry and handedness. For large N, this can be a
-    # very large dictionary, see the function routine read_FD_schemes to see all
+    # large dictionary, cf. the function routine read_FD_schemes to see all
     # that gets stored inside. It is used to construct the difference coefficient
     # matrices W (for applying high order corrections). The other scheme
     # FD_scheme_dn1 is used to construct the matrix W_dn1 which is a difference
     # coefficient matrix for the first derivative (dn = 1) at LTE = 6, and used
-    # in the finite difference 6th order Poisson solver (PBCs currently only).
+    # to compute the electric field E = "-dphi" = W_dn1.dot(phi),
+    # where dphi is the first derivative# of the electric potential, as calculated by
+    # the methods in lib.fieldsolvers package
     #---------------------------------------------------------------------------
     #
     # initialize all dictionaries whose keys correspond to phase space vars
@@ -345,12 +436,14 @@ def inputfile(filename):
     xi = {}
     W = {}
 
-    # top level check: if any var has FD corrections, store FD_schemes and init W
+    # top level check: if any var has FD corrections, store FD_schemes and init FD weight matrix W
+    # for 6th order first derivative
     if 'FD' in HOC.values():
         # store finite difference schemes
         FD_schemes = read_FD_schemes(N)
 
-    if HOC['x'] == 'FD':
+    # if FD on a configuration variable, need to differentiate phi to obtain the acceleration a ~ E = -dphi
+    if HOC['x'] == 'FD' or HOC['y'] == 'FD' or HOC['z'] == 'FD':
         # first derivative with LTE = 6, used to find dphi = -E after phi is
         # found from a 6th order Poisson solve
         FD_scheme_dn1 = read_FD_scheme(1,6)
@@ -360,12 +453,8 @@ def inputfile(filename):
                                              LTE = 6
                                              )
 
-        # TODO if more than one or different spatial dimension
-        # TODO than 'x' with FD corrections need to permit access to this
-        # TODO dictionary W_dn1_LTE6 and have it be assembled.
-
     else:
-        # else, Fourier Gauss solver is used, no need for this matrix
+        # else, Fourier gauss solver is used, no need for this matrix
         W_dn1_LTE6 = None
 
     # variable-by-variable checks: assemble consistent objects needed
@@ -389,11 +478,32 @@ def inputfile(filename):
             # for x,y,z, 'vz' = vx, vy, vz
             # for vx, vy, vz, 'vz' = ax, ay, az, which have
             # the same number of dims as x, y, z, respectively
+            # this is needed in the routine assemble_spectral_derivative_operator
+            # so that the correctly dimensioned 2D arrays are returned
 
             if var[0] == 'v':
+                # if a velocity variable, the velocity of this velocity is an acceleration
+                # which has the same dimensions as the corresponding configuration variable
+                # e.g. vx has velocity(vx) = ax which has the same dimensions as x
                 Nvz_active = eval('N' + var[1] + '_active')
             else:
+                # if a configuration variable, the velocity is the physical velocity, which
+                # must be a coresponding active variable
+                # e.g. x has a velocity vx
                 Nvz_active = eval('Nv' + var + '_active')
+
+
+            # The 3D tensor Xi is used to compute trigonometric derivatives
+            # by operating on a 2D array of Fourier wave components (transformed
+            # row-wise for each column, where as usual the objects have been
+            # transpoed if needed so that the variation (x or vx) is along
+            # rows, not columns)
+            #
+            # Fourier transform (derivatives) = Xi * Fourier transform (f)
+            #                derivatives = inverse transform (Xi * Fourier(f))
+            #
+            #
+            # the object xi is used in legacy methods in DECSKS (pre-DECSKSv2.0)
 
             Xi, xi = assemble_spectral_derivative_operator(Xi, xi,
                                                           var,
@@ -407,9 +517,8 @@ def inputfile(filename):
     # ---------------------------------------------------------------------
     # "Alternating" identity matrix
 
-
-    # in lib.HOC.correctors, require an N x N  diagonal matrix with entries
-    # (-1)^i, where i is the row number, for details see on github
+    # in lib.HOC.correctors, require an diagonal matrix with shape = (Nz_active, Nz_active)
+    # with entries as (-1)^i, where i is the row number, for details see on github
     #
     #    dsirajud/IPython-notebooks/
     #       DECSKS-09 -- array-based implementation recast -- part 1.ipynb
@@ -418,10 +527,13 @@ def inputfile(filename):
 
     I_alternating = np.diag( (-np.ones(N))  ** np.arange(N) )
 
-    # obtain Bernoulli numbers (note: list only 23 numbers are listed)
-    # for a correction up to global error order N, N-1 Bernoulli numbers
-    # are needed. If higher than global error order 22 is desired, additional
-    # Bernoulli numbes need to be entered in
+    # ---------------------------------------------------------------------
+    # Bernoulli number storage, and forming the matrices A_pos, A_neg
+
+    # obtain Bernoulli numbers (note: only 23 numbers are entered into the dat file ->
+    # max global error is 23 - 1 = 22) for a correction up to global error order
+    # N, N-1 Bernoulli numbers are needed. If higher than global error order 22 is
+    # desired, additional Bernoulli numbes need to be entered in
     #
     #    etc/Table_of_Bernoulli_numbers.dat
     #
@@ -435,6 +547,19 @@ def inputfile(filename):
     # in lib.HOC.Beta_matrix, see notebook on github at
     # dsirajud/IPython-notebooks/
     # DECSKS-09 -- array-based implementation recast -- part 1.ipynb
+    #
+    # the A matrices are matrices containing scaled Bernoulli numbers (normalized by factorials)
+    # that also factor in the sign (direction) information of the advecting density packets
+    # (the different amounts to all odd coefficients having opposite sign)
+
+    # The A matrices are used in the method lib.HOC.Beta_matrix (used to construct the array of the *magnitudes*
+    # of the Nvz sets of N beta coefficients; note that the high order flux is further computed as a sum of
+    # products that alternating with sign according to the parity of the derivative number, i.e. alternates signs
+    # among odds and evens. These prefactors are applied at the end of the method lib.HOC.correctors by matrix
+    # pre-multiplication of the matrix B with the alternating (in sight) identity matrix I formed above)
+
+    # the method lib.HOC.Beta_matrix is called from inside lib.HOC.correctors (used to assemble the 2D array c of correctors)
+
     A_pos, A_neg = np.zeros([N,N]), np.zeros([N,N])
     for i in range(N):
         for j in range(i+1):
@@ -453,48 +578,481 @@ def inputfile(filename):
     A_matrix['0'] = A_pos
     A_matrix['-1'] = A_neg
 
+    #--------------------------------------------------------------------------------------------#
+    # ELECTRIC POTENTIAL PHI
+    #--------------------------------------------------------------------------------------------#
+
+    #--------------------------------------------------------------------------------------------#
+    # Boundary conditions BC['phi'] dictionary and dictionary of boundary values, phi_BC
+    #
+    # BC['phi']['x', 'y', or 'z']['lower' or 'upper'] = string keyword that describes the BC
+    # phi_BC['x', 'y', or 'z'] = boundary value vector phi_BC that appears in a Poisson solver
+    #--------------------------------------------------------------------------------------------#
+
+    phi_BC = {}
+        # keys: 'x', 'y', 'z'
+        # values: ndarrays of size eval('N' + var + '_active)
+
+    BC['phi'] = {}
+        # keys: 'x', 'y', 'z'
+        # values / keys for subdict:  'lower', 'upper'
+        #          values for subdict: string keyword that describes the BC at the key specification
+
+    # --------------------------------------------------------------------------
+    # PHI BOUNDARY CONDITIONS AND PHI BOUNDARY VALUES VECTORS FOR SOLVER Phi_BC['x', 'y', or 'z']
+
+    # lines read in from boundaryconditions dat file were stored above in BC_infile_lines
+    if HOC['x'] == 'FD':
+        BC['phi']['x'] = {}
+        BC['phi']['x']['lower'] = safe_eval(BC_infile_lines[196][BC_infile_lines[196].find('=')+1:].strip())
+        BC['phi']['x']['upper'] = safe_eval(BC_infile_lines[197][BC_infile_lines[197].find('=')+1:].strip())
+        phi_BC['x'] = np.zeros(Nx_active)
+    elif HOC['x'] == 'FOURIER': # periodic fourier solver is used, a BC vector is not needed
+        phi_BC['x'] = None
+
+    if HOC['y'] == 'FD':
+        BC['phi']['y'] = {}
+        BC['phi']['y']['lower'] = safe_eval(BC_infile_lines[199][BC_infile_lines[199].find('=')+1:].strip())
+        BC['phi']['y']['upper'] = safe_eval(BC_infile_lines[200][BC_infile_lines[200].find('=')+1:].strip())
+        phi_BC['y'] = np.zeros(Ny_active)
+    elif HOC['y'] == 'FOURIER': # periodic fourier solver is used, a BC vector is not needed
+        phi_BC['y'] = None
+
+    if HOC['z'] == 'FD':
+        BC['phi']['z'] = {}
+        BC['phi']['z']['lower'] = safe_eval(BC_infile_lines[202][BC_infile_lines[202].find('=')+1:].strip())
+        BC['phi']['z']['upper'] = safe_eval(BC_infile_lines[203][BC_infile_lines[203].find('=')+1:].strip())
+        phi_BC['z'] = np.zeros(Nz_active)
+    elif HOC['z'] == 'FOURIER': # periodic fourier solver is used, a BC vector is not needed
+        phi_BC['z'] = None
+
+    # ensure all inputs stored above in BC['phi'] dict objects are uppercase and recognized
+    for var in ['x', 'y', 'z']:
+        if var in phasespace_vars:
+
+            # LOWER BOUNDARY CHECKS
+            if BC['phi'][var]['lower'] is None:
+                raise InputError('a NoneType was specified as a LOWER boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not meant to be evolved, set its number of grid points to None')
+
+            elif type(BC['phi'][var]['lower']) != str:
+                raise InputError('a non-string type as a LOWER boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not intended to be active, set its number of grid points to None. Otherwise, a recognized string keyword must be specified on the boundary condition on phi for this variable.')
+
+            else:
+                BC['phi'][var]['lower'] = BC['phi'][var]['lower'].upper()
+
+                if BC['phi'][var]['lower'] not in ['PERIODIC', 'SELF-CONSISTENT', 'SYMMETRIC', 'SYMMETRY', 'BIAS']:
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat is not a recognized keyword:\n\n"
+                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+
+                    raise InputError('boundary condition indicated on phi is not an accepted keyword option')
+
+                elif (BC['phi'][var]['lower'] == 'SYMMETRIC' or BC['phi'][var]['lower'] == 'SYMMETRY') and BC['f'][var]['lower'] != 'symmetric':
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat is:\n\n"
+                    print "lower boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['lower'].upper())
+                    print "lower boundary condition on f for variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+                    print "upper boundary condition on f for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
+
+                    print "a SYMMETRIC boundary condition must be specified on both phi and f"
+                    # by this point all synonyms have been normalized on BC['f'][var], 'symmetric' corresponds to the symmetry condition
+                    raise InputError('a SYMMETRY boundary condition on phi was specified, but a symmetry boundary was not specified on the distribution function f at this same (lower) boundary. A symmetric domain requires a lower boundary condition to be SYMMETRIC on both phi and f.')
+
+                else:
+                    pass
+
+            # UPPER BOUNDARY CHECKS
+            if BC['phi'][var]['upper'] is None:
+                raise InputError('a NoneType was specified as an upper boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not meant to be evolved, set its number of grid points to None')
+
+            elif type(BC['phi'][var]['upper']) != str:
+                raise InputError('a non-string type as an upper boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not intended to be active, set its number of grid points to None. Otherwise, a recognized string keyword must be specified on the boundary condition on phi for this variable.')
+
+            else:
+                BC['phi'][var]['upper'] = BC['phi'][var]['upper'].upper()
+
+                if BC['phi'][var]['upper'] not in ['PERIODIC', 'SELF-CONSISTENT', 'SYMMETRIC', 'SYMMETRY', 'BIAS']:
+                    print "\nThe following boundary condition specified in params_boundaryconditions.dat is not a recognized boundary condition keyword:\n\n"
+                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+
+                    raise InputError('boundary condition indicated on phi is not an accepted keyword option')
+
+                elif BC['phi'][var]['upper'] == 'SYMMETRIC' or BC['phi'][var]['upper'] == 'SYMMETRY':
+                    print "\nThe following boundary condition specified in params_boundaryconditions.dat is not available:\n\n"
+                    print "upper boundary condition on phi: %s\n" % BC['phi'][var]['upper'].upper()
+
+                    raise NotImplementedError('a SYMMETRY boundary condition on phi as an UPPER boundary is specified in params_boundaryconditions.dat; only lower boundaries can support a symmetry boundary condition.')
+
+
+            # CHECK FOR CONSISTENCY IN BOUNDARY CONDITIONS BETWEEN BOTH LOWER AND UPPER SPECIFICATIONS
+            if BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] != 'PERIODIC':
+                print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
+
+                raise InputError('PERIODIC boundary conditions on phi involve both lower and upper boundaries. The read-in of params_boundaryconditions.dat has the lower boundary condition as PERIODIC but the upper boundary condition is NOT. Both boundary conditions on phi must be set to PERIODIC if a periodic plasma is to be simulated.')
+
+            elif BC['phi'][var]['lower'] != 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC':
+                print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
+
+                raise InputError('PERIODIC boundary conditions on phi involve both lower and upper boundaries. The read-in of params_boundaryconditions.dat has the upper boundary condition as PERIODIC but the lower boundary condition is NOT. Both boundary conditions on phi must be set to PERIODIC if a periodic plasma is to be simulated.')
+
+            elif BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC':
+
+                if BC['f'][var]['type'] != 'periodic': # note that validity and consistency checks on inputs for the distribution function have already been done above
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
+                    print "e.g. periodic boundaries on phi require periodic boundaries on f for the same variable\n"
+                    raise InputError('PERIODIC boundary conditions on were specifed consistently for phi in params_boundaryconditions.dat; however, periodic boundary conditions must also be consistently specified on the distribution function. Revisit params_boundaryconditions.dat and ensure that both lower and upper boundaries on the distribution function f and the potential phi are set to PERIODIC if a periodic plasma is intended to be simulated.')
+                elif BC['f'][var]['type'] == 'periodic': # note that validity and consistency checks on inputs for the distribution function have already been done above
+                    pass
+
+
+            # CHECK FOR CONSISTENCY ON PHI BCS WITH HIGH ORDER CORRECTION METHOD SPECIFIED (note we have already checked this against the distribution function BCs)
+            # here, we are only checking to see if that BCs on phi aren't periodic, to ensure that HOC is NOT set to fourier (relies on periodicity))
+            # the following conditional check asks: "if (BCs on phi are not periodic) AND (HOC is FOURIER)"
+            if ((BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] != 'PERIODIC') or (BC['phi'][var]['lower'] != 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC')) and HOC[var] == 'fourier':
+                print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent with the specified high order correction method in params.dat: \n\n"
+                print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
+                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, HOC[var].upper())
+                print "\n\nFourier high order corrections require periodic boundary conditions on both phi and the distribution function f\n"
+
+                raise InputError('the high order correction is specified as FOURIER; however, the BCs on the electric potential phi are not periodic. FOURIER corrections require PERIODIC BCs on phi and the distribution function as the methods rely on periodicity')
+
+    #--------------------------------------------------------------------------------------------#
+    # BIAS values
+    #--------------------------------------------------------------------------------------------#
+
+    Bias = {} # this dictionary is created for reading in the bias values, it is not returned
+              # in sim_params dict. If a bias condition is set on any boundary, this dictionary
+              # assigns its value at that boundary in the vector phi_BC[var], phi_BC[var] is
+              # returned (as usual, var = ['x', 'y', 'z'])
+
+    Bias['x'] = {}
+    Bias['y'] = {}
+    Bias['z'] = {}
+
+    Bias['x']['lower'] = safe_eval(BC_infile_lines[214][BC_infile_lines[214].find('=')+1:].strip())
+    Bias['x']['upper'] = safe_eval(BC_infile_lines[215][BC_infile_lines[215].find('=')+1:].strip())
+    Bias['y']['lower'] = safe_eval(BC_infile_lines[217][BC_infile_lines[217].find('=')+1:].strip())
+    Bias['y']['upper'] = safe_eval(BC_infile_lines[218][BC_infile_lines[218].find('=')+1:].strip())
+    Bias['z']['lower'] = safe_eval(BC_infile_lines[220][BC_infile_lines[220].find('=')+1:].strip())
+    Bias['z']['upper'] = safe_eval(BC_infile_lines[221][BC_infile_lines[221].find('=')+1:].strip())
+
+    # check for valid inputs on active variables for any boundary that is specified as BIAS
+    for var in ['x', 'y', 'z']:
+        for boundary in ['lower', 'upper']:
+            if var in phasespace_vars:
+                if BC['phi'][var][boundary] == 'BIAS':
+                    if Bias[var][boundary] is None: # if the BC is BIAS but the value input for the BIAS value is None
+                        print "\nThe following specifications in params_boundaryconditions.dat are inconsistent:\n"
+                        print "%s boundary condition on phi for variable %s: %s" % (boundary, var, BC['phi'][var][boundary].upper())
+                        print "%s BIAS value on phi for variable %s: %s\n" % (boundary, var, Bias[var][boundary])
+                        print "e.g. if a boundary condition on phi is set to BIAS for a variable, a number must be specifed under BIAS value\n"
+                        raise InputError('A phi boundary condition on an active variable (number of grid points on this variable has been set as non-None) has been specified as BIAS; however, the corresponding BIAS value is NoneType. Must be a number.')
+                    elif type(Bias[var][boundary]) == str:
+                        print "\nThe following specifications in params_boundaryconditions.dat are inconsistent:\n"
+                        print "%s boundary condition on phi for variable %s: %s" % (boundary, var, BC['phi'][var][boundary].upper())
+                        print "%s BIAS value on phi for variable %s: %s\n" % (boundary, var, Bias[var][boundary])
+                        print "e.g. if a boundary condition on phi is set to BIAS for a variable, a number must be specifed under BIAS value\n"
+
+                        raise InputError('A phi boundary condition on an active variable (number of grid points on this variable has been set as non-None) has been specified as BIAS; however, the corresponding BIAS value is str type. Must be a number.')
+                    else:
+                        pass
+
+    # E is calculated by the following call flow, first an ORCHESTRATOR is called:
+    #
+    #        E = lib.fieldsolvers.compute_electric_field_fourier  <--- solves with a Gauss' law solver directly
+    #
+    #                or
+    #
+    #        E = lib.fieldsolvers.compute_electric_field_fd       <--- solves a Poisson solver for phi, then differentiate to get E
+    #
+    # which can generally be called by eval operating on string handles that are themselves constructed
+    # per 'lib.fieldsolvers.compute_electric_field_' + HOC[var].lower()
+    #
+    # If a finite difference routine is specified, a Poisson solve must be performed to obtain phi.
+    # We call the relevant Poisson solver among the following options (L = lower boundary, U = upper boundary, DBC = Dirichlet BC, NBC = Neumann BC):
+    #
+    #      Poisson_6th_PBC
+    #      Poisson_6th_LDBC_UDBC
+    #      Poisson_6th_LDBC_UNBC
+    #      Poisson_6th_LNBC_UDBC
+    #      Poisson_6th_LDBC_LDBC
+    #      Poisson_6th_UDBC_UNBC
+    #
+
+    # which are selected based on the boundary conditions the user has supplied in params_boundaryconditions.dat.
+    #
+    # finally, we compute and return:
+    #
+    #    E = - 1 / config_var.width * W_dn1_LTE6.dot(phi)
+    #
+
+    # --------------------------------------------------------------------------
+    # fieldsolver orchestator handle string for electric field (periodic or non-periodic)
+    #
+    # currently only 1D1V, only one handle needed. When this will be generalized, can make a dict object with keys corresponding
+    # to each active configuration variable
+
+    compute_electric_field_orchestrator_handle = {}
+    for var in ['x', 'y', 'z']:
+        if var in phasespace_vars:
+            # dictionary key labels the component of the electric field: 'x', 'y', 'z'
+            compute_electric_field_orchestrator_handle[var] = "DECSKS.lib.fieldsolvers.compute_electric_field_" + HOC[var].lower()
+
 
     # ---------------------------------------------------------------------
-    # 6th order finite difference Poisson solver for periodic BCs
-    # (stored as keys 'D' [difference matrix] and 'B' [inhomogeneity])
-
-    Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC)
-
-    # TODO specialize right now to just be x, vx. Figure out how to generalize later with higher dimensions
-    compute_electric_field_function_handle_prefix = "DECSKS.lib.fieldsolvers.compute_electric_field_"
-
-    if BC['x']['type'] == 'periodic':
-        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle_prefix, HOC['x'].lower()))
-        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_periodic'))
-    else:
-        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle_prefix, HOC['x'].lower()))
-        compute_electric_field_function_handle = "".join((compute_electric_field_function_handle, '_dirichlet'))
-
-    BC['x']['phi'] = {}
-    BC['x']['phi']['lower'] = safe_eval(lines[131][lines[131].find('=')+1:].strip())
-    BC['x']['phi']['upper'] = safe_eval(lines[132][lines[132].find('=')+1:].strip())
-
-    BC['y']['phi'] = {}
-    BC['y']['phi']['lower'] = safe_eval(lines[134][lines[134].find('=')+1:].strip())
-    BC['y']['phi']['upper'] = safe_eval(lines[135][lines[135].find('=')+1:].strip())
-
-    BC['z']['phi'] = {}
-    BC['z']['phi']['lower'] = safe_eval(lines[137][lines[137].find('=')+1:].strip())
-    BC['z']['phi']['upper'] = safe_eval(lines[138][lines[138].find('=')+1:].strip())
-
+    # initialize dictionaries for wall charge objects
 
     sigma = {}
     sigma_n = {}
-    sigma_n['x'] = {}
-    sigma['x'] = {}
-    if BC['x']['phi']['lower'] == 'self-consistent':
-        sigma['x']['lower'] = 0    # initialize to zero charge at time zero
-        sigma_n['x']['lower'] = np.zeros(Nt + 1)  # this was put in for charge history plots
-        BC['x']['lower'] = 'charge_collection'
-    if BC['x']['phi']['upper'] == 'self-consistent':
-        sigma['x']['upper'] = 0    # initialize to zero charge at time zero
-        sigma_n['x']['upper'] = np.zeros(Nt + 1)  # this was put in for charge history plots
-        BC['x']['upper'] = 'charge_collection'
+
+    for var in ['x', 'y', 'z']:
+        if var in phasespace_vars:
+            sigma_n[var] = {}
+            sigma[var] = {}
+
+    # --------------------------------------------------------------------------
+    # Dictionary for the specific electric potential phi function solver needed
+    # according to the specified boundary conditions on phi
+
+    for var in ['x', 'y', 'z']:
+        if var in phasespace_vars:
+            BC['phi'][var]['type'] = BC['phi'][var]['lower'] + '_' + BC['phi'][var]['upper']
+            if BC['phi'][var]['type'] == 'PERIODIC_PERIODIC':
+                BC['phi'][var]['type'] = 'PBC'
+
+                if BC['f'][var]['lower'] != 'periodic' and BC['f'][var]['upper'] != 'periodic':
+                    raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+
+            if BC['phi'][var]['type'] == 'BIAS_BIAS':
+                BC['phi'][var]['type'] = 'LDBC_UDBC'
+
+                # Dirichlet condition, phi = BIAS value
+                phi_BC[var][0] = float(Bias[var]['lower'])
+                # Dirichlet condition, phi = BIAS value
+                phi_BC[var][-1] = float(Bias[var]['upper'])
+
+                if BC['f'][var]['lower'] != 'absorbing' or BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+            elif BC['phi'][var]['type'] == 'BIAS_SELF-CONSISTENT':
+                BC['phi'][var]['type'] = 'LDBC_UNBC'
+
+                # Dirichlet condition, phi = BIAS value
+                phi_BC[var][0] = float(Bias[var]['lower'])
+                # Neumann condition, dphi = sigma_upper, translates to phi_BC[-1] = -6 var.width * sigma_upper (see https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb for details)
+                # phi_BC[-1] = - 6 * var.width * sim_params['sigma'][var]['upper'], changes with time step
+
+                if BC['f'][var]['lower'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    raise InputError('A lower boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+                if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                    sigma[var]['upper'] = 0    # initialize to zero charge at time zero
+                    sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                else:
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                    print "upper boundary condition on f for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
+                    print "\ne.g. an upper boundary condition on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR"
+                    print "\ne.g. an upper boundary condition on f as ASBORBING must have the upper boundary condition on phi as BIAS\n"
+
+                    raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+            elif BC['phi'][var]['type'] == 'SELF-CONSISTENT_BIAS':
+                BC['phi'][var]['type'] = 'LNBC_UDBC'
+
+                # Neumann condition, dphi = -sigma_lower, translates to phi_BC[0] = -6 var.width * sigma_lower (see https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb for details)
+                #phi_BC[var][0] = - 6 * var.width * sim_params['sigma'][var]['lower'], changes with time step
+                # Dirichlet condition, phi = BIAS value
+                phi_BC[var][-1] = float(Bias[var]['upper'])
+
+                if BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                    print "upper boundary condition on f for variable %s: %s\n\n" % (var, BC['f'][var]['upper'].upper())
+                    print "\ne.g. an upper boundary condition set on phi as BIAS must have the upper boundary condition on f as ABSORBING\n"
+
+                    raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+                if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                    sigma[var]['lower'] = 0    # initialize to zero charge at time zero
+                    sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                else:
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
+                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                    raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector if self-consistent boundary potentials are desired). Equivalently, phi is not compatible with f (e.g. if periodic boundaries on f were desired, the potential must also be periodic)')
+
+            elif BC['phi'][var]['type'] == 'SYMMETRIC_BIAS' or BC['phi'][var]['type'] == 'SYMMETRY_BIAS':
+                BC['phi'][var]['type'] = 'LNBC_UDBC'
+
+                # Neumann condition, dphi = 0 for symmetry
+                phi_BC[var][0] = 0.
+                # Dirichlet condition, phi = BIAS value
+                phi_BC[var][-1] = float(Bias[var]['upper'])
+
+                if BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
+                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                    print "\ne.g. an upper boundary condition set on phi as BIAS must have the upper boundary condition on f as ABSORBING\n "
+                    raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+
+            elif BC['phi'][var]['type'] == 'SYMMETRIC_SELF-CONSISTENT' or BC['phi'][var]['type'] == 'SYMMETRY_SELF-CONSISTENT':
+                BC['phi'][var]['type'] = 'LDBC_LNBC'
+
+                # We default to a LDBC_LNBC solver, both boundary conditions on left edge, entries 0 (Dirichlet) and 1 (Neumann)
+                # cf. DECSKS-04 notebook for more details:
+                #
+                #    https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb
+                #
+                # Dirichlet condition, set reference potential phi = 0
+                phi_BC[var][0] = 0. # reference potential set to zero
+                # Neumann condition, dphi = 0 for symmetry
+                phi_BC[var][1] = 0.
+
+
+                if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                    # By virtue of the setup, the above enforcements on the lower boundary ensures this unenforced upper Neumann BC is
+                    # satisfied automatically given the relationship that Neumann BCs are fixed by due to the Poisson equation
+                    #
+                    # see github.com/dsirajud/IPython-Notebooks/DECSKS-04 for more information (final few sections of the notebook)
+                    #
+                    # Thus, we do not need to actually enforce the wall potential directly in terms of the charge accumulated for this boundary; however,
+                    # we initialize and track the objects here so that the data can be accessed, analyzed or otherwise plotted, should the user wish
+                    sigma[var]['upper'] = 0    # initialize to zero charge at time zero
+                    sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                else:
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
+                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                    print "\ne.g. an upper boundary condition set on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR\n "
+
+                    raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+            elif BC['phi'][var]['type'] == 'SELF-CONSISTENT_SELF-CONSISTENT':
+                BC['phi'][var]['type'] = 'LDBC_LNBC'
+
+                # We default to a LDBC_LNBC solver, both boundary conditions on left edge, entries 0 (Dirichlet) and 1 (Neumann)
+                # cf. DECSKS-04 notebook for more details:
+                #
+                #    https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb
+                #
+                # Dirichlet condition, set reference potential phi = 0
+                phi_BC[var][0] = 0. # reference potential set to zero
+                # Neumann condition, dphi = 0 for symmetry
+                #phi_BC[var][1] = - 6 * var.width * sim_params['sigma'][var]['lower'], changes with time step
+
+
+                if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    # initialize wall charge densities
+                    sigma[var]['lower'] = 0    # initialize to zero charge at time zero
+                    sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                else:
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "lower boundary condition on phi on variable %s: SELF-CONSISTENT" % var
+                    print "lower boundary condition on f on variable %s: %s\n\n" % (var, BC['f'][var]['lower'].upper())
+                    print "\ne.g. a lower boundary condition set on phi as SELF-CONSISTENT must have the lower boundary condition on f as COLLECTOR\n "
+
+                    raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+                if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                    # By virtue of the setup, the above enforcements on the lower boundary ensures this unenforced upper Neumann BC is
+                    # satisfied automatically given the relationship that Neumann BCs are fixed by due to the Poisson equation
+                    #
+                    # see github.com/dsirajud/IPython-Notebooks/DECSKS-04 for more information (final few sections of the notebook)
+                    #
+                    # Thus, we do not need to actually enforce the wall potential directly in terms of the charge accumulated for this boundary; however,
+                    # we initialize and track the objects here so that the data can be accessed, analyzed or otherwise plotted, should the user wish
+                    sigma[var]['upper'] = 0    # initialize to zero charge at time zero
+                    sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                else:
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "upper boundary condition on phi: SELF-CONSISTENT"
+                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                    print "\ne.g an upper boundary condition set on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR\n "
+
+                    raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+          # else: boundary conditions have already been checked for valid inputs, no invalid input will be encountered
+
+    # --------------------------------------------------------------------------
+    # ELECTRIC POTENTIAL PHI FUNCTION HANDLE STRING and BOUNDARY CONDITION TYPE FUNCTION HANDLE STRING
+    #
+    # currently only 1D1V, only one handle needed. When this will be generalized, can make a dict objects with keys corresponding
+    # to each active configuration variable
+    #
+    # The forms of each string call their associated method per the boundary conditions specified by the user in params_boundaryconditions.dat,
+    # based on the boundary conditions specified by the user, one of the following will be created:
+    #
+    #    compute_electric_potential_phi_handle[var] =
+    #
+    #                     DECSKS.lib.fieldsolvers.Poisson_6th_PBC
+    #                     DECSKS.lib.fieldsolvers.Poisson_6th_LDBC_UDBC
+    #                     DECSKS.lib.fieldsolvers.Poisson_6th_LDBC_UNBC
+    #                     DECSKS.lib.fieldsolvers.Poisson_6th_LNBC_UDBC
+    #                     DECSKS.lib.fieldsolvers.Poisson_6th_LDBC_LNBC
+    #                     DECSKS.lib.fieldsolvers.Poisson_6th_UDBC_UNBC (<-- available, but not used in any current combination of BCs)
+    #
+    #
+    # and, one of the following
+    #
+    #    distribution_function_boundarycondition_handle[var]['lower'] =
+    #
+    #                     DECSKS.lib.boundaryconditions.absorbing_lower_boundary
+    #                     DECSKS.lib.boundaryconditions.collector_lower_boundary
+    #                     DECSKS.lib.boundaryconditions.symmetric_lower_boundary
+    #
+    #                     NOTE: if 'periodic' has been specified, everything is
+    #                     handled in the orchestrator, distribution_function_boundarycondition_orchestrator
+    #                     which would take on the string value = 'DECSKS.lib.boundaryconditions.periodic
+
+
+    distribution_function_boundarycondition_prefix = 'DECSKS.lib.boundaryconditions'
+    distribution_function_boundarycondition_handle = {}
+    for var in ['x', 'y', 'z']:
+        if var in phasespace_vars:
+            if BC['f'][var]['type'] == 'periodic':
+                pass
+            else:
+                distribution_function_boundarycondition_handle[var] = {}
+
+                distribution_function_boundarycondition_handle[var]['lower'] = ".".join((distribution_function_boundarycondition_prefix,  BC['f'][var]['lower']))
+                distribution_function_boundarycondition_handle[var]['lower'] = "_".join((distribution_function_boundarycondition_handle[var]['lower'],  'lower_boundary'))
+
+                distribution_function_boundarycondition_handle[var]['upper'] = ".".join((distribution_function_boundarycondition_prefix,  BC['f'][var]['upper']))
+                distribution_function_boundarycondition_handle[var]['upper'] = "_".join((distribution_function_boundarycondition_handle[var]['upper'],  'upper_boundary'))
+
+
+    compute_electric_potential_phi_handle = {}
+    compute_electric_potential_phi_prefix = "DECSKS.lib.fieldsolvers.Poisson_6th_"
+    for var in ['x', 'y', 'z']:
+        if var in phasespace_vars:
+            compute_electric_potential_phi_handle[var] = compute_electric_potential_phi_prefix + BC['phi'][var]['type']
+            print compute_electric_potential_phi_handle
+        else:
+            pass
+
+    # in the future, can generalize this to multiple dimensions by making this a dict with keys ['x', 'y', 'z']
+    # currently just on 1D1V and expecting an 'x' variable to be evolved in configuration
+
+    if 'x' not in phasespace_vars:
+        raise NotImplementedError('Current 1D1V version of DECSKS is expecting x to be the active configuration variable. Please revise the intended simulation so that x is the symbol chosen in params.dat.')
+
+    else:
+        Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx_active, BC)
 
     derivative_method = {}
     derivative_method_prefix = 'DECSKS.lib.derivatives'
@@ -516,26 +1074,42 @@ def inputfile(filename):
         active_dims = active_dims,
         total_dims = total_dims,
         density = density,
+        mu = mu,
         split_scheme = split_scheme,
         splitting = splitting,
         plot_params = plot_params,
         record_outputs = record_outputs,
         outfiles = outfiles,
-        BC = BC,    # boundary conditions on all phase space variables and phi
+        BC = BC,    # boundary condition types on all phase space variables on distribution function f and phi
+        phi_BC = phi_BC, # dictionary containing boundary value vector for electric potential used in Poisson solve, e.g. phi_BC['x']
         sigma = sigma,
         sigma_n = sigma_n, # this was put in for charge history plots
-        boundarycondition_function_handle = boundarycondition_function_handle,
+        distribution_function_boundarycondition_handle = distribution_function_boundarycondition_handle, # dictionary with keys (var in phasespace_vars), which are keys to a subdict with keys 'lower', 'upper'
+        distribution_function_boundarycondition_orchestrator_handle = distribution_function_boundarycondition_orchestrator_handle, # dictionary with keys (var in phasespace_vars)
+        compute_electric_potential_phi_handle = compute_electric_potential_phi_handle,
+        compute_electric_field_orchestrator_handle = compute_electric_field_orchestrator_handle,
         I_alternating = I_alternating, # identity matrix with alternating signs according to row, used in computing correctors c
         A_matrix = A_matrix,     # Matrices of Bernoulli numbers for HOC
         W = W,
         W_dn1_LTE6 = W_dn1_LTE6,
         Xi = Xi, # spectral differentiation operator matrix (1j*xi[i,j]) ** q
         xi = xi, # wave number vector
-        Poisson_6th_order_FD_solver_matrices = Poisson_6th_order_FD_solver_matrices,
-        compute_electric_field_function_handle = compute_electric_field_function_handle # determines if solver is FD or fourier based
+        Poisson_6th_order_FD_solver_matrices = Poisson_6th_order_FD_solver_matrices
         )
 
     infile.close()
+
+    # --------------------------------------------------------------------------
+    # Before return, broadcast notification
+    # regarding start of simulation and order of solver
+
+    print "\nStarting 1D1V Vlasov-Poisson simulation"
+    print "\nadvection solver: LTE order %d" % (N+1)
+
+    print "\nwill step through %d-dimensional solution in variables: %s" % (len(phasespace_vars), phasespace_vars)
+    for var in phasespace_vars:
+        print "high order correction method on %s: %s" % (var, HOC[var])
+
 
     return sim_params
 
@@ -557,7 +1131,7 @@ def splitting_coefficients(filepath, split_scheme):
     coeff = splitting['order']['coeffs'] = a, b, a, b, ...
     stage = splitting['order']['stages'] = 1, 1, 2, 2, ...
     access ith coefficient by
-    splitting[coeff[i]][int(stage[i])]
+    splitting[ coeff[i]][int(stage[i])]
     """
     infile = open(filepath, 'r')
     lines = infile.readlines()
@@ -571,9 +1145,8 @@ def splitting_coefficients(filepath, split_scheme):
         b1 = eval(lines[16][lines[16].find('=')+1:].strip())
         b2 = eval(lines[17][lines[17].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 2, b = 2)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order,
                             a = [None, a1, a2],
                             b = [None, b1, b2])
 
@@ -589,9 +1162,8 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[38][lines[38].find('=')+1:].strip())
         b4 = eval(lines[39][lines[39].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -607,9 +1179,8 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[60][lines[60].find('=')+1:].strip())
         b4 = eval(lines[61][lines[61].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -633,9 +1204,8 @@ def splitting_coefficients(filepath, split_scheme):
         b5 = eval(lines[89][lines[89].find('=')+1:].strip())
         b6 = eval(lines[90][lines[90].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 6, b = 6)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order,
                             a = [None, a1, a2, a3, a4, a5, a6],
                             b = [None, b1, b2, b3, b4, b5, b6])
 
@@ -664,9 +1234,8 @@ def splitting_coefficients(filepath, split_scheme):
         b6 = eval(lines[124][lines[124].find('=')+1:].strip())
         b7 = eval(lines[125][lines[125].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 8, b = 7)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order,
                             a = [None, a1, a2, a3, a4, a5, a6, a7, a8],
                             b = [None, b1, b2, b3, b4, b5, b6, b7])
 
@@ -1212,15 +1781,69 @@ def assemble_spectral_derivative_operator(Xi, xi,
     return Xi, xi
 
 def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
+    """
+        forms the matrices D and B required for the 6th order finite
+        difference based Poisson solver. The solvers come in several
+        varieties (DBC = Dirichlet BC, NBC = Neumann BC, L = lower boundary
+        U = upper boundary where L and U refer to lower and higher values
+        of a configuration variable):
+
+        Poisson_6th_PBC
+        Poisson_6th_LDBC_UDBC
+        Poisson_6th_LNBC_UDBC
+        Poisson_6th_LDBC_UNBC
+
+        For Neumann/Neumann conditions (is not a well-posed problem) we
+        require recasting the NBC/NBC problem into an equivalent problem
+        that is representative by the following Cauchy boundary condition
+        setup:
+
+        Poisson_6th_LDBC_LNBC
+        Poisson_6th_UDBC_UNBC
+
+        The matrices D and B for each method are slightly different. This routine
+        determines the variety of solver needed as chosen from the list above,
+        and assembles these matrices
+
+        Inputs:
+        Nx -- (int) this is Nx_active, the number of active grid points in a
+              configuration variable x
+
+        BC -- (dict) contains boundary condition information that has been
+              determined based on user inputs in params_boundaryconditions.dat
+
+        Outputs:
+
+        D -- (ndarray, ndim = 2, shape = (Nx, Nx)) matrix of finite difference
+             coefficients on phi
+
+        B -- (ndarray, ndim = 2, shape = (Nx, Nx)) matrix of finite difference
+        coefficients on the totaldensity n
+    """
 
     Poisson_6th_order_FD_solver_matrices = {}
 
     # Nx is the number of active nodes in configuration
-    if BC['x']['type'] == 'periodic':
-        # periodic boundaries
-        Nx -= 1
+    if BC['phi']['x']['type'] == 'PBC':
 
-        # Assemble FD matrix B
+        # assemble D, a matrix of difference coefficients on phi
+        D = np.zeros([Nx,Nx])
+        for i in range(Nx):
+            if i == 0:         # first row
+                D[i,i] = -2
+                D[i,i+1] = 1
+                D[i,-1] = 1
+
+            elif i == Nx - 1: # last row
+                D[i,i] = -2
+                D[i,i-1] = 1
+                D[i,0] = 1
+            else:              # interior rows
+                D[i,i-1] = 1
+                D[i,i] = -2
+                D[i,i+1] = 1
+
+        # assemble B, a matrix of difference coefficients on the total density
         B = np.zeros([Nx, Nx])
         for i in range(Nx):
             if i == 0:             # first row
@@ -1258,25 +1881,21 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
                 B[i,0] = 1/10.
                 B[i,1] = -1/240.
 
+
+    elif BC['phi']['x']['type'] == 'LDBC_UDBC':
+
+        # assemble D, a matrix of difference coefficients on phi
         D = np.zeros([Nx,Nx])
         for i in range(Nx):
-            if i == 0:         # first row
-                D[i,i] = -2
-                D[i,i+1] = 1
-                D[i,-1] = 1
-
-            elif i == Nx - 1: # last row
-                D[i,i] = -2
-                D[i,i-1] = 1
-                D[i,0] = 1
+            if i == 0 or i == Nx - 1: # last row
+                D[i,i] = 1
             else:              # interior rows
                 D[i,i-1] = 1
                 D[i,i] = -2
                 D[i,i+1] = 1
 
-    else: # dirichlet boundaries
 
-        # Assemble FD matrix B
+        # assemble B, a matrix of difference coefficients on the total density
         B = np.zeros([Nx, Nx])
         for i in range(Nx):
 
@@ -1310,14 +1929,245 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
                 B[i,i] = 209/240.
                 B[i,i+1] = 3/40.
 
-        D = np.zeros([Nx,Nx])
-        for i in range(Nx):
-            if i == 0 or i == Nx - 1: # last row
-                D[i,i] = 1
-            else:              # interior rows
-                D[i,i-1] = 1
-                D[i,i] = -2
-                D[i,i+1] = 1
+    elif BC['phi']['x']['type'] == 'LNBC_UDBC':
+
+        # assemble D, a matrix of difference coefficients on phi
+        D = np.zeros((Nx,Nx))
+
+        # LNBC row
+        D[0,0] = -97/10.
+        D[0,1] = 16.
+        D[0,2] = -10
+        D[0,3] = 5.
+        D[0,4] = -3/2.
+        D[0,5] = 1/5.
+
+        # UDBC row
+        D[-1,-1] = 1.
+
+        # Poisson's equation rows
+        for i in range(1,Nx-1):
+            D[i,i-1] = 1
+            D[i,i] = -2
+            D[i,i+1] = 1
+
+        # assemble B, a matrix of difference coefficients on the total density
+        B = np.zeros((Nx,Nx))
+        for i in range(B.shape[0]):
+            if i == 0:
+                B[i,i] = 317 / 240.
+                B[i,i+1] = -133/120.
+                B[i,i+2] = 187 / 120.
+                B[i,i+3] = -23 / 20.
+                B[i,i+4] = 109 / 240.
+                B[i,i+5] = -3/40.
+
+            elif i == 1:
+
+                B[i, i-1] = 3 / 40.
+                B[i, i] = 209 / 240.
+                B[i,i+1] = 1 / 60.
+                B[i,i+2] = 7 / 120.
+                B[i,i+3] = -1 / 40.
+                B[i,i+4] = 1 / 240.
+
+            elif 2 <= i <= Nx-3:
+
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
+
+            elif i == Nx-2:
+
+                B[i,i+1] = 3 / 40.
+                B[i,i] = 209 / 240.
+                B[i,i-1] = 1 / 60.
+                B[i,i-2] = 7 / 120.
+                B[i,i-3] = -1 / 40.
+                B[i,i-4] = 1 / 240.
+
+            # else i == Nx-1: row of zeros
+
+    elif BC['phi']['x']['type'] == 'LDBC_UNBC':
+
+        # assemble D, a matrix of difference coefficients on phi
+        D = np.zeros((Nx,Nx))
+
+        # UDBC row
+        D[0,0] = 1.
+
+        # LNBC row
+        D[-1,-1] = -97/10.
+        D[-1,-2] = 16.
+        D[-1,-3] = -10
+        D[-1,-4] = 5.
+        D[-1,-5] = -3/2.
+        D[-1,-6] = 1/5.
+
+        # Poisson's equation rows
+        for i in range(1,Nx-1):
+            D[i,i-1] = 1
+            D[i,i] = -2
+            D[i,i+1] = 1
+
+
+        # assemble B, a matrix of difference coefficients on the total density
+        B = np.zeros((Nx,Nx))
+        for i in range(B.shape[0]):
+            # i == 0 row contains all zeros
+
+            if i == 1:
+
+                B[i, i-1] = 3 / 40.
+                B[i, i] = 209 / 240.
+                B[i,i+1] = 1 / 60.
+                B[i,i+2] = 7 / 120.
+                B[i,i+3] = -1 / 40.
+                B[i,i+4] = 1 / 240.
+
+            elif 2 <= i <= Nx-3:
+
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
+
+            elif i == Nx-2:
+
+                B[i,i+1] = 3 / 40.
+                B[i,i] = 209 / 240.
+                B[i,i-1] = 1 / 60.
+                B[i,i-2] = 7 / 120.
+                B[i,i-3] = -1 / 40.
+                B[i,i-4] = 1 / 240.
+
+            if i == Nx-1:
+                B[i,i-5] = -3/40.
+                B[i,i-4] = 109 / 240.
+                B[i,i-3] = -23 / 20.
+                B[i,i-2] = 187 / 120.
+                B[i,i-1] = -133/120.
+                B[i,i] = 317 / 240.
+
+    elif BC['phi']['x']['type'] == 'LDBC_LNBC':
+
+        # assemble D, a matrix of difference coefficients on phi
+        D = np.zeros((Nx,Nx))
+
+        # LDBC row, (row 0)
+        D[0,0] = 1.
+
+        # LNBC row, (row 1)
+        D[1,0] = -97/10.
+        D[1,1] = 16.
+        D[1,2] = -10
+        D[1,3] = 5.
+        D[1,4] = -3/2.
+        D[1,5] = 1/5.
+
+        # Poisson's equation rows
+        for i in range(2,Nx):
+            D[i,i-2] = 1
+            D[i,i-1] = -2
+            D[i,i] = 1
+
+        # assemble B, a matrix of difference coefficients on the total density
+        B = np.zeros((Nx,Nx))
+        for i in range(1,B.shape[0]):
+            # if i == 0: row of zeros, density is not involved (corresponds to DBC)
+
+            if i == 1:
+                B[i,i-1] = 317 / 240.
+                B[i,i] = -133/120.
+                B[i,i+1] = 187 / 120.
+                B[i,i+2] = -23 / 20.
+                B[i,i+3] = 109 / 240.
+                B[i,i+4] = -3/40.
+
+            if i == 2:
+                B[i, i-2] = 3 / 40.
+                B[i, i-1] = 209 / 240.
+                B[i,i] = 1 / 60.
+                B[i,i+1] = 7 / 120.
+                B[i,i+2] = -1 / 40.
+                B[i,i+3] = 1 / 240.
+
+            elif 3 <= i <= Nx-2:
+                B[i,i-3] = -1/240.
+                B[i,i-2] = 1/10.
+                B[i,i-1] = 97/120.
+                B[i,i] = 1/10.
+                B[i,i+1] = -1/240.
+
+            elif i == Nx-1:
+                B[i,i-5] = 1/240.
+                B[i,i-4] = -1/40.
+                B[i,i-3] = 7/120.
+                B[i,i-2] = 1/60.
+                B[i,i-1] = 209/240.
+                B[i,i] = 3/40.
+
+    elif BC['phi']['x']['type'] == 'UDBC_UNBC':
+
+        # assemble D, a matrix of difference coefficients on phi
+        D = np.zeros((Nx,Nx))
+
+        # LDBC row, (row Nx-1)
+        D[-1,-1] = 1.
+
+        # LNBC row, (row Nx-2)
+        D[-2,-1] = -97/10.
+        D[-2,-2] = 16.
+        D[-2,-3] = -10
+        D[-2,-4] = 5.
+        D[-2,-5] = -3/2.
+        D[-2,-6] = 1/5.
+
+        # Poisson's equation rows
+        for i in range(Nx-2):
+            D[i,i] = 1
+            D[i,i+1] = -2
+            D[i,i+2] = 1
+
+
+        # assemble B, a matrix of difference coefficients on the total density
+        B = np.zeros((Nx,Nx))
+        for i in range(B.shape[0]):
+            if i == 0:
+                B[i,i] = 3/40.
+                B[i,i+1] = 209/240.
+                B[i,i+2] = 1/60.
+                B[i,i+3] = 7/120.
+                B[i,i+4] = -1/40.
+                B[i,i+5] = 1/240.
+
+            if 1 <= i < Nx-3:
+                B[i,i-1] = -1/240.
+                B[i,i] = 1/10.
+                B[i,i+1] = 97/120.
+                B[i,i+2] = 1/10.
+                B[i,i+3] = -1/240.
+
+            elif i == Nx-3:
+                B[i,i-3] = 1/240.
+                B[i,i-2] = -1/40.
+                B[i,i-1] = 7/120.
+                B[i,i] = 1/60.
+                B[i,i+1] = 209/240.
+                B[i,i+2] = 3/40.
+
+            elif i == Nx-2:
+                B[i,i+1] = 317 / 240.
+                B[i,i] = -133/120.
+                B[i,i-1] = 187 / 120.
+                B[i,i-2] = -23 / 20.
+                B[i,i-3] = 109 / 240.
+                B[i,i-4] = -3/40.
+
+            # else i == Nx - 1: row of zeros, density is not involved (corresponds to DBC)
 
     Poisson_6th_order_FD_solver_matrices['D'] = D
     Poisson_6th_order_FD_solver_matrices['B'] = B

@@ -469,6 +469,7 @@ def remap_assignment(
 
     # "wherever there is negative data, assign f_neg, else assign f_pos
     f_new = np.where(mask_neg == True, f_neg.data, f_pos.data)
+    
     return f_new
 
 def finalize_density_periodic(sim_params, f_remapped, f_final, z, vz):

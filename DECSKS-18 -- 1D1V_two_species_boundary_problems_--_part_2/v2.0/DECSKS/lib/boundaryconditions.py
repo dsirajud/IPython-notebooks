@@ -1,4 +1,5 @@
 import numpy as np
+import DECSKS
 
 def periodic(f_old,
              Uf,
@@ -73,18 +74,18 @@ def nonperiodic(f_old,
     z returned (no changes) for symmetry with periodic routine above
     """
     # lower boundary
-    f_old, Uf = eval(sim_params['BC'][z.str]['lower'] +
-                           '_lower_boundary')(f_old, Uf,
-                                              z.postpointmesh[k,:,:], k,
-                                              z, vz,
-                                              sim_params, charge)
+    f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['lower'])(f_old, Uf,
+                                                                                                   z.postpointmesh[k,:,:], k,
+                                                                                                   z, vz,
+                                                                                                   sim_params, charge)
 
-    # upper boundary
-    f_old, Uf = eval(sim_params['BC'][z.str]['upper'] +
-                           '_upper_boundary')(f_old, Uf,
-                                              z.postpointmesh[k,:,:], k,
-                                              z, vz,
-                                              sim_params, charge)
+
+    f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['upper'])(f_old, Uf,
+                                                                                                   z.postpointmesh[k,:,:], k,
+                                                                                                   z, vz,
+                                                                                                   sim_params, charge)
+
+
 
     # since the relevant entries of f_old and Uf that exit the domain
     # are zeroed out, in order to have a clean addition as before
@@ -121,7 +122,7 @@ def absorbing_upper_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, ch
 
     return f_old, Uf
 
-def charge_collection_lower_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, charge):
+def collector_lower_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, charge):
 
     # this discriminates vx vs. x, as the boundary condition function handle
     # sim_params['BC'][z.str]['lower' or 'upper'] for z.str = 'vx' is never set to 'charge_collection'
@@ -129,9 +130,9 @@ def charge_collection_lower_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_pa
 
     # collect density packets that reach the boundary (or beyond)
 
-    Uf_absorbed = np.where(z.postpointmesh <= 0, Uf, 0)
+    Uf_absorbed = np.where(zpostpointmesh <= 0, Uf, 0)
     if k == 0: # if nearest grid point
-        f_absorbed = np.where(z.postpointmesh <= 0, f_old, 0)
+        f_absorbed = np.where(zpostpointmesh <= 0, f_old, 0)
 
         # the fraction (1 + U[i,j]) of f_absorbed[i,j] is deposited at the wall (written below as (f + Uf))
         # any vz.prepointvaluemesh[i,j] which pushed a particle to this edge is negative
@@ -151,13 +152,12 @@ def charge_collection_lower_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_pa
 
     # update global variable, sigma
     sim_params['sigma'][z.str]['lower'] += sigma_nk
-
     # remove the exiting particles from f, Uf to prep for subsequent remapping (will remap with zero contribution)
     f_old, Uf = absorbing_lower_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, charge)
 
     return f_old, Uf
 
-def charge_collection_upper_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, charge):
+def collector_upper_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, charge):
 
     # this discriminates vx vs. x, as the boundary condition function handle
     # sim_params['BC'][z.str]['lower' or 'upper'] for z.str = 'vx' is never set to 'charge_collection'
@@ -165,9 +165,9 @@ def charge_collection_upper_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_pa
 
     # collect density packets that reach the boundary (or beyond)
 
-    Uf_absorbed = np.where(z.postpointmesh >= z.N-1, Uf, 0)
+    Uf_absorbed = np.where(zpostpointmesh >= z.N-1, Uf, 0)
     if k == 0: # if nearest grid point
-        f_absorbed = np.where(z.postpointmesh >= z.N-1, f_old, 0)
+        f_absorbed = np.where(zpostpointmesh >= z.N-1, f_old, 0)
 
         # the fraction (1 - U[i,j]) of f_absorbed[i,j] is deposited at the wall (written below as (f - Uf))
         # any vz.prepointvaluemesh[i,j] which pushed a particle to this edge is positive
@@ -182,7 +182,6 @@ def charge_collection_upper_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_pa
 
     # update global variable, sigma
     sim_params['sigma'][z.str]['upper'] += sigma_nk
-
     # remove the exiting particles from f, Uf to prep for subsequent remapping (will remap with zero contribution)
     f_old, Uf = absorbing_upper_boundary(f_old, Uf, zpostpointmesh, k, z, vz, sim_params, charge)
 

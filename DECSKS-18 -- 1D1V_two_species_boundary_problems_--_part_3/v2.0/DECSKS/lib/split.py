@@ -34,15 +34,29 @@ def scheme(
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a': # advect x
-            # the advection along characteristics are calculated
-            # a priori and stored in x.CFL.numbers[stage[s],:,:],
-            # where stage[s] labels the (sub)stage of the full time step.
-            # Hence, all the information needed to accomplish the
-            # advection of each cell is communicated by passing
-            # the stage[s] argument below along with x.CFL.numbers
-            # which permits the advection distances to be accessed
-            # as needed.
+            # the number of cells a prepoint density packet at [i,j] travels and
+            # which direction it travels in is given by the CFL numbers
+            # themselves, x.CFL.numbers[stage[s],i,j]
 
+            # when evolving a configuration variable, the distance travelled and
+            # direction depends on the physical velocity and time step (e.g. "vx*dt").
+            # Since the velocity is a grid quantity (fixed) and all time substeps
+            # are known beforehand (uniform time step, and fractional [perhaps negative]
+            # steps taken according to the chosen split scheme)
+            # the same CFL numbers are reused in every full time step to evolve the
+            # configuration; the only change is the density values at each [i,j]
+            # from the previous time steps (advections along characteristics)
+
+            # To save cost, we compute all CFL numbers above and reuse them rather than
+            # compute the same set in each stage of the split scheme for every full time step.
+            # We take further opportunity here to obtain the corresponding
+            # high order corrected terms c (high order flux = c.dot(d), c ~ CFL.frac)
+            # as well which also are the same from one full time step to the next.
+            # hence, we pass the corrector set c below, which is combined inside the
+            # convect_configuration.scheme routine with the derivative tensor d to
+            # compute the high order flux Uf = c.dot(d). Note that the derivatives
+            # must be calculated at each time step as the function, of course, changes
+            # from one substep to the next.
             fe = DECSKS.lib.convect_configuration.scheme(
                     fe,
                     int(stage[s]), n,
@@ -63,7 +77,7 @@ def scheme(
 
         elif coeff[s] == 'b': # advect vx
             # calculate electric field at most recent positions of ions and electrons
-            Ex = eval(sim_params['compute_electric_field_function_handle'])(fe, fi, x, vx, sim_params)
+            Ex = eval(sim_params['compute_electric_field_orchestrator_handle'])(fe, fi, x, vx, sim_params)
 
             # advect electron velocities
             ax.prepointvaluemesh = -Ex
@@ -86,7 +100,7 @@ def scheme(
                 sim_params,
                 z = vx,
                 vz = ax,
-                split_coeff = split_coeff,                
+                split_coeff = split_coeff,
                 charge = 1)
 
     toc = time.time()

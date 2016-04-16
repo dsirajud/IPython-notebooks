@@ -93,7 +93,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'electron maxwellian':
         x,v = z1, z2
-        vD = 3 # drift velocity
+        vD = 0. # drift velocity
         print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
         for j in range(v.Ngridpoints):
             f0[:,j] = 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2)
@@ -147,6 +147,44 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
+    if density == 'cosine 22-bell right-side':
+        x, vx = z1, z2
+        xc, vc = 5., 2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
+
+
+    if density == 'ion cosine 22-bell left-side':
+        x, vx = z1, z2
+        xc, vc = -5., -2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
 
 
     if density == 'landau':

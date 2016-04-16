@@ -54,10 +54,6 @@ fe, fi = DECSKS.lib.density.setup(sim_params, t, x, vx) # NOTE mu and tau in ion
 sim_params['me_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fe, sim_params)))
 sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi, sim_params)))
 
-# TODO add this to lib.read, right now you need to make sure you use
-# TODO the same mu and tau as in density.setup for sim_params['density']
-sim_params['mu'] = 1836.15267389 # mass ratio mi / me for Hydrogen, needed for ion acceleration term in lib.split
-
     #DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,0,x,vx)
 
 Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
@@ -84,6 +80,8 @@ for n in t.stepnumbers:
     # in ./etc/params.dat
     #    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,n,x,vx)
     DECSKS.lib.status.check_and_clean(t, n, tic, rm_plots)
+
+    
 toc = time.clock()
 simtime = toc - tic
 print "simulation completed in %g seconds = %g minutes = %g hours " % (
