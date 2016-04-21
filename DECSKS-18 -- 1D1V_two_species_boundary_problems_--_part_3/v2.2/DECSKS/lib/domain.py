@@ -28,6 +28,13 @@ class Setup:
             self.prepoints = np.arange(self.N)
             self.prepointmesh = np.array(np.outer( self.prepoints, np.ones([1, sim_params['active_dims'][1]]) ), dtype = int)
 
+            postpointmesh_dims = [2]
+            for dim in sim_params['active_dims']:
+                postpointmesh_dims.append(dim)
+            # container, to be filled at each timestep with postpoint index map
+            self.postpointmesh = np.zeros(postpointmesh_dims, dtype = int)
+
+
         elif dim is not None and var.lower() != 't':
             # var = 'v', dim = 'x', 'y' or 'z'
             # instantiates vx, vy, or vz
@@ -63,7 +70,7 @@ class Setup:
             self.gridvalues = self.generate_Eulerian_mesh(self.Ngridpoints)
 
             # sub-instantiation of CFL parameter class
-            self.CFL = CourantNumber(self)
+            self.CFL = CourantNumberVelocity(self)
 
         elif var.lower() != 't':
             # var = 'x','y', or 'z'; dim = None
@@ -100,7 +107,7 @@ class Setup:
             self.gridvalues = self.generate_Eulerian_mesh(self.Ngridpoints)
 
             # sub-instantiation of CFL parameter class
-            self.CFL = CourantNumber(self)
+            self.CFL = CourantNumberConfiguration(self, sim_params)
 
         else:
             # var = 't', dim = None
@@ -129,7 +136,96 @@ class Setup:
             w[i] = self.a + i*self.width
         return w
 
-class CourantNumber:
+class CourantNumberConfiguration:
+    """Returns a CFL number instance of the phasespace variable z
+
+    inputs:
+    z -- (instance) phase space variable from class lib.domain.Setup
+
+    outputs:
+    self -- (instance) CFL number ascribed to variable z convection
+
+    Note: broadcasting ensures self.numbers is the same shape as z.MCs
+    """
+    def __init__(self, z, sim_params):
+
+        # split operator labelled by 'a' is designated as 'x' advection
+
+        # [s,:,:] for s = 1, 2, ... are used for each stage. s = 0 unused
+        dim1 = (sim_params['splitting']['number_of_substeps']['a'] + 1,) 
+        dims = dim1 + z.prepointmesh.shape
+
+        self.numbers = np.zeros(dims)
+        self.frac = np.zeros(dims)
+        self.int = np.zeros(dims)
+
+    def compute_numbers(self, z, vz, dt, s):
+        """
+        s -- (int) stage of split scheme the CFL numbers correspond to
+
+        Calculates the CFL numbers and corresponding integer and fractional
+        parts for each col of z.prepointmesh and stores in the 2D stack
+
+            z.CFL.compute_numbers(z,vz,dt)
+
+        note that each number corresponds to advection in 1D for each 1D problem
+        whose subdomain is the column, and whose column space constitutes the entire
+        grid.
+
+        Hence, we implement the indicial displacement of each gridpoint according
+        to the velocity values in each column by shifting from prepoints
+
+            (i,j) --> (i,j+ CFL.numbers[j])
+
+        where the index i is not explicitly referenced given it is obvious.n
+
+        inputs:
+        self -- (lib.domain.CourantNumber instance) CFL instance with attribute containers
+                containers CFL.numbers, CFL.int, CFL.frac.
+
+                NOTE: the method is an attribute belonging to the subinstance z.CFL
+                hence, self refers to z.CFL, not z.
+
+        z -- (lib.domain.Setup instance) phasespace instance being advected
+        vz -- (lib.domain.Setup instance) velocity for self, e.g. vx, ..., ax, ..
+        dt -- (float) width of time step, can be a fraction of t.width for split
+              methods
+
+        outputs:
+        None -- updates attributes
+        """
+        self.numbers[s,:,:] = vz.prepointvaluemesh * dt / z.width
+
+        # if >= 0 , self.int = floor(self.numbers), else ceil(self.numbers)
+        # i.e. the sign of CFL.frac agrees with the sign of vz
+        self.int[s,:,:] = np.where(self.numbers[s,:,:] >=0, np.floor(self.numbers[s,:,:]),
+                            np.ceil(self.numbers[s,:,:])).astype(int)
+
+        # remaining portion is the fractional CFL number
+        self.frac[s,:,:] = self.numbers[s,:,:] - self.int[s,:,:]
+
+        # format dtype as int
+        self.int[s,:,:] = np.array(self.int[s,:,:], dtype = int)
+
+        return None
+
+    def compute_all_numbers(self, sim_params, z, vz, t):
+
+        splitting = sim_params['splitting']
+
+        for s in range(1,sim_params['splitting']['number_of_substeps']['a'] + 1):
+            split_coeff = splitting['a'][s]
+
+            # if number_of_substeps = sim_params['splitting']['number_of_substeps']['a']
+            # 3D CFL arrays shape = (number_of_substeps,) + z.prepointmesh.shape
+            # index first dimension beginning with 0 to be correspondent with lib.split.scheme
+            # top level looping over stages
+            self.compute_numbers(z, vz, split_coeff*t.width, s)
+
+
+        return None
+
+class CourantNumberVelocity:
     """Returns a CFL number instance of the phasespace variable z
 
     inputs:
@@ -191,6 +287,8 @@ class CourantNumber:
         # format dtype as int
         self.int = np.array(self.int, dtype = int)
 
+        return None
+
 
 def velocity_advection_prep(f_initial, z, vz):
     """
@@ -239,10 +337,13 @@ def velocity_advection_prep(f_initial, z, vz):
     z.prepointmesh = np.transpose(z.prepointmesh)
     z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
 
+    z.CFL.numbers = np.transpose(z.CFL.numbers)
     z.CFL.frac = np.transpose(z.CFL.frac)
     z.CFL.int = np.transpose(z.CFL.int)
 
     vz.prepointmesh = np.transpose(vz.prepointmesh)
+    vz.prepointvaluemesh = np.transpose(vz.prepointvaluemesh)
+    vz.postpointmesh = np.transpose(vz.postpointmesh, (0,2,1))
 
     return f_initial, z, vz
 
@@ -299,14 +400,15 @@ def velocity_advection_postproc(f_remapped, z, vz):
     z.prepointmesh = np.transpose(z.prepointmesh)
     z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
 
+    z.CFL.numbers = np.transpose(z.CFL.numbers)
     z.CFL.frac = np.transpose(z.CFL.frac)
     z.CFL.int = np.transpose(z.CFL.int)
 
     vz.prepointmesh = np.transpose(vz.prepointmesh)
-
+    vz.postpointmesh = np.transpose(vz.postpointmesh, (0,2,1))
     return f_remapped, z, vz
 
-def extract_active_grid(f_total_grid, z, sim_params):
+def extract_active_grid(f_total_grid, sim_params):
     """We evolve the density from the previous time step, f_old
     only on the gridpoints that are 'active' (cf. DECSKS-09 notebook)
     We distinguish, e.g. in 1D, the two attributes of a phase space
@@ -318,8 +420,7 @@ def extract_active_grid(f_total_grid, z, sim_params):
     The total grid indices  : 0, 1, ... , z.Ngridpoints - 1
     The active grid indices : 0, 1, ... , z.N - 1
 
-    For all but periodic boundary conditions (PBCs), these are the same.
-    That is, for periodic boundary conditions (PBCs):
+    For periodic boundary conditions (PBCs):
 
         z.N = z.Ngridpoints - 1
 

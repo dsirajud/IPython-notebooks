@@ -22,6 +22,11 @@ def scheme(
     outputs:
     f -- (ndarray, dim=3) f(n+1,x,v)
     """
+
+    # compute all CFL numbers for configuration variables beforehand
+    x.CFL.compute_all_numbers(sim_params, x, vx, t)
+    c = DECSKS.lib.HOC.correctors_on_configuration(sim_params, x, vx, t)
+
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']
     coeff = splitting['order']['coeffs']
@@ -29,94 +34,60 @@ def scheme(
     tic = time.time()
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
-        if s == 0: # on first pass, the previous time step (n - 1) needs to be
-            if coeff[s] == 'a': # advect x
-                x.CFL.compute_numbers(x, vx, split_coeff*t.width)
-                fe[n,:,:] = DECSKS.lib.convect.scheme(
-                        fe[n-1,:,:],
-                        n,
-                        sim_params,
-                        z = x,
-                        vz = vx,
-                        charge = -1)
-                fi[n,:,:] = DECSKS.lib.convect.scheme(
-                        fi[n-1,:,:],
-                        n,
-                        sim_params,
-                        z = x,
-                        vz = vx,
-                        charge = 1)
+        if coeff[s] == 'a': # advect x
 
-            elif coeff[s] == 'b': # advect vx
-                # calculate electric field at most recent positions of ions and electrons
-                Ex = eval(sim_params['compute_electric_field_orchestrator_handle']['x'])(fe, fi, x, vx, n-1, sim_params)
+            # the advection along characteristics are calculated
+            # a priori and stored in x.CFL.numbers[stage[s],:,:],
+            # where stage[s] labels the (sub)stage of the full time step.
+            # Hence, all the information needed to accomplish the
+            # advection of each cell is communicated by passing
+            # the stage[s] argument below along with x.CFL.numbers
+            # which permits the advection distances to be accessed
+            # as needed.
 
-                # advect electron velocities
-                ax.prepointvaluemesh = -Ex
-                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
-                fe[n,:,:] = DECSKS.lib.convect.scheme(
-                    fe[n-1,:,:],
-                    n,
-                    sim_params,
-                    z = vx,
-                    vz = ax,
+            fe = DECSKS.lib.convect_configuration.scheme(
+                    fe,
+                    int(stage[s]), n,
+                    sim_params, c,
+                    z = x,
+                    vz = vx,
                     charge = -1)
 
-                # advect ion velocities
-                ax.prepointvaluemesh = 1. / sim_params['mu'] * Ex
-                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
-                fi[n,:,:] = DECSKS.lib.convect.scheme(
-                    fi[n-1,:,:],
-                    n,
-                    sim_params,
-                    z = vx,
-                    vz = ax,
+            fi = DECSKS.lib.convect_configuration.scheme(
+                    fi,
+                    int(stage[s]),n,
+                    sim_params, c,
+                    z = x,
+                    vz = vx,
                     charge = 1)
 
-        else: # each subsequent steps overwrites the previous step, all at time n until all split steps complete
-            if coeff[s] == 'a': # advect x
-                x.CFL.compute_numbers(x, vx, split_coeff*t.width)
-                fe[n,:,:] = DECSKS.lib.convect.scheme(
-                        fe[n,:,:],
-                        n,
-                        sim_params,
-                        z = x,
-                        vz = vx,
-                        charge = -1)
-                fi[n,:,:] = DECSKS.lib.convect.scheme(
-                        fi[n,:,:],
-                        n,
-                        sim_params,
-                        z = x,
-                        vz = vx,
-                        charge = 1)
+        elif coeff[s] == 'b': # advect vx
+            # calculate electric field at most recent positions of ions and electrons
+            Ex, phi = eval(sim_params['compute_electric_field_orchestrator_handle']['x'])(fe, fi, x, vx, t, n, sim_params)
 
-            elif coeff[s] == 'b': # advect v
-                # calculate electric field at most recent positions of ions and electrons
-                Ex = eval(sim_params['compute_electric_field_orchestrator_handle']['x'])(fe, fi, x, vx, n, sim_params)
-                # advect electron velocities
-                ax.prepointvaluemesh = -Ex
-                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
-                fe[n,:,:] = DECSKS.lib.convect.scheme(
-                    fe[n,:,:],
-                    n,
-                    sim_params,
-                    z = vx,
-                    vz = ax,
-                    charge = -1)
+            # advect electron velocities
+            ax.prepointvaluemesh = -Ex
+            vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
+            fe = DECSKS.lib.convect_velocity.scheme(
+                fe,
+                n,
+                sim_params,
+                z = vx,
+                vz = ax,
+                charge = -1)
 
-                # advect ion velocities
-                ax.prepointvaluemesh = 1. / sim_params['mu'] * Ex
-                vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
-                fi[n,:,:] = DECSKS.lib.convect.scheme(
-                    fi[n,:,:],
-                    n,
-                    sim_params,
-                    z = vx,
-                    vz = ax,
-                    charge = 1)
+            # advect ion velocities
+            ax.prepointvaluemesh = 1. / sim_params['mu'] * Ex
+            vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
+            fi = DECSKS.lib.convect_velocity.scheme(
+                fi,
+                n,
+                sim_params,
+                z = vx,
+                vz = ax,
+                charge = 1)
 
     toc = time.time()
     print "time step %d of %d completed in %g seconds" % (n,t.N, toc - tic)
 
-    return fe, fi
+    return fe, fi, phi

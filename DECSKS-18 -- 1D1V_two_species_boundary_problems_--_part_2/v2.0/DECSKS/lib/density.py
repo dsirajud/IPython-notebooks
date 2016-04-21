@@ -111,7 +111,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'cosine 22-bell':
         x, vx = z1, z2
-        xc, vc = -5., 2.
+        xc, vc = 0., 2.
         a = 6.
         r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
         for i in range(x.Ngridpoints):

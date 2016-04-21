@@ -37,7 +37,7 @@ class PlotSetup(Plots):
         self.ymin = plot_params['ymin']
         self.ymax = plot_params['ymax']
 
-        if len(f.shape) == 3: # f = f[t,x,v], 2 dim in phase space
+        if len(f.shape) == 2: # f = f[t,x,v], 2 dim in phase space
             self.dimensionality = '1D1V'
             self.splitscheme = sim_params['split_scheme']
             self.filename = self.filetype + self.divider \
@@ -50,7 +50,7 @@ class PlotSetup(Plots):
             self.X, self.V = np.meshgrid(self.x.gridvalues,self.v.gridvalues)
             self.f = f
 
-        elif len(f.shape) == 2:
+        elif len(f.shape) == 1:
             self.dimensionality = '1D'
             self.splitscheme = ''
             self.filename = self.filetype + self.divider \
@@ -62,9 +62,9 @@ class PlotSetup(Plots):
             self.f = f
 
     def __call__(self, n):
-        if len(self.f.shape) == 3:
-            # f = f[x,v,t], 2 dim in phase space
-            ft = self.f[n,:,:]
+        if len(self.f.shape) == 2:
+            # f = f[x,vx], 2 dim in phase space
+            ft = self.f
             pylab.pcolormesh(self.X, self.V, ft.T, cmap = 'jet')
             pylab.colorbar()
             pylab.clim(0,0.38) # for Landau test case
@@ -72,12 +72,12 @@ class PlotSetup(Plots):
             pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)
             pylab.ylabel('$v$', fontsize = 18)
-            pylab.title('$N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.N, self.v.N, self.it*self.t.width, n))
+            pylab.title('s18-13: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.N, self.v.N, self.it*self.t.width, n))
             pylab.savefig(self.path + self.filename)
             pylab.clf()
             return None
 
-        if len(self.f.shape) == 2:
+        if len(self.f.shape) == 1:
             # f = f[x], 1 dim in phase space
             ft = self.f[n,:]
             pylab.plot(self.x.gridvalues,ft,'ob')

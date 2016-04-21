@@ -369,7 +369,7 @@ def inputfile(filename):
 
     split_scheme = lines[81][lines[81].find('=')+1:].strip()
     split_scheme = split_scheme.upper()
-    print "split scheme: %s\n\n" % split_scheme
+    print "split scheme: %s\n" % split_scheme
 
     # filepath to splitting coefficient tables
     filename  = lines[82][lines[82].find(':')+1:].strip()
@@ -454,7 +454,7 @@ def inputfile(filename):
                                              )
 
     else:
-        # else, Fourier gauss solver is used, no need for this matrix
+        # else, Fourier Gauss solver is used, no need for this matrix
         W_dn1_LTE6 = None
 
     # variable-by-variable checks: assemble consistent objects needed
@@ -874,7 +874,10 @@ def inputfile(filename):
                 # Dirichlet condition, phi = BIAS value
                 phi_BC[var][-1] = float(Bias[var]['upper'])
 
-                if BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                # check upper boundary
+                if BC['f'][var]['upper'] == 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                    pass
+                else:
                     print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
                     print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
                     print "upper boundary condition on f for variable %s: %s\n\n" % (var, BC['f'][var]['upper'].upper())
@@ -882,14 +885,18 @@ def inputfile(filename):
 
                     raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
 
+                # check lower boundary
                 if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
                     # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
                     sigma[var]['lower'] = 0    # initialize to zero charge at time zero
                     sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
                 else:
                     print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
-                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                    print "lower boundary condition on phi: %s" % BC['phi'][var]['lower'].upper()
+                    print "lower boundary condition on f: %s\n" % BC['f'][var]['lower'].upper()
+                    print "\ne.g. an lower boundary condition set on phi as SELF-CONSISTENT must have the lower boundary condition on f as COLLECTOR"
+                    print "e.g. an lower boundary condition set on f as ABSORBING must have the lower boundary condition on phi as BIAS"
+                    print "e.g. an lower boundary condition set on f as PERIODIC requires the upper boundary on f to be PERIODIC as well as both lower and upper boundary conditions on phi to be set to PERIODIC\n"
                     raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector if self-consistent boundary potentials are desired). Equivalently, phi is not compatible with f (e.g. if periodic boundaries on f were desired, the potential must also be periodic)')
 
             elif BC['phi'][var]['type'] == 'SYMMETRIC_BIAS' or BC['phi'][var]['type'] == 'SYMMETRY_BIAS':
@@ -1022,18 +1029,17 @@ def inputfile(filename):
 
     distribution_function_boundarycondition_prefix = 'DECSKS.lib.boundaryconditions'
     distribution_function_boundarycondition_handle = {}
-    for var in ['x', 'y', 'z']:
-        if var in phasespace_vars:
-            if BC['f'][var]['type'] == 'periodic':
-                pass
-            else:
-                distribution_function_boundarycondition_handle[var] = {}
+    for var in phasespace_vars:
+        if BC['f'][var]['type'] == 'periodic':
+            pass
+        else:
+            distribution_function_boundarycondition_handle[var] = {}
 
-                distribution_function_boundarycondition_handle[var]['lower'] = ".".join((distribution_function_boundarycondition_prefix,  BC['f'][var]['lower']))
-                distribution_function_boundarycondition_handle[var]['lower'] = "_".join((distribution_function_boundarycondition_handle[var]['lower'],  'lower_boundary'))
+            distribution_function_boundarycondition_handle[var]['lower'] = ".".join((distribution_function_boundarycondition_prefix,  BC['f'][var]['lower']))
+            distribution_function_boundarycondition_handle[var]['lower'] = "_".join((distribution_function_boundarycondition_handle[var]['lower'],  'lower_boundary'))
 
-                distribution_function_boundarycondition_handle[var]['upper'] = ".".join((distribution_function_boundarycondition_prefix,  BC['f'][var]['upper']))
-                distribution_function_boundarycondition_handle[var]['upper'] = "_".join((distribution_function_boundarycondition_handle[var]['upper'],  'upper_boundary'))
+            distribution_function_boundarycondition_handle[var]['upper'] = ".".join((distribution_function_boundarycondition_prefix,  BC['f'][var]['upper']))
+            distribution_function_boundarycondition_handle[var]['upper'] = "_".join((distribution_function_boundarycondition_handle[var]['upper'],  'upper_boundary'))
 
 
     compute_electric_potential_phi_handle = {}
@@ -1041,7 +1047,6 @@ def inputfile(filename):
     for var in ['x', 'y', 'z']:
         if var in phasespace_vars:
             compute_electric_potential_phi_handle[var] = compute_electric_potential_phi_prefix + BC['phi'][var]['type']
-            print compute_electric_potential_phi_handle
         else:
             pass
 
@@ -1105,12 +1110,11 @@ def inputfile(filename):
 
     print "\nStarting 1D1V Vlasov-Poisson simulation"
     print "\nadvection solver: LTE order %d" % (N+1)
-
-    print "\nwill step through %d-dimensional solution in variables: %s" % (len(phasespace_vars), phasespace_vars)
+    print "\nwill step through %d-dimensional solution in variables: %s\n" % (len(phasespace_vars), phasespace_vars)
     for var in phasespace_vars:
         print "high order correction method on %s: %s" % (var, HOC[var])
 
-
+    print "\n"
     return sim_params
 
 def splitting_coefficients(filepath, split_scheme):
@@ -1145,8 +1149,9 @@ def splitting_coefficients(filepath, split_scheme):
         b1 = eval(lines[16][lines[16].find('=')+1:].strip())
         b2 = eval(lines[17][lines[17].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 2, b = 2)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2],
                             b = [None, b1, b2])
 
@@ -1162,8 +1167,9 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[38][lines[38].find('=')+1:].strip())
         b4 = eval(lines[39][lines[39].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -1179,8 +1185,9 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[60][lines[60].find('=')+1:].strip())
         b4 = eval(lines[61][lines[61].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -1204,8 +1211,9 @@ def splitting_coefficients(filepath, split_scheme):
         b5 = eval(lines[89][lines[89].find('=')+1:].strip())
         b6 = eval(lines[90][lines[90].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 6, b = 6)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4, a5, a6],
                             b = [None, b1, b2, b3, b4, b5, b6])
 
@@ -1234,8 +1242,9 @@ def splitting_coefficients(filepath, split_scheme):
         b6 = eval(lines[124][lines[124].find('=')+1:].strip())
         b7 = eval(lines[125][lines[125].find('=')+1:].strip())
 
+        number_of_substeps = dict(a = 8, b = 7)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order,
+        splitting = dict(order = order, number_of_substeps = number_of_substeps,
                             a = [None, a1, a2, a3, a4, a5, a6, a7, a8],
                             b = [None, b1, b2, b3, b4, b5, b6, b7])
 
@@ -1883,7 +1892,7 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
 
 
     elif BC['phi']['x']['type'] == 'LDBC_UDBC':
-
+        print "inside ldbc_udbc"
         # assemble D, a matrix of difference coefficients on phi
         D = np.zeros([Nx,Nx])
         for i in range(Nx):
@@ -1930,7 +1939,7 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
                 B[i,i+1] = 3/40.
 
     elif BC['phi']['x']['type'] == 'LNBC_UDBC':
-
+        print "inside lnbc_udbc"
         # assemble D, a matrix of difference coefficients on phi
         D = np.zeros((Nx,Nx))
 

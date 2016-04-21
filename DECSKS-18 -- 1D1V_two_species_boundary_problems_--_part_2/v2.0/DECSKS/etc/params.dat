@@ -58,7 +58,7 @@ high order correction on x: fd
 high order correction on y: None
 high order correction on z: None
 
-high order correction on vx: fourier
+high order correction on vx: fd
 high order correction on vy: None
 high order correction on vz: None
 

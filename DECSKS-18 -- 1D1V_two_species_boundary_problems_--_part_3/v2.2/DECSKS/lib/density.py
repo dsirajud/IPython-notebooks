@@ -28,22 +28,21 @@ def setup(sim_params, t, z1, z2 = None):
         # the same. Need to distinguish between cases with a cold background
         # and cases where two densities are evolved alongside it.
         if len(sim_params['density']) == 1:
-            f = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
-            f[0,:,:] = initial_profile(f[0,:,:], sim_params['density'], z1, z2)
+            f = np.zeros([z1.Ngridpoints, z2.Ngridpoints])
+            f = initial_profile(f, sim_params['density'], z1, z2)
 
             return f
 
         elif len(sim_params['density']) == 2:
-            fe = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
-            fi = np.zeros([t.Ngridpoints, z1.Ngridpoints, z2.Ngridpoints])
+            fe = np.zeros([z1.Ngridpoints, z2.Ngridpoints])
+            fi = np.zeros([z1.Ngridpoints, z2.Ngridpoints])
 
-            fe[0,:,:] = initial_profile(fe[0,:,:],
-                                        sim_params['density']['electrons'],
-                                        z1, z2)
-            fi[0,:,:] = initial_profile(fi[0,:,:],
-                                        sim_params['density']['ions'],
-                                        z1, z2)
-
+            fe = initial_profile(fe,
+                                 sim_params['density']['electrons'],
+                                 z1, z2)
+            fi = initial_profile(fi,
+                                 sim_params['density']['ions'],
+                                 z1, z2)
             return fe, fi
 
 
@@ -111,8 +110,27 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'cosine 22-bell':
         x, vx = z1, z2
-        xc, vc = -5., 2.
+        xc, vc = 5., 2.
         a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
+
+    if density == 'wide cosine 22-bell':
+        x, vx = z1, z2
+        xc, vc = 3., 4.5
+        a = 12.
         r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
         for i in range(x.Ngridpoints):
             for j in range(vx.Ngridpoints):
@@ -147,6 +165,98 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
+    if density == 'cosine symmetric 22-bells':
+        x, vx = z1, z2
+        xc1, vc1 = 5., 2.
+        xc2, vc2 = -5., -2.
+        a = 6.
+
+        r1 = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        r2 = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r1[i,j] = np.sqrt( (x.gridvalues[i] - xc1) ** 2
+                                  + (vx.gridvalues[j] - vc1) ** 2)
+
+                r2[i,j] = np.sqrt( (x.gridvalues[i] - xc2) ** 2
+                                  + (vx.gridvalues[j] - vc2) ** 2)
+
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r1[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r1[i,j] / (2.*a) )) ** 22
+                elif r2[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r2[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+        return f0
+    
+    if density == 'ion cosine symmetric 22-bells':
+        x, vx = z1, z2
+        xc1, vc1 = 5., -2.
+        xc2, vc2 = -5., 2.
+        a = 6.
+
+        r1 = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        r2 = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r1[i,j] = np.sqrt( (x.gridvalues[i] - xc1) ** 2
+                                  + (vx.gridvalues[j] - vc1) ** 2)
+
+                r2[i,j] = np.sqrt( (x.gridvalues[i] - xc2) ** 2
+                                  + (vx.gridvalues[j] - vc2) ** 2)
+
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r1[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r1[i,j] / (2.*a) )) ** 22
+                elif r2[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r2[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+        return f0
+
+    if density == 'cosine 22-bell right-side':
+        x, vx = z1, z2
+        xc, vc = 5., 2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
+
+
+    if density == 'ion cosine 22-bell left-side':
+        x, vx = z1, z2
+        xc, vc = -5., -2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
 
 
     if density == 'landau':

@@ -1,0 +1,348 @@
+import numpy as np
+cimport numpy as np
+cimport cython
+
+DTYPE = np.float64
+DTYPEINT = np.int64
+
+ctypedef np.float64_t DTYPE_t
+ctypedef np.int64_t DTYPEINT_t
+
+
+def assignment(np.ndarray[DTYPE_t, ndim=2] f_old,  np.ndarray[DTYPEINT_t, ndim=2] map1, np.ndarray[DTYPEINT_t, ndim=2] map2, int dim1, int dim2):
+
+    cdef np.ndarray[DTYPE_t, ndim=2] f_new = np.zeros([dim1, dim2], dtype = DTYPE)
+    cdef int i
+    cdef int j
+
+    for i in range(dim1):
+        for j in range(dim2):
+            f_new[map1[i,j], map2[i,j]] = f_new[map1[i,j], map2[i,j]] +  f_old[i,j]
+    return f_new
+
+def sift_by_column(np.ndarray[DTYPE_t, ndim=2] Uf):
+    """
+    sift BY COLUMN means this routine reduces the number of sign checks by only
+    checking the first row entry of each column and assumes ALL rows have the
+    same sign of affiliated CFL number. This is true for most boundary conditions
+    and will only not be true for a symmetry boundary where it is possible that
+    we replace certain entries [i,j] in the density/flux objects with their
+    oppositely directed entering partners which breaks the constancy of affiliated
+    CFL number (advection direction) for every row in a given column.
+
+    NOTE: for modest mesh sizes, e.g. 240 x 400, the cost of using
+    this sift method vs. the general method below is not seen to actually be very
+    different in processor time per time step.
+
+    inputs:
+    f -- (ndarray, ndim=2, dtype = float64) density like object
+    vz -- (ndarray, ndim=2, dtype = float64) generalized velocity grid
+
+    output:
+    f_nonneg, f_neg -- (ndarrays, ndim=2, dtype = float64) containers holding
+                    density like entires from f according to
+
+                    pos -- for each f[i,j] such that its vz[i,j] >= 0
+                    neg -- for each f[i,j] such that its vz[i,j] < 0
+
+    we acknowledge we could check the object Uf sign itself, the only case
+    where this will not agree is when either U (CFL.frac high order correction) or f
+    are very small (i.e. np.sign(CFL.number[i,j] != np.sign(Uf[i,j]), which is inconsequential
+    given that the product Uf ~ 0 will contribute negligible amount to the remapped gridpoints,
+    hence it does not matter if, for example that np.sign(CFL.number[i,j]) = -1 but
+    np.sign(Uf[i,j]) = 0, since no matter the remap rule, the contribution from Uf must be
+    negligibly small. We happen to check the CFL number here just out of arbitrary choice.
+
+    """
+    cdef int i, j
+    cdef int dim1 = Uf.shape[0]
+    cdef int dim2 = Uf.shape[1]
+
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+
+    for j in range(dim2):
+        # we assume this is a case where it will always bge that CFL[0,j] = CFL[1,j] = ... = CFL[-1,j]
+        # only checking the sign of the first entry is needed for each column
+        if Uf[0,j] >= 0:
+            for i in range(dim1):
+                Uf_nonneg[i,j] = Uf[i,j]
+        else:
+            for i in range(dim1):
+                Uf_neg[i,j] = Uf[i,j]
+
+    return Uf_nonneg, Uf_neg
+
+def sift(np.ndarray[DTYPE_t, ndim=2] Uf):
+    """
+    We sift by checking the sign on every CFL number associated
+    with each [i,j] of the flux-like object Uf. This is the most
+    general method and allows sifting of Uf into its negative
+    and nonnegative advecting directions into separate containers
+    Uf_neg and Uf_nonneg even if the associated CFL number for a given
+    row in a given column is different than the rest, i.e. can
+    handle the setup created by a symmetric boundary condition.
+
+    we acknowledge we could check the object Uf sign itself, the only case
+    where this will not agree is when either U (CFL.frac high order correction) or f
+    are very small (i.e. np.sign(CFL.number[i,j] != np.sign(Uf[i,j]), which is inconsequential
+    given that the product Uf ~ 0 will contribute negligible amount to the remapped gridpoints,
+    hence it does not matter if, for example that np.sign(CFL.number[i,j]) = -1 but
+    np.sign(Uf[i,j]) = 0, since no matter the remap rule, the contribution from Uf must be
+    negligibly small. We happen to check the CFL number here just out of arbitrary choice.
+
+    The argument for the equivalency of checking the sign of Uf is as follows:
+
+    Recall that,
+
+        Uf = CFL.frac * f + (Higher order corrections)
+
+    since f is strictly nonnegative everywhere in phase space, the
+    flux Uf already factors in CFL.frac as the zeroeth order term,
+    and the numerical limiter on the high order corrections ensure that Uf
+    shares the same sign as the zeroeth order term, hence Uf has the same
+    sign as CFL.frac which itself is defined in such a way to have
+    the same direction of travel (sign) as CFL.numbers; however, we have
+    noted that when the fraction is significantly small the two signs
+    may technically not calculate the same sign (CFL.frac sign may be
+    calculated as 0 if sufficiently small, whereas CFL.numbers would
+    be +1 or -1. Note that this does not matter as Uf ~ 0 so whichever
+    remapping rule is used in the subsequent remapping procedure, it
+    contributes negligibly to the remappings)
+
+    This routine differs from remap.sift_by_column in two ways:
+
+        (1) it checks the sign on the input paramter Uf, hence
+            checking the sign on CFL.frac is not needed as discussed
+            above.
+        (2) it checks the sign of every (i,j), not just the first row
+            entry in a column (i.e. does not assume every row of
+            a given column are described by the same direction of
+            advection [given by the sign of the CFL number or
+            equivalently the product Uf, as discussed above])
+
+    """
+    cdef int i, j
+    cdef int dim1 = Uf.shape[0]
+    cdef int dim2 = Uf.shape[1]
+
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+
+    for j in range(dim2):
+        for i in range(dim1):
+            if Uf[i,j] >= 0:
+                Uf_nonneg[i,j] = Uf[i,j]
+            else:
+                Uf_neg[i,j] = Uf[i,j]
+
+    return Uf_nonneg, Uf_neg
+
+def sift_by_velocity(np.ndarray[DTYPE_t, ndim=2] Uf, np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh, int Nvz):
+    """
+    We sift by checking the sign on every CFL number associated
+    with each [i,j] of the flux-like object Uf. This is the most
+    general method and allows sifting of Uf into its negative
+    and nonnegative advecting directions into separate containers
+    Uf_neg and Uf_nonneg even if the associated CFL number for a given
+    row in a given column is different than the rest, i.e. can
+    handle the setup created by a symmetric boundary condition.
+
+    we acknowledge we could check the object Uf sign itself, the only case
+    where this will not agree is when either U (CFL.frac high order correction) or f
+    are very small (i.e. np.sign(CFL.number[i,j] != np.sign(Uf[i,j]), which is inconsequential
+    given that the product Uf ~ 0 will contribute negligible amount to the remapped gridpoints,
+    hence it does not matter if, for example that np.sign(CFL.number[i,j]) = -1 but
+    np.sign(Uf[i,j]) = 0, since no matter the remap rule, the contribution from Uf must be
+    negligibly small. We happen to check the CFL number here just out of arbitrary choice.
+
+    The argument for the equivalency of checking the sign of Uf is as follows:
+
+    Recall that,
+
+        Uf = CFL.frac * f + (Higher order corrections)
+n
+    since f is strictly nonnegative everywhere in phase space, the
+    flux Uf already factors in CFL.frac as the zeroeth order term,
+    and the numerical limiter on the high order corrections ensure that Uf
+    shares the same sign as the zeroeth order term, hence Uf has the same
+    sign as CFL.frac which itself is defined in such a way to have
+    the same direction of travel (sign) as CFL.numbers; however, we have
+    noted that when the fraction is significantly small the two signs
+    may technically not calculate the same sign (CFL.frac sign may be
+    calculated as 0 if sufficiently small, whereas CFL.numbers would
+    be +1 or -1. Note that this does not matter as Uf ~ 0 so whichever
+    remapping rule is used in the subsequent remapping procedure, it
+    contributes negligibly to the remappings)
+
+    This routine differs from remap.sift_by_column in two ways:
+
+        (1) it checks the sign on the input paramter Uf, hence
+            checking the sign on CFL.frac is not needed as discussed
+            above.
+        (2) it checks the sign of every (i,j), not just the first row
+            entry in a column (i.e. does not assume every row of
+            a given column are described by the same direction of
+            advection [given by the sign of the CFL number or
+            equivalently the product Uf, as discussed above])
+
+    """
+    cdef int i, j
+    cdef int dim1 = Uf.shape[0]
+    cdef int dim2 = Uf.shape[1]
+
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+
+    for j in range(dim2):
+        for i in range(dim1):
+            if vzpostpointmesh[i,j] >= Nvz / 2:
+                #                print "vzpostpointmesh[i,j] = %d >= %d should be a nonnegative postpoint" % (vzpostpointmesh[i,j], Nvz/2)
+                #                print "Uf[i,j] = %g" % Uf[i,j]
+
+
+                # if the "postpoint" velocities are at indices Nvz/2 which is vx.gridvalues >= 0 store in Uf_nonneg
+
+                # note that in this context this is kind of a misnomer, it's a very fitting name in other contexts (e.g. remapping)
+                # what we actually mean here is a collection of all *prepoint* velocities coresponding to particles that remain on-grid
+                # in this time step and also where any exiting particles have been replaced with entering partner particles which have
+                # oppositely oriented velocity. Thus, truly in this context this is a "prepoint mesh for all particles that map on-grid"
+                # however it is so-named postpointmesh becuase in the remap routine we map each [i,j] to their postpoint locations
+                # (zpostpointmesh[i,j], vzpostpointmesh[i,j]), where this 2D array of indices give the duples naturally thought of as
+                # "postpoint" duples.
+                Uf_nonneg[i,j] = Uf[i,j]
+            else:
+                #                print "vzpostpointmesh[i,j] = %d < %d should be a negative postpoint" % (vzpostpointmesh[i,j], Nvz/2)
+                #                print "Uf[i,j] = %g" % Uf[i,j]
+
+                Uf_neg[i,j] = Uf[i,j]
+
+                #    nonzero_indices = np.where(Uf_nonneg != 0)
+    #    print "Uf_nonneg = "
+    #    print Uf_nonneg[nonzero_indices[0], nonzero_indices[1]]
+
+
+    #    nonzero_indices = np.where(Uf_neg != 0)
+    #    print "Uf_neg = "
+    #    print Uf_neg[nonzero_indices[0], nonzero_indices[1]]
+    
+
+    return Uf_nonneg, Uf_neg
+
+def sift_by_CFL_column(np.ndarray[DTYPE_t, ndim=2] Uf, np.ndarray[DTYPE_t, ndim=2] CFL):
+    """
+    sift BY COLUMN means this routine reduces the number of sign checks by only
+    checking the first row entry of each column and assumes ALL rows have the
+    same sign of affiliated CFL number (same sign as Uf). This is true for most boundary conditions
+    and will only not be true for a symmetry boundary where it is possible that
+    we replace certain entries [i,j] in the density/flux objects with their
+    oppositely directed entering partners which breaks the constancy of affiliated
+    CFL number (advection direction) for every row in a given column.
+
+    NOTE: for modest mesh sizes, e.g. 240 x 400, the cost of using
+    this sift method vs. the general method below is not seen to actually be very
+    different in processor time per time step.
+
+    inputs:
+    f -- (ndarray, ndim=2, dtype = float64) density like object
+    vz -- (ndarray, ndim=2, dtype = float64) generalized velocity grid
+
+    output:
+    f_nonneg, f_neg -- (ndarrays, ndim=2, dtype = float64) containers holding
+                    density like entires from f according to
+
+                    pos -- for each f[i,j] such that its vz[i,j] >= 0
+                    neg -- for each f[i,j] such that its vz[i,j] < 0
+
+    we acknowledge we could check the object Uf sign itself, the only case
+    where this will not agree is when either U (CFL.frac high order correction) or f
+    are very small (i.e. np.sign(CFL.number[i,j] != np.sign(Uf[i,j]), which is inconsequential
+    given that the product Uf ~ 0 will contribute negligible amount to the remapped gridpoints,
+    hence it does not matter if, for example that np.sign(CFL.number[i,j]) = -1 but
+    np.sign(Uf[i,j]) = 0, since no matter the remap rule, the contribution from Uf must be
+    negligibly small. We happen to check the CFL number here just out of arbitrary choice.
+
+    """
+    cdef int i, j
+    cdef int dim1 = Uf.shape[0]
+    cdef int dim2 = Uf.shape[1]
+
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+
+    for j in range(dim2):
+        # we assume this is a case where it will always bge that CFL[0,j] = CFL[1,j] = ... = CFL[-1,j]
+        # only checking the sign of the first entry is needed for each column
+        if CFL[0,j] >= 0:
+            for i in range(dim1):
+                Uf_nonneg[i,j] = Uf[i,j]
+        else:
+            for i in range(dim1):
+                Uf_neg[i,j] = Uf[i,j]
+
+    return Uf_nonneg, Uf_neg
+
+def sift_by_CFL(np.ndarray[DTYPE_t, ndim=2] Uf, np.ndarray[DTYPE_t, ndim=2] CFL):
+    """
+    We sift by checking the sign on every CFL number associated
+    with each [i,j] of the flux-like object Uf. This is the most
+    general method and allows sifting of Uf into its negative
+    and nonnegative advecting directions into separate containers
+    Uf_neg and Uf_nonneg even if the associated CFL number for a given
+    row in a given column is different than the rest, i.e. can
+    handle the setup created by a symmetric boundary condition.
+
+    we acknowledge we could check the object Uf sign itself, the only case
+    where this will not agree is when either U (CFL.frac high order correction) or f
+    are very small (i.e. np.sign(CFL.number[i,j] != np.sign(Uf[i,j]), which is inconsequential
+    given that the product Uf ~ 0 will contribute negligible amount to the remapped gridpoints,
+    hence it does not matter if, for example that np.sign(CFL.number[i,j]) = -1 but
+    np.sign(Uf[i,j]) = 0, since no matter the remap rule, the contribution from Uf must be
+    negligibly small. We happen to check the CFL number here just out of arbitrary choice.
+
+    The argument for the equivalency of checking the sign of Uf is as follows:
+
+    Recall that,
+
+        Uf = CFL.frac * f + (Higher order corrections)
+
+    since f is strictly nonnegative everywhere in phase space, the
+    flux Uf already factors in CFL.frac as the zeroeth order term,
+    and the numerical limiter on the high order corrections ensure that Uf
+    shares the same sign as the zeroeth order term, hence Uf has the same
+    sign as CFL.frac which itself is defined in such a way to have
+    the same direction of travel (sign) as CFL.numbers; however, we have
+    noted that when the fraction is significantly small the two signs
+    may technically not calculate the same sign (CFL.frac sign may be
+    calculated as 0 if sufficiently small, whereas CFL.numbers would
+    be +1 or -1. Note that this does not matter as Uf ~ 0 so whichever
+    remapping rule is used in the subsequent remapping procedure, it
+    contributes negligibly to the remappings)
+
+    This routine differs from remap.sift_by_column in two ways:
+
+        (1) it checks the sign on the input paramter Uf, hence
+            checking the sign on CFL.frac is not needed as discussed
+            above.
+        (2) it checks the sign of every (i,j), not just the first row
+            entry in a column (i.e. does not assume every row of
+            a given column are described by the same direction of
+            advection [given by the sign of the CFL number or
+            equivalently the product Uf, as discussed above])
+
+    """
+    cdef int i, j
+    cdef int dim1 = Uf.shape[0]
+    cdef int dim2 = Uf.shape[1]
+
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_nonneg = np.zeros((dim1, dim2))
+    cdef np.ndarray[DTYPE_t, ndim=2] Uf_neg = np.zeros((dim1, dim2))
+
+    for j in range(dim2):
+        for i in range(dim1):
+            if CFL[i,j] >= 0:
+                Uf_nonneg[i,j] = Uf[i,j]
+            else:
+                Uf_neg[i,j] = Uf[i,j]
+
+    return Uf_nonneg, Uf_neg
