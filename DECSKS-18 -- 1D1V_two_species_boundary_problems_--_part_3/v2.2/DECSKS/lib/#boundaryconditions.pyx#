@@ -414,15 +414,15 @@ def symmetric_lower_boundary(
                     #                    print "to = %d" % zpostpointmesh[i,j]
                     #                    print""
 
-                    #                elif zpostpointmesh[i,j] == 0:
+                    elif zpostpointmesh[i,j] == 0:
                     #                    print "if zpostpointmesh = 0, prepoint at (i,j) = (%d,%d)" % (i,j)
                     #                        print "exiting particle found at [%d,%d] for k = %d" % (i,j, k)
                     #                        print "maps from (%d,%d) to (%d,%d) = edge case" % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])
 
                     # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
                     #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
-                    #                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + f_old[i,j]
-                    #                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + Uf_old[i,j]
+                        f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + f_old[i,j]
+                        f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + Uf_old[i,j]
 
                     # prepare for partner remap in lib.convect_configuration.remap_step
                     # zpostpointmesh[i,j] = -zpostpointmesh[i,j] = 0 already
