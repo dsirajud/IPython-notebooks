@@ -41,7 +41,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-13.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -62,7 +62,6 @@ sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi, sim
 # TODO the same mu and tau as in density.setup for sim_params['density']
 
     #DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,0,x,vx)
-print sim_params['phi_BC'][x.str]
 Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
 Plot(n = 0)
 Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')

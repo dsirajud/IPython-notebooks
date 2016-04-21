@@ -381,6 +381,106 @@ def inputfile(filename):
     else:
         splitting = None
 
+
+
+    # --------------------------------------------------------------------------
+    # check for validity on split scheme vs. boundary conditions
+    #
+    # i.e. check that if the problem is bounded, the user cannot use a split scheme that has negative time substeps
+    #
+    #    Schemes with only positive time substeps: LF2
+    #    Schemes that contain negative time substeps: Y4, O6-4, O11-6, O14-6
+    #
+    if BC['f']['x']['lower'] != 'periodic' and BC['f']['x']['upper'] != 'periodic' and Nx is not None:
+
+        if split_scheme in ['LF2']:
+            pass
+
+        else: # a split scheme that involves negative time substeps has been selected
+            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+            print "\nin params.dat, the following was specified:"
+            print "split scheme = %s:" % split_scheme
+            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+            print "distribution function lower boundary condition: %s" % BC['f']['x']['lower']
+            print "distribution function upper boundary condition: %s" % BC['f']['x']['upper']
+            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+
+    if BC['f']['y']['lower'] != 'periodic' and BC['f']['y']['upper'] != 'periodic' and Nx is not None:
+
+        if split_scheme in ['LF2']:
+            pass
+
+        else: # a split scheme that involves negative time substeps has been selected
+            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+            print "\nin params.dat, the following was specified:"
+            print "split scheme = %s:" % split_scheme
+            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+            print "distribution function lower boundary condition: %s" % BC['f']['y']['lower']
+            print "distribution function upper boundary condition: %s" % BC['f']['y']['upper']
+            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+
+    if BC['f']['z']['lower'] != 'periodic' and BC['f']['z']['upper'] != 'periodic' and Nx is not None:
+
+        if split_scheme in ['LF2']:
+            pass
+
+        else: # a split scheme that involves negative time substeps has been selected
+            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+            print "\nin params.dat, the following was specified:"
+            print "split scheme = %s:" % split_scheme
+            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+            print "distribution function lower boundary condition: %s" % BC['f']['z']['lower']
+            print "distribution function upper boundary condition: %s" % BC['f']['z']['upper']
+            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+
+    if BC['f']['vx']['lower'] != 'periodic' and BC['f']['vx']['upper'] != 'periodic' and Nx is not None:
+
+        if split_scheme in ['LF2']:
+            pass
+
+        else: # a split scheme that involves negative time substeps has been selected
+            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+            print "\nin params.dat, the following was specified:"
+            print "split scheme = %s:" % split_scheme
+            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+            print "distribution function lower boundary condition: %s" % BC['f']['vx']['lower']
+            print "distribution function upper boundary condition: %s" % BC['f']['vx']['upper']
+            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+
+    if BC['f']['vy']['lower'] != 'periodic' and BC['f']['vy']['upper'] != 'periodic' and Nx is not None:
+
+        if split_scheme in ['LF2']:
+            pass
+
+        else: # a split scheme that involves negative time substeps has been selected
+            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+            print "\nin params.dat, the following was specified:"
+            print "split scheme = %s:" % split_scheme
+            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+            print "distribution function lower boundary condition: %s" % BC['f']['vy']['lower']
+            print "distribution function upper boundary condition: %s" % BC['f']['vy']['upper']
+            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+
+    if BC['f']['vz']['lower'] != 'periodic' and BC['f']['vz']['upper'] != 'periodic' and Nx is not None:
+
+        if split_scheme in ['LF2']:
+            pass
+
+        else: # a split scheme that involves negative time substeps has been selected
+            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+            print "\nin params.dat, the following was specified:"
+            print "split scheme = %s:" % split_scheme
+            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+            print "distribution function lower boundary condition: %s" % BC['f']['vz']['lower']
+            print "distribution function upper boundary condition: %s" % BC['f']['vz']['upper']
+            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+
     # --------------------------------------------------------------------------
     # Plot window specification (used in lib.plots.Setup)
 
@@ -1892,7 +1992,7 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
 
 
     elif BC['phi']['x']['type'] == 'LDBC_UDBC':
-        print "inside ldbc_udbc"
+
         # assemble D, a matrix of difference coefficients on phi
         D = np.zeros([Nx,Nx])
         for i in range(Nx):
@@ -1939,7 +2039,7 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
                 B[i,i+1] = 3/40.
 
     elif BC['phi']['x']['type'] == 'LNBC_UDBC':
-        print "inside lnbc_udbc"
+
         # assemble D, a matrix of difference coefficients on phi
         D = np.zeros((Nx,Nx))
 
