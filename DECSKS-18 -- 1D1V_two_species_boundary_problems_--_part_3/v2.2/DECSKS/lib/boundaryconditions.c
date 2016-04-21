@@ -1220,7 +1220,7 @@ static char __pyx_k_collector_upper_boundary[] = "collector_upper_boundary";
 static char __pyx_k_symmetric_lower_boundary[] = "symmetric_lower_boundary";
 static char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static char __pyx_k_DECSKS_lib_boundaryconditions[] = "DECSKS.lib.boundaryconditions";
-static char __pyx_k_home_dsirajud_Work_IPython_note[] = "/home/dsirajud/Work/IPython-notebooks/DECSKS-18 -- 1D1V_two_species_boundary_problems_--_part_3/v2.2 -- with symmetry/DECSKS/lib/boundaryconditions.pyx";
+static char __pyx_k_home_dsirajud_Work_IPython_note[] = "/home/dsirajud/Work/IPython-notebooks/DECSKS-18 -- 1D1V_two_species_boundary_problems_--_part_3/v2.2/DECSKS/lib/boundaryconditions.pyx";
 static char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
@@ -5606,7 +5606,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
  *     if k == 0:
  *         for j in range(Nvz/2):             # <<<<<<<<<<<<<<
  *             for i in range(Nz):
- * 
+ *                 if zpostpointmesh[i,j] <= 0:
  */
     __pyx_t_10 = __Pyx_div_long(__pyx_v_Nvz, 2);
     for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_10; __pyx_t_5+=1) {
@@ -5616,19 +5616,19 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
  *     if k == 0:
  *         for j in range(Nvz/2):
  *             for i in range(Nz):             # <<<<<<<<<<<<<<
- * 
  *                 if zpostpointmesh[i,j] <= 0:
+ *                     # prepare for partner remap in lib.convect_configuration.remap_step
  */
       __pyx_t_11 = __pyx_v_Nz;
       for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
         __pyx_v_i = __pyx_t_12;
 
-        /* "DECSKS/lib/boundaryconditions.pyx":399
+        /* "DECSKS/lib/boundaryconditions.pyx":398
+ *         for j in range(Nvz/2):
  *             for i in range(Nz):
- * 
  *                 if zpostpointmesh[i,j] <= 0:             # <<<<<<<<<<<<<<
- *                     #                    print "if zpostpointmesh < 0, prepoint at (i,j) = (%d,%d)" % (i,j)
- *                     #                    print "exiting particle found at [%d,%d] for k = %d" % (i,j, k)
+ *                     # prepare for partner remap in lib.convect_configuration.remap_step
+ *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  */
         __pyx_t_13 = __pyx_v_i;
         __pyx_t_14 = __pyx_v_j;
@@ -5637,9 +5637,9 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
         __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)) <= 0) != 0);
         if (__pyx_t_9) {
 
-          /* "DECSKS/lib/boundaryconditions.pyx":407
+          /* "DECSKS/lib/boundaryconditions.pyx":400
+ *                 if zpostpointmesh[i,j] <= 0:
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
- *                     #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]             # <<<<<<<<<<<<<<
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
  *                     Uf_old[i,j] = -Uf_old[i,j]
@@ -5654,12 +5654,12 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_18 < 0) __pyx_t_18 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides) = (-(*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":408
- *                     #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
+          /* "DECSKS/lib/boundaryconditions.pyx":401
+ *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]             # <<<<<<<<<<<<<<
  *                     Uf_old[i,j] = -Uf_old[i,j]
- * 
+ *     if k == 1:
  */
           __pyx_t_19 = __pyx_v_i;
           __pyx_t_20 = __pyx_v_j;
@@ -5671,12 +5671,12 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_22 < 0) __pyx_t_22 += __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides) = ((__pyx_v_Nvz - 1) - (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_vzprepointmesh.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_vzprepointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":409
+          /* "DECSKS/lib/boundaryconditions.pyx":402
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
  *                     Uf_old[i,j] = -Uf_old[i,j]             # <<<<<<<<<<<<<<
- * 
- *                     #                    print "corresponding entering partner should be at [%d,%d]" % (-i,Nvz - 1 - j)
+ *     if k == 1:
+ *         for j in range(Nvz / 2):
  */
           __pyx_t_23 = __pyx_v_i;
           __pyx_t_24 = __pyx_v_j;
@@ -5696,9 +5696,9 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   }
   __pyx_L3:;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":439
- * 
- * 
+  /* "DECSKS/lib/boundaryconditions.pyx":403
+ *                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
+ *                     Uf_old[i,j] = -Uf_old[i,j]
  *     if k == 1:             # <<<<<<<<<<<<<<
  *         for j in range(Nvz / 2):
  *             for i in range(Nz):
@@ -5706,8 +5706,8 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   __pyx_t_9 = ((__pyx_v_k == 1) != 0);
   if (__pyx_t_9) {
 
-    /* "DECSKS/lib/boundaryconditions.pyx":440
- * 
+    /* "DECSKS/lib/boundaryconditions.pyx":404
+ *                     Uf_old[i,j] = -Uf_old[i,j]
  *     if k == 1:
  *         for j in range(Nvz / 2):             # <<<<<<<<<<<<<<
  *             for i in range(Nz):
@@ -5717,23 +5717,23 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
     for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_10; __pyx_t_5+=1) {
       __pyx_v_j = __pyx_t_5;
 
-      /* "DECSKS/lib/boundaryconditions.pyx":441
+      /* "DECSKS/lib/boundaryconditions.pyx":405
  *     if k == 1:
  *         for j in range(Nvz / 2):
  *             for i in range(Nz):             # <<<<<<<<<<<<<<
  *                 if zpostpointmesh[i,j] <= 0:
- *                     #                    print "if zpostpointmesh < 0, prepoint at (i,j) = (%d,%d)" % (i,j)
+ *                     # prepare for partner remap in lib.convect_configuration.remap_step
  */
       __pyx_t_11 = __pyx_v_Nz;
       for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
         __pyx_v_i = __pyx_t_12;
 
-        /* "DECSKS/lib/boundaryconditions.pyx":442
+        /* "DECSKS/lib/boundaryconditions.pyx":406
  *         for j in range(Nvz / 2):
  *             for i in range(Nz):
  *                 if zpostpointmesh[i,j] <= 0:             # <<<<<<<<<<<<<<
- *                     #                    print "if zpostpointmesh < 0, prepoint at (i,j) = (%d,%d)" % (i,j)
- *                     #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
+ *                     # prepare for partner remap in lib.convect_configuration.remap_step
+ *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  */
         __pyx_t_27 = __pyx_v_i;
         __pyx_t_28 = __pyx_v_j;
@@ -5742,8 +5742,8 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
         __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_28, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)) <= 0) != 0);
         if (__pyx_t_9) {
 
-          /* "DECSKS/lib/boundaryconditions.pyx":451
- * 
+          /* "DECSKS/lib/boundaryconditions.pyx":408
+ *                 if zpostpointmesh[i,j] <= 0:
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]             # <<<<<<<<<<<<<<
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzpostpointmesh[i,j]
@@ -5759,12 +5759,12 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_32 < 0) __pyx_t_32 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_31, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_32, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides) = (-(*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_29, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_30, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":452
+          /* "DECSKS/lib/boundaryconditions.pyx":409
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzpostpointmesh[i,j]             # <<<<<<<<<<<<<<
  *                     Uf_old[i,j] = -Uf_old[i,j]
- *                     #                        print "corresponding entering partner found at [%d,%d]" % (-i,Nvz - 1 - j)
+ * 
  */
           __pyx_t_33 = __pyx_v_i;
           __pyx_t_34 = __pyx_v_j;
@@ -5776,12 +5776,12 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_36 < 0) __pyx_t_36 += __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_35, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_36, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides) = ((__pyx_v_Nvz - 1) - (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_33, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_34, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":453
+          /* "DECSKS/lib/boundaryconditions.pyx":410
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzpostpointmesh[i,j]
  *                     Uf_old[i,j] = -Uf_old[i,j]             # <<<<<<<<<<<<<<
- *                     #                        print "corresponding entering partner found at [%d,%d]" % (-i,Nvz - 1 - j)
- *                     #                        print "maps from (%d,%d) to (%d,%d)" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])
+ * 
+ *     z.postpointmesh[k,:,:] = zpostpointmesh
  */
           __pyx_t_37 = __pyx_v_i;
           __pyx_t_38 = __pyx_v_j;
@@ -5801,18 +5801,18 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   }
   __pyx_L9:;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":474
- *                     #                        print "maps from (%d,%d) to (%d,%d)" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])
+  /* "DECSKS/lib/boundaryconditions.pyx":412
+ *                     Uf_old[i,j] = -Uf_old[i,j]
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh             # <<<<<<<<<<<<<<
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
@@ -5823,22 +5823,22 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   __Pyx_GIVEREF(__pyx_slice__28);
   PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_slice__28);
   __pyx_t_2 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_zpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_zpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":475
+  /* "DECSKS/lib/boundaryconditions.pyx":413
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh             # <<<<<<<<<<<<<<
  * 
  *     return f_k, f_old, Uf_old
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_vz, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_vz, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1);
@@ -5849,17 +5849,17 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   __Pyx_GIVEREF(__pyx_slice__30);
   PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_slice__30);
   __pyx_t_1 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_vzpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_vzpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":477
+  /* "DECSKS/lib/boundaryconditions.pyx":415
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh
  * 
  *     return f_k, f_old, Uf_old             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 477; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 415; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_v_f_k));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_f_k));
@@ -8192,31 +8192,31 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice__26);
   __Pyx_GIVEREF(__pyx_slice__26);
 
-  /* "DECSKS/lib/boundaryconditions.pyx":474
- *                     #                        print "maps from (%d,%d) to (%d,%d)" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])
+  /* "DECSKS/lib/boundaryconditions.pyx":412
+ *                     Uf_old[i,j] = -Uf_old[i,j]
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh             # <<<<<<<<<<<<<<
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh
  * 
  */
-  __pyx_slice__27 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__27)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__27 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__27)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__27);
   __Pyx_GIVEREF(__pyx_slice__27);
-  __pyx_slice__28 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__28)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__28 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__28)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__28);
   __Pyx_GIVEREF(__pyx_slice__28);
 
-  /* "DECSKS/lib/boundaryconditions.pyx":475
+  /* "DECSKS/lib/boundaryconditions.pyx":413
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh             # <<<<<<<<<<<<<<
  * 
  *     return f_k, f_old, Uf_old
  */
-  __pyx_slice__29 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__29)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__29 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__29)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__29);
   __Pyx_GIVEREF(__pyx_slice__29);
-  __pyx_slice__30 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__30)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__30 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__30)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__30);
   __Pyx_GIVEREF(__pyx_slice__30);
 

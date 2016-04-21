@@ -395,80 +395,19 @@ def symmetric_lower_boundary(
     if k == 0:
         for j in range(Nvz/2):
             for i in range(Nz):
-                if zpostpointmesh[i,j] < 0:
-                    #                    print "if zpostpointmesh < 0, prepoint at (i,j) = (%d,%d)" % (i,j)
-                    #                    print "exiting particle found at [%d,%d] for k = %d" % (i,j, k)
-                    #                    print "maps from (%d,%d) to (%d,%d) with vx = %g" % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j], vzprepointvaluemesh[i,j])
-                    #                    print ""
-                    #                    print "postpointmesh changed from = %d" % zpostpointmesh[i,j]
+                if zpostpointmesh[i,j] <= 0:
                     # prepare for partner remap in lib.convect_configuration.remap_step
-                    #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
                     Uf_old[i,j] = -Uf_old[i,j]
-
-                    #                    print "corresponding entering partner should be at [%d,%d]" % (-i,Nvz - 1 - j)
-                    #                    print "maps from (%d,%d) to (%d,%d) with vx = %g" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j], vzprepointvaluemesh[i,Nvz-1-vzprepointmesh[i,j]])
-                    #                    print ""
-
-                    #                    print "to = %d" % zpostpointmesh[i,j]
-                    #                    print""
-
-                    #                elif zpostpointmesh[i,j] == 0:
-                    #                    print "if zpostpointmesh = 0, prepoint at (i,j) = (%d,%d)" % (i,j)
-                    #                        print "exiting particle found at [%d,%d] for k = %d" % (i,j, k)
-                    #                        print "maps from (%d,%d) to (%d,%d) = edge case" % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])
-
-                    # remap fraction of exiting density packet: f_k += f_old + Uf_old, U < 0
-                    #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
-                    #                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + f_old[i,j]
-                    #                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + Uf_old[i,j]
-
-                    # prepare for partner remap in lib.convect_configuration.remap_step
-                    # zpostpointmesh[i,j] = -zpostpointmesh[i,j] = 0 already
-                    #                    vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
-
-
-                    #                    Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
-
-                    #                        print "corresponding entering partner found at [%d,%d]" % (-i,Nvz - 1 - j)
-                    #                        print "maps from (%d,%d) to (%d,%d)" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])
-
-
     if k == 1:
         for j in range(Nvz / 2):
             for i in range(Nz):
                 if zpostpointmesh[i,j] <= 0:
-                    #                    print "if zpostpointmesh < 0, prepoint at (i,j) = (%d,%d)" % (i,j)
-                    #                    print "zpostpointmesh = %g" % zpostpointmesh[i,j]
-                    #                        print "zpostpoint that exits domain = %d" % zpostpointmesh[i,j]
-                    #                        print "exiting particle found at [%d,%d] for k = %d" % (i,j, k)
-                    #                        print "maps from (%d,%d) to (%d,%d)" % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])
-
-
                     # prepare for partner remap in lib.convect_configuration.remap_step
                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
                     vzpostpointmesh[i,j] = Nvz - 1 - vzpostpointmesh[i,j]
                     Uf_old[i,j] = -Uf_old[i,j]
-                    #                        print "corresponding entering partner found at [%d,%d]" % (-i,Nvz - 1 - j)
-                    #                        print "maps from (%d,%d) to (%d,%d)" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])
-
-
-                    #                elif zpostpointmesh[i,j] == 0:
-                    #                        print "zpostpoint that exits domain = %d" % zpostpointmesh[i,j]
-                    #                        print "exiting particle found at [%d,%d] for k = %d" % (i,j, k)
-                    #                        print "maps from (%d,%d) to (%d,%d) = edge case" % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])
-
-                    # remap fraction of exiting density packet: f_k += -Uf_old, U < 0
-                    #                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] - Uf_old[i,j]
-
-                    # prepare for partner remap in lib.convect_configuration.remap_step
-                    # zpostpointmesh[i,j] = -zpostpointmesh[i,j] = 0 already
-                    #                    vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
-                    #                    Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner
-
-                    #                        print "corresponding entering partner found at [%d,%d]" % (-i,Nvz - 1 - j)
-                    #                        print "maps from (%d,%d) to (%d,%d)" % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])
 
     z.postpointmesh[k,:,:] = zpostpointmesh
     vz.postpointmesh[k,:,:] = vzpostpointmesh

@@ -4120,22 +4120,15 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
 <pre class='cython code score-0'>      __pyx_t_11 = __pyx_v_Nz;
       for (__pyx_t_12 = 0; __pyx_t_12 &lt; __pyx_t_11; __pyx_t_12+=1) {
         __pyx_v_i = __pyx_t_12;
-</pre><pre class='cython line score-0'>&#xA0;398: </pre>
-<pre class='cython line score-0' onclick='toggleDiv(this)'>+399:                 <span class="k">if</span> <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0</span><span class="p">:</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+398:                 <span class="k">if</span> <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0</span><span class="p">:</span></pre>
 <pre class='cython code score-0'>        __pyx_t_13 = __pyx_v_i;
         __pyx_t_14 = __pyx_v_j;
         if (__pyx_t_13 &lt; 0) __pyx_t_13 += __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape;
         if (__pyx_t_14 &lt; 0) __pyx_t_14 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
         __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)) &lt;= 0) != 0);
         if (__pyx_t_9) {
-</pre><pre class='cython line score-0'>&#xA0;400:                     <span class="c">#                    print &quot;if zpostpointmesh &lt; 0, prepoint at (i,j) = (%d,%d)&quot; % (i,j)</span></pre>
-<pre class='cython line score-0'>&#xA0;401:                     <span class="c">#                    print &quot;exiting particle found at [%d,%d] for k = %d&quot; % (i,j, k)</span></pre>
-<pre class='cython line score-0'>&#xA0;402:                     <span class="c">#                    print &quot;maps from (%d,%d) to (%d,%d) with vx = %g&quot; % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j], vzprepointvaluemesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;403:                     <span class="c">#                    print &quot;&quot;</span></pre>
-<pre class='cython line score-0'>&#xA0;404:                     <span class="c">#                    print &quot;postpointmesh changed from = %d&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;405:                     <span class="c"># prepare for partner remap in lib.convect_configuration.remap_step</span></pre>
-<pre class='cython line score-0'>&#xA0;406:                     <span class="c">#                    print &quot;zpostpointmesh = %g&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0' onclick='toggleDiv(this)'>+407:                     <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
+</pre><pre class='cython line score-0'>&#xA0;399:                     <span class="c"># prepare for partner remap in lib.convect_configuration.remap_step</span></pre>
+<pre class='cython line score-0' onclick='toggleDiv(this)'>+400:                     <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
 <pre class='cython code score-0'>          __pyx_t_15 = __pyx_v_i;
           __pyx_t_16 = __pyx_v_j;
           if (__pyx_t_15 &lt; 0) __pyx_t_15 += __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape;
@@ -4145,7 +4138,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_17 &lt; 0) __pyx_t_17 += __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape;
           if (__pyx_t_18 &lt; 0) __pyx_t_18 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides) = (-(*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)));
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+408:                     <span class="n">vzpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nvz</span> <span class="o">-</span> <span class="mf">1</span> <span class="o">-</span> <span class="n">vzprepointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+401:                     <span class="n">vzpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nvz</span> <span class="o">-</span> <span class="mf">1</span> <span class="o">-</span> <span class="n">vzprepointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
 <pre class='cython code score-0'>          __pyx_t_19 = __pyx_v_i;
           __pyx_t_20 = __pyx_v_j;
           if (__pyx_t_19 &lt; 0) __pyx_t_19 += __pyx_pybuffernd_vzprepointmesh.diminfo[0].shape;
@@ -4155,7 +4148,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_21 &lt; 0) __pyx_t_21 += __pyx_pybuffernd_vzpostpointmesh.diminfo[0].shape;
           if (__pyx_t_22 &lt; 0) __pyx_t_22 += __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides) = ((__pyx_v_Nvz - 1) - (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzprepointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_vzprepointmesh.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_vzprepointmesh.diminfo[1].strides)));
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+409:                     <span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+402:                     <span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
 <pre class='cython code score-0'>          __pyx_t_23 = __pyx_v_i;
           __pyx_t_24 = __pyx_v_j;
           if (__pyx_t_23 &lt; 0) __pyx_t_23 += __pyx_pybuffernd_Uf_old.diminfo[0].shape;
@@ -4173,62 +4166,26 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
     goto __pyx_L3;
   }
   __pyx_L3:;
-</pre><pre class='cython line score-0'>&#xA0;410: </pre>
-<pre class='cython line score-0'>&#xA0;411:                     <span class="c">#                    print &quot;corresponding entering partner should be at [%d,%d]&quot; % (-i,Nvz - 1 - j)</span></pre>
-<pre class='cython line score-0'>&#xA0;412:                     <span class="c">#                    print &quot;maps from (%d,%d) to (%d,%d) with vx = %g&quot; % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j], vzprepointvaluemesh[i,Nvz-1-vzprepointmesh[i,j]])</span></pre>
-<pre class='cython line score-0'>&#xA0;413:                     <span class="c">#                    print &quot;&quot;</span></pre>
-<pre class='cython line score-0'>&#xA0;414: </pre>
-<pre class='cython line score-0'>&#xA0;415:                     <span class="c">#                    print &quot;to = %d&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;416:                     <span class="c">#                    print&quot;&quot;</span></pre>
-<pre class='cython line score-0'>&#xA0;417: </pre>
-<pre class='cython line score-0'>&#xA0;418:                     <span class="c">#                elif zpostpointmesh[i,j] == 0:</span></pre>
-<pre class='cython line score-0'>&#xA0;419:                     <span class="c">#                    print &quot;if zpostpointmesh = 0, prepoint at (i,j) = (%d,%d)&quot; % (i,j)</span></pre>
-<pre class='cython line score-0'>&#xA0;420:                     <span class="c">#                        print &quot;exiting particle found at [%d,%d] for k = %d&quot; % (i,j, k)</span></pre>
-<pre class='cython line score-0'>&#xA0;421:                     <span class="c">#                        print &quot;maps from (%d,%d) to (%d,%d) = edge case&quot; % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;422: </pre>
-<pre class='cython line score-0'>&#xA0;423:                     <span class="c"># remap fraction of exiting density packet: f_k += f_old + Uf_old, U &lt; 0</span></pre>
-<pre class='cython line score-0'>&#xA0;424:                     <span class="c">#                    print &quot;zpostpointmesh = %g&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;425:                     <span class="c">#                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + f_old[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;426:                     <span class="c">#                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] + Uf_old[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;427: </pre>
-<pre class='cython line score-0'>&#xA0;428:                     <span class="c"># prepare for partner remap in lib.convect_configuration.remap_step</span></pre>
-<pre class='cython line score-0'>&#xA0;429:                     <span class="c"># zpostpointmesh[i,j] = -zpostpointmesh[i,j] = 0 already</span></pre>
-<pre class='cython line score-0'>&#xA0;430:                     <span class="c">#                    vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;431: </pre>
-<pre class='cython line score-0'>&#xA0;432: </pre>
-<pre class='cython line score-0'>&#xA0;433:                     <span class="c">#                    Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner</span></pre>
-<pre class='cython line score-0'>&#xA0;434: </pre>
-<pre class='cython line score-0'>&#xA0;435:                     <span class="c">#                        print &quot;corresponding entering partner found at [%d,%d]&quot; % (-i,Nvz - 1 - j)</span></pre>
-<pre class='cython line score-0'>&#xA0;436:                     <span class="c">#                        print &quot;maps from (%d,%d) to (%d,%d)&quot; % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;437: </pre>
-<pre class='cython line score-0'>&#xA0;438: </pre>
-<pre class='cython line score-0' onclick='toggleDiv(this)'>+439:     <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mf">1</span><span class="p">:</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+403:     <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mf">1</span><span class="p">:</span></pre>
 <pre class='cython code score-0'>  __pyx_t_9 = ((__pyx_v_k == 1) != 0);
   if (__pyx_t_9) {
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+440:         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nvz</span> <span class="o">/</span> <span class="mf">2</span><span class="p">):</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+404:         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nvz</span> <span class="o">/</span> <span class="mf">2</span><span class="p">):</span></pre>
 <pre class='cython code score-0'>    __pyx_t_10 = __Pyx_div_long(__pyx_v_Nvz, 2);
     for (__pyx_t_5 = 0; __pyx_t_5 &lt; __pyx_t_10; __pyx_t_5+=1) {
       __pyx_v_j = __pyx_t_5;
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+441:             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nz</span><span class="p">):</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+405:             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nz</span><span class="p">):</span></pre>
 <pre class='cython code score-0'>      __pyx_t_11 = __pyx_v_Nz;
       for (__pyx_t_12 = 0; __pyx_t_12 &lt; __pyx_t_11; __pyx_t_12+=1) {
         __pyx_v_i = __pyx_t_12;
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+442:                 <span class="k">if</span> <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0</span><span class="p">:</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+406:                 <span class="k">if</span> <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0</span><span class="p">:</span></pre>
 <pre class='cython code score-0'>        __pyx_t_27 = __pyx_v_i;
         __pyx_t_28 = __pyx_v_j;
         if (__pyx_t_27 &lt; 0) __pyx_t_27 += __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape;
         if (__pyx_t_28 &lt; 0) __pyx_t_28 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
         __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_28, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)) &lt;= 0) != 0);
         if (__pyx_t_9) {
-</pre><pre class='cython line score-0'>&#xA0;443:                     <span class="c">#                    print &quot;if zpostpointmesh &lt; 0, prepoint at (i,j) = (%d,%d)&quot; % (i,j)</span></pre>
-<pre class='cython line score-0'>&#xA0;444:                     <span class="c">#                    print &quot;zpostpointmesh = %g&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;445:                     <span class="c">#                        print &quot;zpostpoint that exits domain = %d&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;446:                     <span class="c">#                        print &quot;exiting particle found at [%d,%d] for k = %d&quot; % (i,j, k)</span></pre>
-<pre class='cython line score-0'>&#xA0;447:                     <span class="c">#                        print &quot;maps from (%d,%d) to (%d,%d)&quot; % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;448: </pre>
-<pre class='cython line score-0'>&#xA0;449: </pre>
-<pre class='cython line score-0'>&#xA0;450:                     <span class="c"># prepare for partner remap in lib.convect_configuration.remap_step</span></pre>
-<pre class='cython line score-0' onclick='toggleDiv(this)'>+451:                     <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
+</pre><pre class='cython line score-0'>&#xA0;407:                     <span class="c"># prepare for partner remap in lib.convect_configuration.remap_step</span></pre>
+<pre class='cython line score-0' onclick='toggleDiv(this)'>+408:                     <span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">zpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
 <pre class='cython code score-0'>          __pyx_t_29 = __pyx_v_i;
           __pyx_t_30 = __pyx_v_j;
           if (__pyx_t_29 &lt; 0) __pyx_t_29 += __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape;
@@ -4238,7 +4195,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_31 &lt; 0) __pyx_t_31 += __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape;
           if (__pyx_t_32 &lt; 0) __pyx_t_32 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_31, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_32, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides) = (-(*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_29, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_30, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)));
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+452:                     <span class="n">vzpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nvz</span> <span class="o">-</span> <span class="mf">1</span> <span class="o">-</span> <span class="n">vzpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+409:                     <span class="n">vzpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nvz</span> <span class="o">-</span> <span class="mf">1</span> <span class="o">-</span> <span class="n">vzpostpointmesh</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
 <pre class='cython code score-0'>          __pyx_t_33 = __pyx_v_i;
           __pyx_t_34 = __pyx_v_j;
           if (__pyx_t_33 &lt; 0) __pyx_t_33 += __pyx_pybuffernd_vzpostpointmesh.diminfo[0].shape;
@@ -4248,7 +4205,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
           if (__pyx_t_35 &lt; 0) __pyx_t_35 += __pyx_pybuffernd_vzpostpointmesh.diminfo[0].shape;
           if (__pyx_t_36 &lt; 0) __pyx_t_36 += __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_35, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_36, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides) = ((__pyx_v_Nvz - 1) - (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer-&gt;pybuffer.buf, __pyx_t_33, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_34, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides)));
-</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+453:                     <span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
+</pre><pre class='cython line score-0' onclick='toggleDiv(this)'>+410:                     <span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">Uf_old</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span></pre>
 <pre class='cython code score-0'>          __pyx_t_37 = __pyx_v_i;
           __pyx_t_38 = __pyx_v_j;
           if (__pyx_t_37 &lt; 0) __pyx_t_37 += __pyx_pybuffernd_Uf_old.diminfo[0].shape;
@@ -4266,36 +4223,17 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
     goto __pyx_L9;
   }
   __pyx_L9:;
-</pre><pre class='cython line score-0'>&#xA0;454:                     <span class="c">#                        print &quot;corresponding entering partner found at [%d,%d]&quot; % (-i,Nvz - 1 - j)</span></pre>
-<pre class='cython line score-0'>&#xA0;455:                     <span class="c">#                        print &quot;maps from (%d,%d) to (%d,%d)&quot; % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;456: </pre>
-<pre class='cython line score-0'>&#xA0;457: </pre>
-<pre class='cython line score-0'>&#xA0;458:                     <span class="c">#                elif zpostpointmesh[i,j] == 0:</span></pre>
-<pre class='cython line score-0'>&#xA0;459:                     <span class="c">#                        print &quot;zpostpoint that exits domain = %d&quot; % zpostpointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;460:                     <span class="c">#                        print &quot;exiting particle found at [%d,%d] for k = %d&quot; % (i,j, k)</span></pre>
-<pre class='cython line score-0'>&#xA0;461:                     <span class="c">#                        print &quot;maps from (%d,%d) to (%d,%d) = edge case&quot; % (i,j, zpostpointmesh[i,j], vzprepointmesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;462: </pre>
-<pre class='cython line score-0'>&#xA0;463:                     <span class="c"># remap fraction of exiting density packet: f_k += -Uf_old, U &lt; 0</span></pre>
-<pre class='cython line score-0'>&#xA0;464:                     <span class="c">#                    f_k[zpostpointmesh[i,j],j] = f_k[zpostpointmesh[i,j],j] - Uf_old[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;465: </pre>
-<pre class='cython line score-0'>&#xA0;466:                     <span class="c"># prepare for partner remap in lib.convect_configuration.remap_step</span></pre>
-<pre class='cython line score-0'>&#xA0;467:                     <span class="c"># zpostpointmesh[i,j] = -zpostpointmesh[i,j] = 0 already</span></pre>
-<pre class='cython line score-0'>&#xA0;468:                     <span class="c">#                    vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]</span></pre>
-<pre class='cython line score-0'>&#xA0;469:                     <span class="c">#                    Uf_old[i,j] = -Uf_old[i,j] # for subsequent remapping of the entering partner</span></pre>
-<pre class='cython line score-0'>&#xA0;470: </pre>
-<pre class='cython line score-0'>&#xA0;471:                     <span class="c">#                        print &quot;corresponding entering partner found at [%d,%d]&quot; % (-i,Nvz - 1 - j)</span></pre>
-<pre class='cython line score-0'>&#xA0;472:                     <span class="c">#                        print &quot;maps from (%d,%d) to (%d,%d)&quot; % (-i,Nvz - 1 - j, zpostpointmesh[i,j], vzpostpointmesh[i,j])</span></pre>
-<pre class='cython line score-0'>&#xA0;473: </pre>
-<pre class='cython line score-31' onclick='toggleDiv(this)'>+474:     <span class="n">z</span><span class="o">.</span><span class="n">postpointmesh</span><span class="p">[</span><span class="n">k</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">zpostpointmesh</span></pre>
-<pre class='cython code score-31'>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_z, __pyx_n_s_postpointmesh);<span class='error_goto'> if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+</pre><pre class='cython line score-0'>&#xA0;411: </pre>
+<pre class='cython line score-31' onclick='toggleDiv(this)'>+412:     <span class="n">z</span><span class="o">.</span><span class="n">postpointmesh</span><span class="p">[</span><span class="n">k</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">zpostpointmesh</span></pre>
+<pre class='cython code score-31'>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_z, __pyx_n_s_postpointmesh);<span class='error_goto'> if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_k);<span class='error_goto'> if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_k);<span class='error_goto'> if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
 /* … */
-  __pyx_slice__27 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__27)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_slice__27 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__27)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__27);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__27);
-  __pyx_t_3 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_t_3 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_2);
   <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_3, 0, __pyx_t_2);
@@ -4306,22 +4244,22 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__28);
   <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_3, 2, __pyx_slice__28);
   __pyx_t_2 = 0;
-  if (unlikely(<span class='py_c_api'>PyObject_SetItem</span>(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_zpostpointmesh)) &lt; 0)) <span class='error_goto'>{__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  if (unlikely(<span class='py_c_api'>PyObject_SetItem</span>(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_zpostpointmesh)) &lt; 0)) <span class='error_goto'>{__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_slice__28 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__28)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 474; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_slice__28 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__28)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__28);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__28);
-</pre><pre class='cython line score-31' onclick='toggleDiv(this)'>+475:     <span class="n">vz</span><span class="o">.</span><span class="n">postpointmesh</span><span class="p">[</span><span class="n">k</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">vzpostpointmesh</span></pre>
-<pre class='cython code score-31'>  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_vz, __pyx_n_s_postpointmesh);<span class='error_goto'> if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+</pre><pre class='cython line score-31' onclick='toggleDiv(this)'>+413:     <span class="n">vz</span><span class="o">.</span><span class="n">postpointmesh</span><span class="p">[</span><span class="n">k</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">vzpostpointmesh</span></pre>
+<pre class='cython code score-31'>  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_vz, __pyx_n_s_postpointmesh);<span class='error_goto'> if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_k);<span class='error_goto'> if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_k);<span class='error_goto'> if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
 /* … */
-  __pyx_slice__29 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__29)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_slice__29 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__29)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__29);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__29);
-  __pyx_t_2 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_t_2 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_1);
   <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_2, 0, __pyx_t_1);
@@ -4332,16 +4270,16 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14symmetric_lower_bo
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__30);
   <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_2, 2, __pyx_slice__30);
   __pyx_t_1 = 0;
-  if (unlikely(<span class='py_c_api'>PyObject_SetItem</span>(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_vzpostpointmesh)) &lt; 0)) <span class='error_goto'>{__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  if (unlikely(<span class='py_c_api'>PyObject_SetItem</span>(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_vzpostpointmesh)) &lt; 0)) <span class='error_goto'>{__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_slice__30 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__30)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 475; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_slice__30 = <span class='py_c_api'>PySlice_New</span>(Py_None, Py_None, Py_None);<span class='error_goto'> if (unlikely(!__pyx_slice__30)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 413; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_slice__30);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_slice__30);
-</pre><pre class='cython line score-0'>&#xA0;476: </pre>
-<pre class='cython line score-12' onclick='toggleDiv(this)'>+477:     <span class="k">return</span> <span class="n">f_k</span><span class="p">,</span> <span class="n">f_old</span><span class="p">,</span> <span class="n">Uf_old</span></pre>
+</pre><pre class='cython line score-0'>&#xA0;414: </pre>
+<pre class='cython line score-12' onclick='toggleDiv(this)'>+415:     <span class="k">return</span> <span class="n">f_k</span><span class="p">,</span> <span class="n">f_old</span><span class="p">,</span> <span class="n">Uf_old</span></pre>
 <pre class='cython code score-12'>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_2 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 477; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
+  __pyx_t_2 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 415; __pyx_clineno = __LINE__; goto __pyx_L1_error;}</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(((PyObject *)__pyx_v_f_k));
   <span class='refnanny'>__Pyx_GIVEREF</span>(((PyObject *)__pyx_v_f_k));

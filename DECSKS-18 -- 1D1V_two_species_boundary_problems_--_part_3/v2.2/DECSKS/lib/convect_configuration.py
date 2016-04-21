@@ -219,6 +219,9 @@ def remap_step(
     # we accomplish the above through the following set of operations in order to minimize the computational cost
 
     #        f_k1 = 0
+    #        f_kl += any changes from boundary conditions (e.g. symmetry boundary will remap exiting particles
+    #                that reach i = 0 before it trades the identity of the exiting particle density and flux
+    #                with its corresponding entering partner for susbequent remapping per lib.remap.assignment)
     #        f_k1 += f_copy
     #        f_k1 -= Uf_copy[i,j]  for all such [i,j] corresponding to CFL >= 0
     #        f_k1 += Uf_copy[i,j]  for all such [i,j] CFL < 0
