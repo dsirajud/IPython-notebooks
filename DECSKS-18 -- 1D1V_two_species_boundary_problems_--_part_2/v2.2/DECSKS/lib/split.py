@@ -22,49 +22,52 @@ def scheme(
     outputs:
     f -- (ndarray, dim=3) f(n+1,x,v)
     """
+    x.CFL.compute_numbers_for_all_stages(
+        sim_params,
+        x,
+        vx,
+        t
+        )
 
-    # compute all CFL numbers for configuration variables beforehand
-    x.CFL.compute_all_numbers(sim_params, x, vx, t)
-    c = DECSKS.lib.HOC.correctors_on_configuration(sim_params, x, vx, t)
-
+    cx = DECSKS.lib.HOC.compute_all_correctors_on_a_configuration_variable(
+        sim_params,
+        x,
+        vx,
+        t
+        )
     # retrieve sub-dictionary containing splitting coefficients and composition order
     splitting = sim_params['splitting']
     coeff = splitting['order']['coeffs']
     stage = splitting['order']['stages']
+
     tic = time.time()
     for s in range(len(stage)):
         split_coeff = splitting[coeff[s]][int(stage[s])]
         if coeff[s] == 'a': # advect x
 
-            # the advection along characteristics are calculated
-            # a priori and stored in x.CFL.numbers[stage[s],:,:],
-            # where stage[s] labels the (sub)stage of the full time step.
-            # Hence, all the information needed to accomplish the
-            # advection of each cell is communicated by passing
-            # the stage[s] argument below along with x.CFL.numbers
-            # which permits the advection distances to be accessed
-            # as needed.
-
             fe = DECSKS.lib.convect_configuration.scheme(
                     fe,
-                    int(stage[s]), n,
-                    sim_params, c,
+                    n,
+                    int(stage[s]),
+                    sim_params,
+                    cx[int(stage[s]),:,:], # pass the 2D array coresponding to current stage
                     z = x,
                     vz = vx,
                     charge = -1)
 
             fi = DECSKS.lib.convect_configuration.scheme(
                     fi,
-                    int(stage[s]),n,
-                    sim_params, c,
+                    n,
+                    int(stage[s]),
+                    sim_params,
+                    cx[int(stage[s]),:,:],
                     z = x,
                     vz = vx,
                     charge = 1)
 
-        elif coeff[s] == 'b': # advect vx
+        elif coeff[s] == 'b': # advect v
             # calculate electric field at most recent positions of ions and electrons
-            Ex = eval(sim_params['compute_electric_field_orchestrator_handle']['x'])(fe, fi, x, vx, sim_params)
-
+            Ex = eval(sim_params['compute_electric_field_orchestrator_handle']['x'])(fe, fi, x, vx, n, sim_params)
             # advect electron velocities
             ax.prepointvaluemesh = -Ex
             vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)

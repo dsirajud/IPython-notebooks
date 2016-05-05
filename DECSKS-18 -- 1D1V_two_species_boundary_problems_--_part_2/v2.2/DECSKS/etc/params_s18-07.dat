@@ -37,8 +37,8 @@ Number of grid points, vz = None
 lower boundary value avz = None
 upper boundary value bvz = None
 
-Number of time steps, Nt = 500
-Simulation duration, time T = 5
+Number of time steps, Nt = 700
+Simulation duration, time T = 7
 
 -------------------------------------------------------------------------------
 High order corrections 
@@ -58,7 +58,7 @@ high order correction on x: fd
 high order correction on y: None
 high order correction on z: None
 
-high order correction on vx: fourier
+high order correction on vx: fd
 high order correction on vy: None
 high order correction on vz: None
 

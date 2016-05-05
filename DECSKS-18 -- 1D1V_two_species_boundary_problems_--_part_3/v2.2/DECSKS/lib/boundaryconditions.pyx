@@ -9,11 +9,11 @@ DTYPEINT = np.int64
 ctypedef np.float64_t DTYPE_t
 ctypedef np.int64_t DTYPEINT_t
 
-
 # PYTHON METHODS
 def periodic(f_k,
              f_old,
              Uf,
+             t,
              z,
              vz,
              sim_params,
@@ -37,30 +37,16 @@ def periodic(f_k,
              updated attribute z.postpointmesh
 
     f_old, Uf returned for symmetry with nonperiodic routine below
-
-    NOTE: f_k is the distribution function contribution to all postpoints k.
-    Only a symmetry boundary condition requires access to this object as it needs
-    to make sure particles whose postpoints are exactly on the symmetry plane
-    are factored in before replacing them in the reused f_old and Uf_old objects
-    with their entering partners which are subsequently remapped as usual. This
-    special consideration is described in github.com/dsirajud/../DECSKS-18 part 3 notebook.
     """
-
-    # this orchestrator is called if periodic boundary conditions are specified on the distribution
-    # function if a velocity variable or if periodic boundary conditions are specfied on BOTH
-    # the distribution function for the configuration variable and its corresponding boundary conditions
-    # on the electrostatic potential phi (note that periodic BCs on one but not the other does not make
-    # sense and DECSKS will not accept such an input file; simulation will not start and InputErrors
-    # will be broadcasted to the user)
-
     z.postpointmesh[k,:,:] = np.mod(z.postpointmesh[k,:,:], z.N)
-    vz.postpointmesh[k,:,:] = vz.prepointmesh
+    vz.postpointmesh[k,:,:] = vz.prepointmesh.copy()     # assign to a copy so that changes to postpointmesh do not affect prepointmesh
 
-    return f_k, f_old, Uf
+    return f_k, f_old, Uf, z
 
 def nonperiodic(f_k,
                 f_old,
                 Uf,
+                t,
                 z,
                 vz,
                 sim_params,
@@ -84,21 +70,21 @@ def nonperiodic(f_k,
 
 
     z returned (no changes) for symmetry with periodic routine above
-
-    NOTE: f_k is the distribution function contribution to all postpoints k.
-    Only a symmetry boundary condition requires access to this object as it needs
-    to make sure particles whose postpoints are exactly on the symmetry plane
-    are factored in before replacing them in the reused f_old and Uf_old objects
-    with their entering partners which are subsequently remapped as usual. This
-    special consideration is described in github.com/dsirajud/../DECSKS-18 part 3 notebook.
     """
+
+    # initialize vz.postpointmesh to be prepointmesh values. Some boundary routines may require modifying these, most will not
+    vz.postpointmesh[k,:,:] = vz.prepointmesh.copy() # assign to a copy so that changes to postpointmesh do not affect prepointmesh
+
     # lower boundary
-    f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['lower'])(
+    f_k, f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['lower'])(
+                                              f_k,     # only lower symmetry boundary would need access to this
                                               f_old,
                                               Uf,
                                               z.postpointmesh[k,:,:],
+                                              vz.postpointmesh[k,:,:],
                                               vz.prepointmesh,
                                               vz.prepointvaluemesh,
+                                              t.width,
                                               z.N, vz.N, k, charge,
                                               sim_params,
                                               z, vz)
@@ -108,98 +94,28 @@ def nonperiodic(f_k,
                                               f_old,
                                               Uf,
                                               z.postpointmesh[k,:,:],
+                                              vz.postpointmesh[k,:,:],
                                               vz.prepointmesh,
                                               vz.prepointvaluemesh,
+                                              t.width,
                                               z.N, vz.N, k, charge,
                                               sim_params,
                                               z, vz)
 
 
-    # this orchestrator will be called if the distribution function boundary conditions are
-    #
-    #    (1) absorbing
-    #    (2) collector
-    #
-    # these boundary conditions remove particles from the distribution function and eithier
-    # absorbs them at walls with zero further influece (i.e. such a condition would be specified for
-    # biased electrodes at a constant voltage), or their charge is collected and then asborbed.
-    # the routine absorbs (zeroes out the density) and sets their postpoints to correspond
-    # to such a wall where they are absorbed/collected. The remap procedure in the parent
-    # function (convect_configuration or convect_velocity) then remaps these zeroed entries
-    # to the gridpoint corresponding to the wall, which contribute zero. There is no numerical
-    # need to change the velocity postpoints as the entries of the distribution themselves which
-    # are zero do not affect the distribution function hereafter, so its velocity postpoints
-    # are inconsequential.
-    #
-    vz.postpointmesh[k,:,:] = vz.prepointmesh
-
-    return f_k, f_old, Uf
-
-def symmetric(f_k,
-              f_old,
-              Uf,
-              z,
-              vz,
-              sim_params,
-              charge,
-              k = 0
-              ):
-    """orchestrates applying nonperiodic boundary conditions
-    to the array w with total active grid points Nw. Nonperiodic
-    boundary conditions require handling both left and right
-    boundaries
-
-    inputs:
-    f_old -- (ndarray, ndim=2) density array
-    z -- (instance) phase space variable being evolved
-
-    outputs:
-    f_old -- (ndarray, ndim=2) density with both left and right
-             nonperiodic BCs enforced
-    Uf -- (ndarray, ndim=2) high order fluxes with both left and right
-             nonperiodic BCs enforced
-
-
-    z returned (no changes) for symmetry with periodic routine above
-    """
-
-    # lower boundary
-    f_k, f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['lower'])(f_k,
-                                                                                                   f_old,
-                                                                                                   Uf,
-                                                                                                   z.postpointmesh[k,:,:],
-                                                                                                   vz.prepointmesh,
-                                                                                                   vz.postpointmesh[k,:,:],
-                                                                                                   vz.prepointvaluemesh,
-                                                                                                   z.N, vz.N, k,
-                                                                                                   charge,
-                                                                                                   sim_params,
-                                                                                                   z, vz)
-
-
-    # upper boundary
-    f_old, Uf = eval(sim_params['distribution_function_boundarycondition_handle'][z.str]['upper'])(
-                                              f_old,
-                                              Uf,
-                                              z.postpointmesh[k,:,:],
-                                              vz.prepointmesh,
-                                              vz.prepointvaluemesh,
-                                              z.N, vz.N, k, charge,
-                                              sim_params,
-                                              z, vz)
-
-
-    # vz.postpointmesh[k,:,:] to be set in boundaryconditions.symmetric_lower_boundary
-
-    return f_k, f_old, Uf
+    #    vz.postpointmesh[k,:,:] = vz.prepointmesh
+    return f_k, f_old, Uf, z
 
 # CYTHON METHODS
 @cython.boundscheck(False)
-def absorbing_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
+def absorbing_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_k,
+                              np.ndarray[DTYPE_t, ndim=2] f_old,
                               np.ndarray[DTYPE_t, ndim=2] Uf_old,
                               np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
+                              np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
                               np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
                               np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
                               int Nz, int Nvz, int k, int charge,
                               sim_params,
                               z, vz):
@@ -216,14 +132,16 @@ def absorbing_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
     # permanently copy to instance attribute
     z.postpointmesh[k,:,:] = zpostpointmesh
 
-    return f_old, Uf_old
+    return f_k, f_old, Uf_old
 
 @cython.boundscheck(False)
 def absorbing_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
                               np.ndarray[DTYPE_t, ndim=2] Uf_old,
                               np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
+                              np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
                               np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
                               np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
                               int Nz, int Nvz, int k, int charge,
                               sim_params,
                               z, vz):
@@ -243,13 +161,73 @@ def absorbing_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
 
     return f_old, Uf_old
 
+
+@cython.boundscheck(False)
+def cutoff_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_k,
+                          np.ndarray[DTYPE_t, ndim=2] f_old,
+                              np.ndarray[DTYPE_t, ndim=2] Uf_old,
+                              np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
+                              np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
+                              np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
+                              np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
+                              int Nz, int Nvz, int k, int charge,
+                              sim_params,
+                              z, vz):
+
+    # vars here are typed as C data types to minimize python interaction
+    cdef int i, j
+    for i in range(Nz):
+        for j in range(Nvz):
+            if zpostpointmesh[i,j] < 0:
+                f_old[i,j] = 0
+                Uf_old[i,j] = 0
+                zpostpointmesh[i,j] = 0 # set postpoint whose density/flux is zero
+                                        # to a dummy gridpoint, e.g. lower boundary
+
+    # permanently copy to instance attribute
+    z.postpointmesh[k,:,:] = zpostpointmesh
+
+    return f_k, f_old, Uf_old
+
+@cython.boundscheck(False)
+def cutoff_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
+                              np.ndarray[DTYPE_t, ndim=2] Uf_old,
+                              np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
+                              np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
+                              np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
+                              np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
+                              int Nz, int Nvz, int k, int charge,
+                              sim_params,
+                              z, vz):
+
+    # vars here are typed as C data types to minimize python interaction
+    cdef int i, j
+    for i in range(Nz):
+        for j in range(Nvz):
+            if zpostpointmesh[i,j] > Nz - 1:
+                f_old[i,j] = 0
+                Uf_old[i,j] = 0
+
+                zpostpointmesh[i,j] = Nz - 1 # set postpoint whose density/flux is zero
+                                             # to a dummy gridpoint, e.g. upper boundary
+
+    # permanently copy to instance attribute
+    z.postpointmesh[k,:,:] = zpostpointmesh
+
+    return f_old, Uf_old
+
 @cython.boundscheck(False)
 def collector_lower_boundary(
+        np.ndarray[DTYPE_t, ndim=2] f_k,
         np.ndarray[DTYPE_t, ndim=2] f_old,
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
+        np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+        float dt,
         int Nz, int Nvz, int k, int charge,
         sim_params,
         z, vz
@@ -287,18 +265,20 @@ def collector_lower_boundary(
     sigma_nk *= vzwidth
 
     # update cumulative charge density
-    sim_params['sigma'][z.str]['lower'] += sigma_nk
+    sim_params['sigma'][z.str]['lower'] += sigma_nk*dt
     z.postpointmesh[k,:,:] = zpostpointmesh
 
-    return f_old, Uf_old
+    return f_k, f_old, Uf_old
 
 @cython.boundscheck(False)
 def collector_upper_boundary(
         np.ndarray[DTYPE_t, ndim=2] f_old,
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
+        np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+        float dt,
         int Nz, int Nvz, int k, int charge,
         sim_params,
         z, vz
@@ -336,8 +316,10 @@ def collector_upper_boundary(
     sigma_nk *= charge
     sigma_nk *= vzwidth
 
-    # update cumulative charge density
-    sim_params['sigma'][z.str]['upper'] += sigma_nk
+
+    # update cumulative charge density sigma = sum_k sum_j sum_n sigma_nk * dvx * dt
+    # k = k1, k2, j = 0, ..., Nvx -1, n = 0, 1, 2, ... Nt
+    sim_params['sigma'][z.str]['upper'] += sigma_nk*dt
     z.postpointmesh[k,:,:] = zpostpointmesh
 
     return f_old, Uf_old
@@ -348,45 +330,45 @@ def symmetric_lower_boundary(
         np.ndarray[DTYPE_t, ndim=2] f_old,
         np.ndarray[DTYPE_t, ndim=2] Uf_old,
         np.ndarray[DTYPEINT_t, ndim=2] zpostpointmesh,
-        np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
+        np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+        float dt,
         int Nz, int Nvz, int k,
         int charge,
         sim_params,
         z, vz
         ):
-    """
 
-    This routine assumes a time substep is positive as the Vlasov-Poisson system are irreversible
+    """
+    This routine assumes a time substep is positive as the Vlasov-Poisson system is irreversible
     when boundaries are present (i.e. the upper boundary cannot be periodic/open in this setup)
 
-    this boundary condition must not inherently must operate on a symmetric velocity grid,
-    but it is more natural and consistent this way.
+    this boundary condition must not inherently operate on a symmetric velocity grid,
+    but it is more natural and consistent this way. Some rationale is given below:
 
     For example, if an exiting particle at the symmetry plane has
-    a velocity V1 < 0, it is the case that there exists an entering partner particle from the
+    a velocity V1 < 0, it is the physical case that there exists an entering partner particle from the
     complement domain with oppositely directly velocity -V1 > 0. If a symmetric velocity
     grid, i.e. [avx, bvx] = [-V, V], is used then it is always possible to factor in both
     exiting (V1 < 0) density with entering partners (-V1 > 0) provided that V1 is inside [-V,V].
 
     If we have an asymmetric case where [avx, bvx] where avx != -bvx, then in the handling
-    of the symmetry plane, there would be cases where such an exiting particle having V1 < 0 could
-    its entering partner with velocity -V1 could not be represented (i.e. if avx < V1 is in the velocity grid,
-    but bvx < -V1). There are two options for handling this, one of which is erroneous.
+    of the symmetry plane, there would be cases where such an exiting particle having V1 < 0 would have
+    its entering partner with velocity -V1 not be representable (i.e. if avx < V1 is in the velocity grid,
+    but bvx < -V1). We permit options so that the user may elect to take the following alternative to
+    a symmetric velocity grid, i.e.
 
-        (1) [Erroneous] The routine could try to muster some approximation to the scenario by
-            taking the maximum value on the grid, but that would be unphysical.
+    We could still argue that it would be appropriate to handle such situations where the entering partner
+    velocity is off-grid (at too largely positive of a value for a given grid [avx, bvx])
+    then to take the partner density to be zero and interpret the  situation as the "window" or
+    control volume in phase space. Thus, any entering particle with off-grid velocities will not re-enter
+    the domain as their phase space coordinates are not in the simulation domain.
 
-        (2) [Correct] We could still argue that it would be appropriate means of handling such
-            situations would be that if a particle with V1 < 0 exits, and if an entering particle
-            would have -V1 > bvx, then to take the partner density to be zero and interpret the
-            situation as the "window" of phase space we are looking at just does not show the entering partner.
-
-
-    method (2) is permissible; however, we do not have current motivation to code this generality
-    as the circumstances seem inferior to symmetric velocity grid setups. Instead, we currently
-    advise users to set up symmetric velocity grids if a symmetry boundary condition is used.
+    a CUTOFF upper boundary condition should be chosen for the distribution function on the associated
+    velocity variable for any case. CAUTION: periodic BCs on velocity for the distribution function are not
+    appropriate, as the reflection in velocity exiting grid point j -> vz.N - 1 - j will not successfully mirror
+    to the exact grid point needed if vz.N != vz.Ngridpoints (as would be the case for periodic boundary conditions)
     """
     vzpostpointmesh = vzprepointmesh.copy() # by this point, vzpostpointmesh has not been assigned (is an array of zeroes), init to prepointmesh values
                                             # and replace exiting particles with their partner velocities if encountered when scanning of all [i,j]
@@ -400,6 +382,7 @@ def symmetric_lower_boundary(
                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
                     Uf_old[i,j] = -Uf_old[i,j]
+
     if k == 1:
         for j in range(Nvz / 2):
             for i in range(Nz):

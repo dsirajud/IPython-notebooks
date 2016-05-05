@@ -44,6 +44,8 @@ def scheme(
             # which permits the advection distances to be accessed
             # as needed.
 
+            print "stage = %d" % int(stage[s])
+            print "inside fe"
             fe = DECSKS.lib.convect_configuration.scheme(
                     fe,
                     int(stage[s]), n,
@@ -52,6 +54,7 @@ def scheme(
                     vz = vx,
                     charge = -1)
 
+            print "inside fi"
             fi = DECSKS.lib.convect_configuration.scheme(
                     fi,
                     int(stage[s]),n,

@@ -1,0 +1,116 @@
+#=============================================================================#
+#     Input file : 1D1V DECSKS for the two-species Vlasov-Poisson system
+#=============================================================================#
+                                                                              
+Simulation specifications are not case insensitive, except 'None' and values, e.g. np.pi
+
+Domain specifications (used in lib.domain.Setup):
+=================================================
+Requirements for value entry:
+
+(1) Enter the number of cells as int or None; all variables not involved MUST be set to None
+(2) Enter the dimensions as float or None
+(3) if needed, use numpy prefix as np, e.g. np.pi
+-------------------------------------------------------------------------------
+
+Number of grid points, x = 256
+lower boundary value ax = -10.
+upper boundary value bx = 10.
+
+Number of grid points, y = None
+lower boundary value ay = None
+upper boundary value by = None
+
+Number of grid points, z = None
+lower boundary value az = None
+upper boundary value bz = None
+
+Number of grid points, vx = 400
+lower boundary value avx = -10.0
+upper boundary value bvx =  10.0
+
+Number of grid points, vy = None
+lower boundary value avy = None
+upper boundary value bvz = None
+
+Number of grid points, vz = None
+lower boundary value avz = None
+upper boundary value bvz = None
+
+Number of time steps, Nt = 500
+Simulation duration, time T = 5
+
+-------------------------------------------------------------------------------
+High order corrections 
+======================
+
+Global error order of scheme (int) = 7
+
+* Note: if fd derivatives are used, user must generate tables using script in 
+  bin/ up to required global error indicated here 
+--------------------------------------------------------------------------------
+Specify the type of high order correction below for every phase space 
+variable as fourier, fd, or None. 
+
+* Note: all unused phase space vars must be set to None
+
+high order correction on x: fd
+high order correction on y: None
+high order correction on z: None
+
+high order correction on vx: fourier
+high order correction on vy: None
+high order correction on vz: None
+
+--------------------------------------------------------------------------------
+Initial density specification
+==============================
+
+mass ratio mu (mass of ion / mass of electron, e.g. mu = 1836.15267389 for H plasmas): 1836.15267389
+density profiles (specify in order -- electron, ion with one space after comma): cosine 22-bell, ion cosine 22-bell
+
+# density options:
+
+    1D-1V
+    -------------
+    bump on tail, landau, 1D1V bell, flower, cosine 22-bell, ion cosine 22-bell, 
+    const ion background for bump on tail, const ion background for maxwellian,
+    const ion background for cosine 22-bell, electron maxwellian, ion maxwellian,
+    quadratic ion maxwellian
+
+--------------------------------------------------------------------------------
+split scheme = LF2
+splitting coeffs in filename (in ./etc/): params_splitting_coeffs.dat
+
+#   split scheme options
+    --------------------
+    LF2
+    Y4
+    O6-4
+    O11-6
+    O14-6
+
+--------------------------------------------------------------------------------
+Plot window specification (used in lib.plots.Setup)
+--------------------------------------------------------------------------------
+
+x, min = -10.
+x, max = 10.
+
+y, min = -10.
+y, max = 10.
+
+--------------------------------------------------------------------------------
+record outputs? (yes/no): yes
+output filename: params_output_s18-21.dat
+--------------------------------------------------------------------------------
+boundary conditions filename: params_boundaryconditions_s18-21.dat
+
+
+
+
+
+
+
+
+

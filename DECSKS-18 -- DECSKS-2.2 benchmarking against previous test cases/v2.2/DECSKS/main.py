@@ -39,7 +39,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s17-04.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-17.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -60,7 +60,10 @@ sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi, x, 
 # TODO add this to lib.read, right now you need to make sure you use
 # TODO the same mu and tau as in density.setup for sim_params['density']
 
-DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx)
+DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
+
+ne_avg = np.sum(fe[:x.N, :vx.N]) * x.width * vx.width / x.L
+print ne_avg
 
 print sim_params['BC']['f']['x']['type']
 print sim_params['BC']['f']['vx']['type']
@@ -70,10 +73,10 @@ print sim_params['BC']['f']['vx']['lower']
 print sim_params['BC']['f']['vx']['upper']
 
 
-Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
-Plot(n = 0)
-Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
-Plot(n = 0)
+#Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
+#Plot(n = 0)
+#Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
+#Plot(n = 0)
 
 print 'simulation has started, status updates are broadcasted after each timestep'
 
@@ -91,23 +94,22 @@ for n in t.stepnumbers:
     #    print sim_params['sigma']['x']['lower']
     #    print sim_params['sigma']['x']['upper']
 
-    Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
-    Plot(n)
-    Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
-    Plot(n)
+    #    Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
+    #    Plot(n)
+    #    Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
+    #    Plot(n)
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat
-    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, n, x, vx)
+    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, n, x, vx, sim_params['mu'])
     DECSKS.lib.status.check_and_clean(t, n, tic, rm_plots)
 
 
     #sigma_n_left = sim_params['sigma_n']['x']['lower']
     #sigma_n_right = sim_params['sigma_n']['x']['upper']
 
-    #trange = np.arange(t.N+1)
-    #plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
-    #plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
+    #plt.plot(t.times, sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
+    #plt.plot(t.times,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
     #plt.grid()
     #plt.xlabel(r'time step $n$', fontsize = 18)
     #plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)

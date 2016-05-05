@@ -118,7 +118,7 @@ def advection_step(z):
       object
     """
     z.postpointmesh[0,:,:] = z.prepointmesh + z.CFL.int
-    z.postpointmesh[1,:,:] = np.sign(z.CFL.frac).astype(int) + z.postpointmesh[0,:,:]
+    z.postpointmesh[1,:,:] = np.sign(z.CFL.numbers).astype(int) + z.postpointmesh[0,:,:]
 
     return z.postpointmesh
 
@@ -295,7 +295,6 @@ def flux(
     # HOC specified in etc/params.dat, sim_params['derivative_method']
     # contains the related function handle as a string
     d = eval(sim_params['derivative_method'][z.str])(f_old, z, vz, sim_params)
-
     # compute high order fluxes column-by-column
     Uf = np.zeros(f_old.shape)
     for j in range(vz.N):

@@ -4,6 +4,7 @@ import numpy.ma as ma
 
 def scheme(
     f_initial,
+    t,
     n,
     sim_params,
     z,
@@ -24,14 +25,13 @@ def scheme(
 
 
     outputs:
-    f_final -- (ndarray, ndim = 2) updated after all scheme steps have been completed
+    f_final -- (ndarray, ndim = 1 or 2) f[n,:] or f[n,:,:] updated
+               after all steps have been completed
     """
 
     # (0) INITIALIZE FINAL DENSITY CONTAINER AND EXTRACT EVOLVED GRID
     f_final = np.zeros(f_initial.shape)
-    f_initial = DECSKS.lib.domain.extract_active_grid(f_initial, sim_params)
-
-    # tranpose objects so that variation is across columns, not rows
+    f_initial = DECSKS.lib.domain.extract_active_grid(f_initial, z, sim_params)
     f_initial, z, vz = DECSKS.lib.domain.velocity_advection_prep(f_initial, z, vz)
 
     # (1) ADVECT DENSITY AND COMPUTE CORRESPONDING FLUXES
@@ -49,6 +49,7 @@ def scheme(
                        sim_params,
                        f_initial,
                        Uf,
+                       t,
                        n,
                        z,
                        vz,
@@ -59,7 +60,7 @@ def scheme(
     # f_new = DECSKS.lib.collisions.collisiontype(f_old, z, n)
 
     # (4) RETURN FINAL DESTINY (density*)
-    f_final = finalize_density_absorbing_absorbing(sim_params, f_remapped, f_final, z, vz)
+    f_final = finalize_density_nonperiodic(sim_params, f_remapped, f_final, z, vz)
 
     return f_final
 #---------------------------------------------------------------------------  #
@@ -73,8 +74,8 @@ def advection_step(z):
         vz.prepointmeshvalues * dt / z.width = CFL.numbers
 
     the integer part, CFL.int, is pushed here. The residual fraction
-    CFL.frac is remapped according to lib.convect.remap_step in step (2) in
-    the orchestrator routine, lib.convect.scheme, above.
+    CFL.frac is remapped according to remap_step(*args) in step (2) in
+    the orchestrator routine, scheme(*args), above.
 
     inputs:
     z -- (instance) phase space variable equipped with (among other attributes)
@@ -93,7 +94,8 @@ def advection_step(z):
         z.postpointmesh -- (ndarray, ndim=3, dtype=int), shape = (2, x.N, v.N) matrix containing each pair
                            k[:,i,j] of postpoints for each prepoint [i,j]
 
-    NOTE: Boundary conditions NOT applied at this point (are applied as part of lib.convect.remap_step)
+
+    NOTE: Boundary conditions NOT applied at this point
 
     USAGE NOTE: the map z.postpointmesh[k,i,j] for k = 0 or 1 gives the postpoint
       of the advecting index, it does not give the relevant postpoint duple
@@ -109,7 +111,7 @@ def advection_step(z):
       that changes. Hence, the remap procedure must be encoded with an
       understanding of which index is updated in order to complete the push.
 
-      It then makes sense  (broadcasting is clear)  to speak in terms such as:
+      It then makes sense to speak in terms such as:
 
           z.postpointmesh[0,i,j] + 1 is a contiguous gridpoint to
                        the index z.postpointmesh[0,i,j] in the positive
@@ -129,139 +131,34 @@ def advection_step(z):
 
 def remap_step(
         sim_params,
-        f_template,
-        Uf_template,
+        f_old,
+        Uf_old,
+        t,
         n,
         z,
         vz,
         charge
         ):
-    """Orchestrates remapping of all advected moving cells to the grid,
 
-    First, we map the appropriate proportion to the nearest grid point (k1) to
-    the exact (non-integral in general) postpoint.
+    f_copy =  f_old.copy()
+    Uf_copy = Uf_old.copy()
 
-    Then, we map the remaining fraction to the contiguous grid point (k2)
-    defined to be in the same direction of travel as the advection
-
-    inputs:
-    sim_params -- (dict) simulation parameters
-    f_template = f_old --
-              (ndarray, dim=2) density from previous time step, full grid.
-              We call this a template because it is used as a template
-              in using it for achieving the boundary conditions.
-
-              (1) we copy a template and send it to the boundary conditions
-                  when preparing to remap density to the k1 postpoints.
-                  To achieve the BCs, we modify the density and fluxes
-                  (e.g. zeroing out any absorbed at walls), then remap
-                  to a container f_k1
-
-              (2) we repeat the same as above, but this time in preparation
-                  for mapping at the contiguous grid point k2. If we used
-                  the same density as was returned in (1), it already has
-                  been mangled to acheive boundary conditions. Thus, we
-                  need a fresh template. Since there are only two postpoints
-                  (k1 and k2), we do not need a copy of the original template
-                  but can instead just modify the template as its utility
-                  ends here.
-
-    Uf_template = Uf_old -- (ndarrray, ndim=2), the flux values for the
-                            full grid. See the description for f_template
-                            on why this is named as Uf_template rather
-                            than Uf_old.
-
-    n  -- (int) current time step
-    z -- (instance) phase space variable
-    vz -- (instance) generalized velocity variable for phase space variable z
-    charge -- (int) -1 or +1, indicates charge species
-
-    outputs:
-    f_remapped -- (ndarray, dim=2) density with all densities reallocated
-                 according to their postpoint maps:
-
-      postpoint map = (z.postpointmesh[k1 or k2, :,:], vz.prepointmesh)
-
-    here, we emphasize that it is z that is being advected, hence
-    these have distinct postpoints. While we may modify the values
-    of the generalized velocity in special circumstances (e.g.
-    symmetry boundary condition), the velocities of the prepoints
-    are interpreted physically as being the same before (prepoints)
-    and after (postpoints) since we are evolving the system with
-    splitting routine (one variable evolved at a time)
-    """
-
-    f_k1 = np.zeros_like(f_template)
-    f_k2 = np.zeros_like(f_template)
-
-    f_copy = np.copy(f_template)
-    Uf_copy = np.copy(Uf_template)
-
-    # Prepare for remapping to k1
-
-    # apply boundary conditions for density packets reaching [k1, j]
-    # here, we pass k = 0 as a parameter, as it refers to z.postpointmesh[k,:,:]
-    # and k1 corresponds to the storage k = 0
-    f_k1, f_copy, Uf_copy = \
+    f_k1 = np.zeros_like(f_copy)
+    f_k1, f_copy, Uf_copy, z = \
       eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
-          f_k1, f_copy, Uf_copy, z, vz, sim_params, charge, k = 0)
+          f_k1, f_copy, Uf_copy, t, z, vz, sim_params, charge, k = 0)
 
-    # remap all [i,j] to postpoints [k1, j], we assign per the piecewise rule:
-    #
-    #        f_k1[k1,j] =  f_copy[i,j] - Uf_copy[i,j] if CFL >= 0
-    #
-    #                      f_copy[i,j] + Uf_copy[i,j] if CFL < 0
-    #
-    # we accomplish the above through the following set of operations in order to minimize the computational cost
+    # for now, we do not have a symmetry boundary condition, hence vz.postpointmesh[k,:,:] = vz.prepointmesh
+    f_k1 += DECSKS.lib.remap.nearest_gridpoint_assignment(f_copy, Uf_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], z.N, vz.N)
 
-    #        f_k1 = 0
-    #        f_k1 += f_copy
-    #        f_k1 -= Uf_copy[i,j]  for all such [i,j] corresponding to CFL >= 0
-    #        f_k1 += Uf_copy[i,j]  for all such [i,j] CFL < 0
-    #
-    # Notice that we only require different treatment for the flux Uf terms. Hence, we only require
-    # sifting the flux.
-    #
-
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_copy)
-
-    # remap the allocated fraction to their nearest neighbor gridpoints relative to their true (exact) postpoint
-    f_k1 += DECSKS.lib.remap.assignment(f_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
-    f_k1 += DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
-    f_k1 -= DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], f_k1.shape[0], f_k1.shape[1])
-
-    # Prepare for remapping to k2
-    # We do not need the information in f_template, and Uf_template hereafter, so we may modify these directly
-
-    # apply boundary conditions for density packets reaching [k2, j]
-    # here, we pass k = 0 as a parameter, as it refers to z.postpointmesh[k,:,:]
-    # and k2 corresponds to the storage k = 1
-    f_k2, f_template, Uf_template = \
+    f_k2 = np.zeros_like(f_old)
+    f_k2, f_old, Uf_old, z = \
       eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
-          f_k2, f_template, Uf_template, z, vz, sim_params, charge, k = 1)
+          f_k2, f_old, Uf_old, t, z, vz, sim_params, charge, k = 1)
 
-    # remap all [i,j] to postpoints [k2, j], we assign per the piecewise rule:
-    #
-    #        f_k2[k2,j] =  -Uf_template[i,j] if CFL >= 0
-    #
-    #                      +Uf_template[i,j] if CFL < 0
-    #
-    # we accomplish the above through the following set of operations in order to minimize the computational cost
-    #        f_k1 = 0
-    #        f_k1 += f_copy
-    #        f_k1 -= Uf_copy[i,j]  for all such [i,j] corresponding to CFL >= 0
-    #        f_k1 += Uf_copy[i,j]  for all such [i,j] CFL < 0
-    #
-    # Notice that we only require different treatment for the flux Uf terms. Hence, we only require
-    # sifting the flux.
+    # for now, we do not have a symmetry boundary condition, hence vz.postpointmesh[k,:,:] = vz.prepointmesh
 
-    Uf_nonneg, Uf_neg = DECSKS.lib.remap.sift(Uf_template)
-
-    # remap the allocated fraction to the contiguous grid point along the same direction of travel to nearest neighbor gridpoints
-    # (which themselves are relative to their true (exact) postpoint)
-
-    f_k2 -= DECSKS.lib.remap.assignment(Uf_neg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
-    f_k2 += DECSKS.lib.remap.assignment(Uf_nonneg, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], f_k2.shape[0], f_k2.shape[1])
+    f_k2 += DECSKS.lib.remap.contiguous_gridpoint_assignment(f_old, Uf_old, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], z.N, vz.N)
 
     f_remapped = f_k1 + f_k2
 
@@ -276,21 +173,20 @@ def flux(
     """Computes fluxes Uf for all z.prepointmesh
 
     inputs:
-    sim_params -- (dict) simulation parameters
     f_old -- (ndarray, dim=2) density from previous time (sub)step
+    CFL -- (instance) CFL number
     z -- (instance) phase space variable
-    vz -- (instance) generalized velocity corresponding to above phase space variable
+    sim_params -- (dict) simulation parameters
 
     outputs:
-    Uf -- (ndarray, dim=2) Normalized fluxes originating
-          from every for every [i,j] in z.prepointmesh
+    Uf -- (ndarray, dim=2) Normalized fluxes for every z.prepoints[i]
 
            where for each [i,j]:
 
                Uf[i,j] = sum c[q,j]*d[q,i,j] over q = 0, 1, ... N-1
-                       = f_old + (high order corrections)
     """
     c = DECSKS.lib.HOC.correctors(sim_params, z, vz)
+
     # evaluate derivatives q = 0, 1, 2, ... N-1 (zeroeth is density itself)
 
     # calls lib.derivatives.fd or lib.derivatives.fourier based on the
@@ -306,12 +202,18 @@ def flux(
     # enforce flux limiter to ensure positivity and restrict numerical overflow
     Uf = flux_limiter(f_old, Uf, z)
 
+    # henceforth, sign(Uf) == sign(z.CFL.numbers) in all cases except where
+    # Uf == 0.0. Thus,any subsequent sign checks to gauge the direction
+    # of advection for a density packet can be done on either Uf or z.CFL.numbers
+    # without consequence
+
     return Uf
 
 def flux_limiter(
         f_old,
         Uf,
-        z):
+        z
+        ):
     """Applies the flux (numerical and positivity) limiter to the
     ith nominal flux matrix Uf, shape = (z1.N, z2.N)
 
@@ -336,35 +238,59 @@ def flux_limiter(
 
           i.e. the computational savings is at least a factor of 10
     """
-    # local masked array (ma) copy of CFL.frac used to leave CFL.frac unchanged
-    Uf_ma = ma.array(z.CFL.frac)
 
-    # mask negative values, keep positives
-    Uf_ma[z.CFL.frac < 0] = ma.masked
+    # note that before we apply the limiter, there is no guarantee that sign(Uf) == sign(z.CFL.numbers)
+    # this is one of the functions of the limiter, to make these signs agree if the unlimited value of Uf
+    # has been unphysically flipped in sign. Recall that since f >= 0 by initial condition, sign(Uf) == sign(U)
+    # for all points f > 0, and where f = 0 then Uf = 0.0 and its role in remapping is to add zero contribution.
+    #
+    # here, U is the high order correction to z.CFL.frac, i.e.
+    #
+    #     U = z.CFL.frac + high order terms
+    #
+    # there isn't a restriction on the size of each high order term or the sign. It is possible for
+    # the correction to cause sign(U) != sign(z.CFL.frac) which is not physical.
+    # Put in other words, this is unphysical because "if f[i] -> f[i+k] lies between grid points i+k and i+k+1, then
+    # the high order correction df keeps (f[i] + Uf[i]) should also between grid points i+k and i+k+1.
+    # if U suffers a sign reversal from the high order term contributions, this maps the density packet to
+    # outside the interval we know to zeroeth order it must lie in (z.CFL.frac gives the remap fraction to zereoth order)
+
+    # Finally, note that z.CFL.frac and z.CFL.number by construction have the same sign. We often prefer doing
+    # sign checks on z.CFL.numbers, but this is not of consequence.
 
     # assign the mask to a zero matrix of same size for pairwise ma.minimum/maximum operations below
     zeros = ma.zeros(Uf.shape)
-    zeros.mask = Uf_ma.mask
+    zeros[z.CFL.numbers < 0] = ma.masked
 
-    # operating only on positive values (negatives masked out)
+    # operating only on positive values (negatives masked out), assert the limiter criteria
+    # note: there is some decision making we let python make here (at the cost of slight efficiency, but at the benefit
+    # of less storage for local copies of the same arrays). Uf and f_old are ndarrays (not a masked arrays)
+    # however, having one masked object (here, the zeros array) is sufficient so that the ma.minimum and
+    # ma.maximum operations will act only on the unmasked entries of zeros and hence will pairwise operate on comparing
+    # minima and maximum for the nested objects that are compared.
     Uf_pos = ma.minimum(ma.maximum(zeros, Uf), 1.0*f_old)
 
     # mask positives, keep negatives
-    Uf_ma.mask = np.logical_not(Uf_ma.mask)
-    zeros.mask = Uf_ma.mask
+    zeros.mask = np.logical_not(zeros.mask)
 
-    #operating only on negative values
+    # operating only on negative values; see note just before U_pos calculation regarding how this operation
+    # plays out given f_old and Uf are unmasked and zeros is masked.
     Uf_neg = ma.minimum(ma.maximum(-1.0*f_old, Uf), zeros)
 
-    # combine masked values in a single matrix Uf_final
+    # combine masked data that has been limited by the operations above
+    # into a final Uf object to return.
+    # Here, we can interpret the np.where call as "where Uf_neg is unmasked [i.e. is negative]
+    # insert the negative data at those entries in Uf, wherever there are masked values [i.e.
+    # corresponded to masked value], insert the positive data that has been limited at those
+    # [i,j] locations in Uf"
     Uf = np.where(Uf_neg.mask == False, Uf_neg.data, Uf_pos.data)
 
     return Uf
 
 def finalize_density_periodic(sim_params, f_remapped, f_final, z, vz):
     """
-    Returns a final density assuming x and vx have periodic boundaries.
-    Recall that (z1.N, z2.N) moving cells are evolved.
+    returns a final density. For all but PBCs, f_new = f_final since
+    our setup is such that (z1.N, z2.N) moving cells are evolved.
 
     The bookkeeping is such that, e.g. in 1D
 
@@ -385,6 +311,7 @@ def finalize_density_periodic(sim_params, f_remapped, f_final, z, vz):
                              f_final[:, z2.Ngridpoints - 1] = f_new[:,0]
     """
 
+    # undo all transpositions
     f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
 
     # assign all active grid points to grid values on f_final, the indexing is unnecessary
@@ -408,6 +335,7 @@ def finalize_density_absorbing(sim_params, f_remapped, f_final, z, vz):
     finalizes density function assuming x nonperiodic, vx periodic
     """
 
+    # undo all transpositions
     f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
 
     # assign all active grid points to grid values on f_final
@@ -419,16 +347,15 @@ def finalize_density_absorbing(sim_params, f_remapped, f_final, z, vz):
 
     return f_final
 
-def finalize_density_absorbing_absorbing(sim_params, f_remapped, f_final, z, vz):
+def finalize_density_nonperiodic(sim_params, f_remapped, f_final, z, vz):
     """
-    finalizes density function assuming x nonperiodic, vx nonperiodic
+    finalizes density function assuming x nonperiodic, vx periodic
     """
 
+    # undo all transpositions
     f_remapped, z, vz = DECSKS.lib.domain.velocity_advection_postproc(f_remapped, z, vz)
 
     # assign all active grid points to grid values on f_final
     f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped
 
     return f_final
-
-

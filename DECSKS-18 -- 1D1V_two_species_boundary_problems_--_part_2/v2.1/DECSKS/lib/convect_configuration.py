@@ -57,7 +57,7 @@ def scheme(
     # f_new = DECSKS.lib.collisions.collisiontype(f_old, z, n)
 
     # (4) RETURN FINAL DESTINY (density*)
-    f_final = finalize_density_absorbing(sim_params, f_remapped, f_final, z, vz)
+    f_final = finalize_density_periodic(sim_params, f_remapped, f_final, z, vz)
 
     return f_final
 #---------------------------------------------------------------------------  #

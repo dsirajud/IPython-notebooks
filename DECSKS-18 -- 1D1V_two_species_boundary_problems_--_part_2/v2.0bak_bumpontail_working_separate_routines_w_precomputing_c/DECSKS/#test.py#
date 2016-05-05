@@ -1,0 +1,85 @@
+    # Boundary conditions on potential phi
+
+    BC['x']['phi'] = {}
+    BC['x']['phi']['DBC'] = {}
+    BC['x']['phi']['NBC'] = {}
+
+    BC['x']['phi']['DBC']['lower'] = safe_eval(lines[131][lines[193].find('=')+1:].strip())
+    BC['x']['phi']['DBC']['upper'] = safe_eval(lines[132][lines[194].find('=')+1:].strip())
+
+    BC['x']['phi']['NBC']['lower'] = safe_eval(lines[131][lines[196].find('=')+1:].strip())
+    BC['x']['phi']['NBC']['upper'] = safe_eval(lines[132][lines[197].find('=')+1:].strip())
+
+    BC['y']['phi'] = {}
+    BC['y']['phi']['DBC'] = {}
+    BC['y']['phi']['NBC'] = {}
+
+    BC['y']['phi']['DBC']['lower'] = safe_eval(lines[131][lines[199].find('=')+1:].strip())
+    BC['y']['phi']['DBC']['upper'] = safe_eval(lines[132][lines[200].find('=')+1:].strip())
+
+    BC['y']['phi']['NBC']['lower'] = safe_eval(lines[131][lines[202].find('=')+1:].strip())
+    BC['y']['phi']['NBC']['upper'] = safe_eval(lines[132][lines[203].find('=')+1:].strip())
+
+    BC['z']['phi'] = {}
+    BC['z']['phi']['DBC'] = {}
+    BC['z']['phi']['NBC'] = {}
+
+    BC['z']['phi']['DBC']['lower'] = safe_eval(lines[131][lines[205].find('=')+1:].strip())
+    BC['z']['phi']['DBC']['upper'] = safe_eval(lines[132][lines[206].find('=')+1:].strip())
+
+    BC['z']['phi']['NBC']['lower'] = safe_eval(lines[131][lines[208].find('=')+1:].strip())
+    BC['z']['phi']['NBC']['upper'] = safe_eval(lines[132][lines[209].find('=')+1:].strip())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import numpy as np
+
+Nx = 25
+
+D = np.zeros([Nx,Nx])
+for i in range(Nx):
+    if i == 0 or i == Nx-1:
+        D[i,i] = 1
+    else:
+        D[i,i-1] = 1
+        D[i,i] = -2
+        D[i,i+1] = 1
+

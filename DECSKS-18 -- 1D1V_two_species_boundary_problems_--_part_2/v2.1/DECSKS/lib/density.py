@@ -209,8 +209,8 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'bump on tail':
         x,v = z1, z2
-        for i in range(x.Ngridpoints):
-            for j in range(v.Ngridpoints):
+        for i in range(x.N):
+            for j in range(v.N):
                 f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + 0.04*np.cos(0.3*x.gridvalues[i])) * ( 0.9*np.exp(-v.gridvalues[j]**2 / 2.) + 0.2*np.exp(-4 * (v.gridvalues[j] - 4.5) ** 2) )
 
         return f0

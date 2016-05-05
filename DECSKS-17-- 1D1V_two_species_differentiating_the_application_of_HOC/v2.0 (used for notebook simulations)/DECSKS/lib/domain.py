@@ -109,7 +109,7 @@ class Setup:
             self.N = sim_params['N' + var] # number of timesteps
             self.Ngridpoints = self.N + 1 # total number of time grid points
 
-            # the following are defined for us in the method self.generate_Eulerian_mesh            
+            # the following are defined for us in the method self.generate_Eulerian_mesh
             self.a = 0.0
             self.b = float(sim_params['T'])
 
@@ -240,6 +240,7 @@ def velocity_advection_prep(f_initial, z, vz):
     z.prepointmesh = np.transpose(z.prepointmesh)
     z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
 
+    z.CFL.numbers = np.transpose(z.CFL.numbers)    
     z.CFL.frac = np.transpose(z.CFL.frac)
     z.CFL.int = np.transpose(z.CFL.int)
 
@@ -300,6 +301,7 @@ def velocity_advection_postproc(f_remapped, z, vz):
     z.prepointmesh = np.transpose(z.prepointmesh)
     z.postpointmesh = np.transpose(z.postpointmesh, (0,2,1))
 
+    z.CFL.numbers = np.transpose(z.CFL.numbers)    
     z.CFL.frac = np.transpose(z.CFL.frac)
     z.CFL.int = np.transpose(z.CFL.int)
 

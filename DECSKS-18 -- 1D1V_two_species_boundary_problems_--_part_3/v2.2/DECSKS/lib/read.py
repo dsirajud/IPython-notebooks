@@ -2,6 +2,8 @@ import numpy as np
 import linecache
 import scipy.misc
 
+# lib.read for DECSKS-2.2 input decks
+
 class InputError(Exception):
     def __init__(self, value):
         self.value = value
@@ -125,28 +127,28 @@ def inputfile(filename):
     # eval('lib.boundaryconditions.absorbing_upper_boundary') in lib.convect.remap_step
 
     BC['f']['x'] = {}
-    BC['f']['x']['lower'] = safe_eval(BC_infile_lines[40][BC_infile_lines[40].find('=')+1:].strip())
-    BC['f']['x']['upper'] = safe_eval(BC_infile_lines[41][BC_infile_lines[41].find('=')+1:].strip())
+    BC['f']['x']['lower'] = safe_eval(BC_infile_lines[53][BC_infile_lines[53].find('=')+1:].strip())
+    BC['f']['x']['upper'] = safe_eval(BC_infile_lines[54][BC_infile_lines[54].find('=')+1:].strip())
 
     BC['f']['y'] = {}
-    BC['f']['y']['lower'] = safe_eval(BC_infile_lines[43][BC_infile_lines[43].find('=')+1:].strip())
-    BC['f']['y']['upper'] = safe_eval(BC_infile_lines[44][BC_infile_lines[44].find('=')+1:].strip())
+    BC['f']['y']['lower'] = safe_eval(BC_infile_lines[56][BC_infile_lines[56].find('=')+1:].strip())
+    BC['f']['y']['upper'] = safe_eval(BC_infile_lines[57][BC_infile_lines[57].find('=')+1:].strip())
 
     BC['f']['z'] = {}
-    BC['f']['z']['lower'] = safe_eval(BC_infile_lines[46][BC_infile_lines[46].find('=')+1:].strip())
-    BC['f']['z']['upper'] = safe_eval(BC_infile_lines[47][BC_infile_lines[47].find('=')+1:].strip())
+    BC['f']['z']['lower'] = safe_eval(BC_infile_lines[59][BC_infile_lines[59].find('=')+1:].strip())
+    BC['f']['z']['upper'] = safe_eval(BC_infile_lines[60][BC_infile_lines[60].find('=')+1:].strip())
 
     BC['f']['vx'] = {}
-    BC['f']['vx']['lower'] = safe_eval(BC_infile_lines[55][BC_infile_lines[55].find('=')+1:].strip())
-    BC['f']['vx']['upper'] = safe_eval(BC_infile_lines[56][BC_infile_lines[56].find('=')+1:].strip())
+    BC['f']['vx']['lower'] = safe_eval(BC_infile_lines[68][BC_infile_lines[68].find('=')+1:].strip())
+    BC['f']['vx']['upper'] = safe_eval(BC_infile_lines[69][BC_infile_lines[69].find('=')+1:].strip())
 
     BC['f']['vy'] = {}
-    BC['f']['vy']['lower'] = safe_eval(BC_infile_lines[58][BC_infile_lines[58].find('=')+1:].strip())
-    BC['f']['vy']['upper'] = safe_eval(BC_infile_lines[59][BC_infile_lines[59].find('=')+1:].strip())
+    BC['f']['vy']['lower'] = safe_eval(BC_infile_lines[71][BC_infile_lines[71].find('=')+1:].strip())
+    BC['f']['vy']['upper'] = safe_eval(BC_infile_lines[72][BC_infile_lines[72].find('=')+1:].strip())
 
     BC['f']['vz'] = {}
-    BC['f']['vz']['lower'] = safe_eval(BC_infile_lines[61][BC_infile_lines[61].find('=')+1:].strip())
-    BC['f']['vz']['upper'] = safe_eval(BC_infile_lines[62][BC_infile_lines[62].find('=')+1:].strip())
+    BC['f']['vz']['lower'] = safe_eval(BC_infile_lines[74][BC_infile_lines[74].find('=')+1:].strip())
+    BC['f']['vz']['upper'] = safe_eval(BC_infile_lines[75][BC_infile_lines[75].find('=')+1:].strip())
 
     # make all BCs lowercase strings so they can be used to construct the function strings in lib.boundaryconditions module
     # whose names are all lowercase
@@ -157,11 +159,21 @@ def inputfile(filename):
     for var in phasespace_vars:
         for boundary in ['lower', 'upper']:
             BC['f'][var][boundary] = BC['f'][var][boundary].lower()
-            if BC['f'][var][boundary] == 'open' or BC['f'][var][boundary] == 'cutoff':
-                print "\nCourtesy notice to user: the boundary condition %s was selected for the distribution function on %s at the %s boundary in params_boundaryconditions.dat; " % (BC['f'][var][boundary].upper(), var, boundary)
-                print "this is a recognized input synonym for a '%s' condition. Changing value stored to BC['f']['%s']['%s'] = '%s'\n" % ('ABSORBING', var, boundary, 'ABSORBING')
-                print "Please regard any warnings/error messages that cite the keyword '%s' with this change in mind\n" %  ('ABSORBING')
-                BC['f'][var][boundary] = 'absorbing'
+
+            if BC['f'][var][boundary] == 'cutoff':
+                if var in ['x', 'y', 'z']:
+                    print "the following boundary condition was not accepted:\n"
+                    print "distribution function %s boundary condition on %s: %s" % (boundary, var, BC['f'][var][boundary].upper())
+                    print "\na cutoff condition on a configuration grid makes it unclear how to calculate or specify boundary conditions"
+                    print "on the electric potential phi. The interpretation of a cutoff condition is that the numerical grid is a control"
+                    print "volume inside an otherwise open system. Since we do not simulate what happens outside the control volume, "
+                    print "the nature of a cutoff boundary condition on a configuration variable is inconsistent with the objective of"
+                    print "specifying boundary conditions on phi and is not acceptable. The system must be closed (e.g. 'absorbing', 'collector')"
+                    print "or periodic on a configuration variable. Please reconsider the context of the intended simulation (e.g. if boundary is desired,"
+                    print " the corresponding boundary condition on the distribution function should be set to ABSORBING).\n"
+                    raise InputError('a CUTOFF boundary condition on the distribution for a a configuration variable is inconsistent (can only be used on velocity variables).')
+                else:
+                    pass
 
             elif BC['f'][var][boundary] == 'collector':
                 pass
@@ -171,9 +183,13 @@ def inputfile(filename):
 
             elif BC['f'][var][boundary] == 'symmetry':
                 if boundary == 'upper':
+                    print "the following boundary condition was not accepted:\n"
+                    print "distribution function %s boundary condition on %s: %s" % (boundary, var, BC['f'][var][boundary].upper())
+                    print "\nDECSKS only supports LOWER symmetry boundaries."
                     raise NotImplementedError('a symmetric UPPER boundary condition on the distribution function was specified in params_boundaryconditions.dat; however, DECSKS only has functionality to permit lower boundary symmetry.')
+
                 elif boundary == 'lower':
-                    print "\nCourtesy notice to user: the boundary condition %s was selected for the distribution function on %s at the %s boundary in params_boundaryconditions.dat; " % (BC['f'][var][boundary].upper(), var, boundary)
+                    print "\nCOURTESY NOTICE TO USER: the boundary condition %s was selected for the distribution function on %s at the %s boundary in params_boundaryconditions.dat; " % (BC['f'][var][boundary].upper(), var, boundary)
                     print "this is a recognized input synonym for a '%s' condition. Changing value stored to BC['f']['%s']['%s'] = '%s'\n" % ('SYMMETRIC', var, boundary, 'SYMMETRIC')
                     print "Please regard any warnings/error messages that cite the keyword '%s' with this change in mind\n" %  ('SYMMETRIC')
                     BC['f'][var][boundary] = 'symmetric'
@@ -182,6 +198,9 @@ def inputfile(filename):
                 if boundary == 'lower':
                     pass
                 elif boundary == 'upper':
+                    print "the following boundary condition was not accepted:\n"
+                    print "distribution function %s boundary condition on %s: %s" % (boundary, var, BC['f'][var][boundary].upper())
+                    print "\nDECSKS only supports LOWER symmetry boundaries."
                     raise NotImplementedError('a symmetric UPPER boundary condition on the distribution function was specified in params_boundaryconditions.dat; however, DECSKS only has functionality to permit lower boundary symmetry.')
 
             elif BC['f'][var][boundary] == 'periodic':
@@ -198,18 +217,8 @@ def inputfile(filename):
         if BC['f'][var]['lower'] == 'periodic' and BC['f'][var]['upper'] == 'periodic':
             BC['f'][var]['type'] = 'periodic'
 
-        elif BC['f'][var]['lower'] == 'symmetric' and BC['f'][var]['upper'] != 'periodic':
-            BC['f'][var]['type'] = 'symmetric'
-
-        elif BC['f'][var]['lower'] == 'symmetric' and BC['f'][var]['upper'] == 'periodic':
-            print "\nThe following boundary conditions specified in params_boundaryconditions.dat:"
-            print "\nlower boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['lower'].upper())
-            print "upper boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['upper'].upper())
-
-            print "\nare inconsistent. Cannot combine a symmetric lower boundary with a periodic upper boundary condition. Periodic boundary conditions involve both boundaries (both boundaries would have to be set to PERIODIC)\n"
-
-            raise InputError('cannot combine a symmetric lower boundary condition with a periodic upper boundary condition for the distribution function. Check inputs in boundaryconditions.dat and change the upper bound to be of non-periodic type')
-
+        # check for invalid inputs (if 'periodic' was set at one boundary, it would need to be set at the opposite boundary as 'periodic' as well since
+        # a periodic boundary condition effectively involves both boundaries)
         elif BC['f'][var]['lower'] == 'periodic' and BC['f'][var]['upper'] != 'periodic':
             print "\nThe following boundary conditions specified in params_boundaryconditions.dat:"
             print "\nlower boundary condition on f for the variable %s: %s" % (var, BC['f'][var]['lower'].upper())
@@ -226,7 +235,10 @@ def inputfile(filename):
             print "\nare inconsistent. Cannot combine periodic and non-periodic boundary conditions on same variable for distribution function, check inputs in params_boundaryconditions.dat')"
 
             raise InputError('cannot combine periodic and non-periodic boundary conditions on same variable for distribution function, check inputs in params_boundaryconditions.dat')
+
         else:
+        # by this point, we have already checked for consistency among the nonperiodic conditions
+        # both bouundaries are non-periodic, and are a combination of: symmetric (lower), collector (lower or upper), absorbing (lower or upper), cutoff (lower or upper)
             BC['f'][var]['type'] = 'nonperiodic'
 
     distribution_function_boundarycondition_orchestrator_prefix = 'DECSKS.lib.boundaryconditions'
@@ -391,95 +403,20 @@ def inputfile(filename):
     #    Schemes with only positive time substeps: LF2
     #    Schemes that contain negative time substeps: Y4, O6-4, O11-6, O14-6
     #
-    if BC['f']['x']['lower'] != 'periodic' and BC['f']['x']['upper'] != 'periodic' and Nx is not None:
 
-        if split_scheme in ['LF2']:
-            pass
-
-        else: # a split scheme that involves negative time substeps has been selected
-            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
-            print "\nin params.dat, the following was specified:"
-            print "split scheme = %s:" % split_scheme
-            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
-            print "distribution function lower boundary condition: %s" % BC['f']['x']['lower']
-            print "distribution function upper boundary condition: %s" % BC['f']['x']['upper']
-            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
-            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
-
-    if BC['f']['y']['lower'] != 'periodic' and BC['f']['y']['upper'] != 'periodic' and Nx is not None:
-
-        if split_scheme in ['LF2']:
-            pass
-
-        else: # a split scheme that involves negative time substeps has been selected
-            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
-            print "\nin params.dat, the following was specified:"
-            print "split scheme = %s:" % split_scheme
-            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
-            print "distribution function lower boundary condition: %s" % BC['f']['y']['lower']
-            print "distribution function upper boundary condition: %s" % BC['f']['y']['upper']
-            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
-            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
-
-    if BC['f']['z']['lower'] != 'periodic' and BC['f']['z']['upper'] != 'periodic' and Nx is not None:
-
-        if split_scheme in ['LF2']:
-            pass
-
-        else: # a split scheme that involves negative time substeps has been selected
-            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
-            print "\nin params.dat, the following was specified:"
-            print "split scheme = %s:" % split_scheme
-            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
-            print "distribution function lower boundary condition: %s" % BC['f']['z']['lower']
-            print "distribution function upper boundary condition: %s" % BC['f']['z']['upper']
-            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
-            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
-
-    if BC['f']['vx']['lower'] != 'periodic' and BC['f']['vx']['upper'] != 'periodic' and Nx is not None:
-
-        if split_scheme in ['LF2']:
-            pass
-
-        else: # a split scheme that involves negative time substeps has been selected
-            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
-            print "\nin params.dat, the following was specified:"
-            print "split scheme = %s:" % split_scheme
-            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
-            print "distribution function lower boundary condition: %s" % BC['f']['vx']['lower']
-            print "distribution function upper boundary condition: %s" % BC['f']['vx']['upper']
-            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
-            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
-
-    if BC['f']['vy']['lower'] != 'periodic' and BC['f']['vy']['upper'] != 'periodic' and Nx is not None:
-
-        if split_scheme in ['LF2']:
-            pass
-
-        else: # a split scheme that involves negative time substeps has been selected
-            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
-            print "\nin params.dat, the following was specified:"
-            print "split scheme = %s:" % split_scheme
-            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
-            print "distribution function lower boundary condition: %s" % BC['f']['vy']['lower']
-            print "distribution function upper boundary condition: %s" % BC['f']['vy']['upper']
-            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
-            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
-
-    if BC['f']['vz']['lower'] != 'periodic' and BC['f']['vz']['upper'] != 'periodic' and Nx is not None:
-
-        if split_scheme in ['LF2']:
-            pass
-
-        else: # a split scheme that involves negative time substeps has been selected
-            print "\nThe following set of user specified information is not accepted by DECSKS:\n"
-            print "\nin params.dat, the following was specified:"
-            print "split scheme = %s:" % split_scheme
-            print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
-            print "distribution function lower boundary condition: %s" % BC['f']['vz']['lower']
-            print "distribution function upper boundary condition: %s" % BC['f']['vz']['upper']
-            print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
-            raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
+    for var in phasespace_vars:
+        if BC['f'][var]['lower'] != 'periodic' and BC['f'][var]['upper'] != 'periodic':
+            if split_scheme in ['LF2']:
+                pass
+            else: # a split scheme that involves negative time substeps has been selected
+                print "\nThe following set of user specified information is not accepted by DECSKS:\n"
+                print "\nin params.dat, the following was specified:"
+                print "split scheme = %s:" % split_scheme
+                print "\nand the boundary data was specified in params_boundaryconditions.dat:\n"
+                print "distribution function lower boundary condition on %s: %s" % (BC['f'][var]['lower'],var)
+                print "distribution function upper boundary condition on %s: %s" % (BC['f'][var]['upper'], var)
+                print "\nThe split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent\n"
+                raise InputError('The split scheme involves negative time substeps, while the boundary conditions are non-periodic. The BOUNDED Vlasov-Poisson problem is irreversible. A split scheme with negative time substeps can only be used in periodic systems, which correspond to systems of infinite extent. To rectify this, the user may wish to select periodic boundary conditions on the distribution function (hence phi).')
 
     # --------------------------------------------------------------------------
     # Plot window specification (used in lib.plots.Setup)
@@ -704,24 +641,24 @@ def inputfile(filename):
     # lines read in from boundaryconditions dat file were stored above in BC_infile_lines
     if HOC['x'] == 'FD':
         BC['phi']['x'] = {}
-        BC['phi']['x']['lower'] = safe_eval(BC_infile_lines[196][BC_infile_lines[196].find('=')+1:].strip())
-        BC['phi']['x']['upper'] = safe_eval(BC_infile_lines[197][BC_infile_lines[197].find('=')+1:].strip())
+        BC['phi']['x']['lower'] = safe_eval(BC_infile_lines[209][BC_infile_lines[209].find('=')+1:].strip())
+        BC['phi']['x']['upper'] = safe_eval(BC_infile_lines[210][BC_infile_lines[210].find('=')+1:].strip())
         phi_BC['x'] = np.zeros(Nx_active)
     elif HOC['x'] == 'FOURIER': # periodic fourier solver is used, a BC vector is not needed
         phi_BC['x'] = None
 
     if HOC['y'] == 'FD':
         BC['phi']['y'] = {}
-        BC['phi']['y']['lower'] = safe_eval(BC_infile_lines[199][BC_infile_lines[199].find('=')+1:].strip())
-        BC['phi']['y']['upper'] = safe_eval(BC_infile_lines[200][BC_infile_lines[200].find('=')+1:].strip())
+        BC['phi']['y']['lower'] = safe_eval(BC_infile_lines[212][BC_infile_lines[212].find('=')+1:].strip())
+        BC['phi']['y']['upper'] = safe_eval(BC_infile_lines[213][BC_infile_lines[213].find('=')+1:].strip())
         phi_BC['y'] = np.zeros(Ny_active)
     elif HOC['y'] == 'FOURIER': # periodic fourier solver is used, a BC vector is not needed
         phi_BC['y'] = None
 
     if HOC['z'] == 'FD':
         BC['phi']['z'] = {}
-        BC['phi']['z']['lower'] = safe_eval(BC_infile_lines[202][BC_infile_lines[202].find('=')+1:].strip())
-        BC['phi']['z']['upper'] = safe_eval(BC_infile_lines[203][BC_infile_lines[203].find('=')+1:].strip())
+        BC['phi']['z']['lower'] = safe_eval(BC_infile_lines[215][BC_infile_lines[215].find('=')+1:].strip())
+        BC['phi']['z']['upper'] = safe_eval(BC_infile_lines[216][BC_infile_lines[216].find('=')+1:].strip())
         phi_BC['z'] = np.zeros(Nz_active)
     elif HOC['z'] == 'FOURIER': # periodic fourier solver is used, a BC vector is not needed
         phi_BC['z'] = None
@@ -729,99 +666,102 @@ def inputfile(filename):
     # ensure all inputs stored above in BC['phi'] dict objects are uppercase and recognized
     for var in ['x', 'y', 'z']:
         if var in phasespace_vars:
+            if HOC[var] == 'FOURIER':
+                pass
+            else: # HOC is FD which computes the Lorentz term through a potential phi (Fourier uses the electric field E)
 
-            # LOWER BOUNDARY CHECKS
-            if BC['phi'][var]['lower'] is None:
-                raise InputError('a NoneType was specified as a LOWER boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not meant to be evolved, set its number of grid points to None')
+                # LOWER BOUNDARY CHECKS
+                if BC['phi'][var]['lower'] is None:
+                    raise InputError('a NoneType was specified as a LOWER boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not meant to be evolved, set its number of grid points to None')
 
-            elif type(BC['phi'][var]['lower']) != str:
-                raise InputError('a non-string type as a LOWER boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not intended to be active, set its number of grid points to None. Otherwise, a recognized string keyword must be specified on the boundary condition on phi for this variable.')
-
-            else:
-                BC['phi'][var]['lower'] = BC['phi'][var]['lower'].upper()
-
-                if BC['phi'][var]['lower'] not in ['PERIODIC', 'SELF-CONSISTENT', 'SYMMETRIC', 'SYMMETRY', 'BIAS']:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat is not a recognized keyword:\n\n"
-                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
-
-                    raise InputError('boundary condition indicated on phi is not an accepted keyword option')
-
-                elif (BC['phi'][var]['lower'] == 'SYMMETRIC' or BC['phi'][var]['lower'] == 'SYMMETRY') and BC['f'][var]['lower'] != 'symmetric':
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat is:\n\n"
-                    print "lower boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['lower'].upper())
-                    print "lower boundary condition on f for variable %s: %s" % (var, BC['f'][var]['lower'].upper())
-                    print "upper boundary condition on f for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
-
-                    print "a SYMMETRIC boundary condition must be specified on both phi and f"
-                    # by this point all synonyms have been normalized on BC['f'][var], 'symmetric' corresponds to the symmetry condition
-                    raise InputError('a SYMMETRY boundary condition on phi was specified, but a symmetry boundary was not specified on the distribution function f at this same (lower) boundary. A symmetric domain requires a lower boundary condition to be SYMMETRIC on both phi and f.')
+                elif type(BC['phi'][var]['lower']) != str:
+                    raise InputError('a non-string type as a LOWER boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not intended to be active, set its number of grid points to None. Otherwise, a recognized string keyword must be specified on the boundary condition on phi for this variable.')
 
                 else:
-                    pass
+                    BC['phi'][var]['lower'] = BC['phi'][var]['lower'].upper()
 
-            # UPPER BOUNDARY CHECKS
-            if BC['phi'][var]['upper'] is None:
-                raise InputError('a NoneType was specified as an upper boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not meant to be evolved, set its number of grid points to None')
+                    if BC['phi'][var]['lower'] not in ['PERIODIC', 'SELF-CONSISTENT', 'SYMMETRIC', 'SYMMETRY', 'BIAS']:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat is not a recognized keyword:\n\n"
+                        print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
 
-            elif type(BC['phi'][var]['upper']) != str:
-                raise InputError('a non-string type as an upper boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not intended to be active, set its number of grid points to None. Otherwise, a recognized string keyword must be specified on the boundary condition on phi for this variable.')
+                        raise InputError('boundary condition indicated on phi is not an accepted keyword option')
 
-            else:
-                BC['phi'][var]['upper'] = BC['phi'][var]['upper'].upper()
+                    elif (BC['phi'][var]['lower'] == 'SYMMETRIC' or BC['phi'][var]['lower'] == 'SYMMETRY') and BC['f'][var]['lower'] != 'symmetric':
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat is:\n\n"
+                        print "lower boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['lower'].upper())
+                        print "lower boundary condition on f for variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+                        print "upper boundary condition on f for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
 
-                if BC['phi'][var]['upper'] not in ['PERIODIC', 'SELF-CONSISTENT', 'SYMMETRIC', 'SYMMETRY', 'BIAS']:
-                    print "\nThe following boundary condition specified in params_boundaryconditions.dat is not a recognized boundary condition keyword:\n\n"
-                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                        print "a SYMMETRIC boundary condition must be specified on both phi and f"
+                        # by this point all synonyms have been normalized on BC['f'][var], 'symmetric' corresponds to the symmetry condition
+                        raise InputError('a SYMMETRY boundary condition on phi was specified, but a symmetry boundary was not specified on the distribution function f at this same (lower) boundary. A symmetric domain requires a lower boundary condition to be SYMMETRIC on both phi and f.')
 
-                    raise InputError('boundary condition indicated on phi is not an accepted keyword option')
+                    else:
+                        pass
 
-                elif BC['phi'][var]['upper'] == 'SYMMETRIC' or BC['phi'][var]['upper'] == 'SYMMETRY':
-                    print "\nThe following boundary condition specified in params_boundaryconditions.dat is not available:\n\n"
-                    print "upper boundary condition on phi: %s\n" % BC['phi'][var]['upper'].upper()
+                # UPPER BOUNDARY CHECKS
+                if BC['phi'][var]['upper'] is None:
+                    raise InputError('a NoneType was specified as an upper boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not meant to be evolved, set its number of grid points to None')
 
-                    raise NotImplementedError('a SYMMETRY boundary condition on phi as an UPPER boundary is specified in params_boundaryconditions.dat; only lower boundaries can support a symmetry boundary condition.')
+                elif type(BC['phi'][var]['upper']) != str:
+                    raise InputError('a non-string type as an upper boundary condition on the electric potential phi for an active variable (a non-NoneType was specified for the number of grid points on this variable). If the variable is not intended to be active, set its number of grid points to None. Otherwise, a recognized string keyword must be specified on the boundary condition on phi for this variable.')
+
+                else:
+                    BC['phi'][var]['upper'] = BC['phi'][var]['upper'].upper()
+
+                    if BC['phi'][var]['upper'] not in ['PERIODIC', 'SELF-CONSISTENT', 'SYMMETRIC', 'SYMMETRY', 'BIAS']:
+                        print "\nThe following boundary condition specified in params_boundaryconditions.dat is not a recognized boundary condition keyword:\n\n"
+                        print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+
+                        raise InputError('boundary condition indicated on phi is not an accepted keyword option')
+
+                    elif BC['phi'][var]['upper'] == 'SYMMETRIC' or BC['phi'][var]['upper'] == 'SYMMETRY':
+                        print "\nThe following boundary condition specified in params_boundaryconditions.dat is not available:\n\n"
+                        print "upper boundary condition on phi: %s\n" % BC['phi'][var]['upper'].upper()
+
+                        raise NotImplementedError('a SYMMETRY boundary condition on phi as an UPPER boundary is specified in params_boundaryconditions.dat; only lower boundaries can support a symmetry boundary condition.')
 
 
-            # CHECK FOR CONSISTENCY IN BOUNDARY CONDITIONS BETWEEN BOTH LOWER AND UPPER SPECIFICATIONS
-            if BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] != 'PERIODIC':
-                print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
-                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
-
-                raise InputError('PERIODIC boundary conditions on phi involve both lower and upper boundaries. The read-in of params_boundaryconditions.dat has the lower boundary condition as PERIODIC but the upper boundary condition is NOT. Both boundary conditions on phi must be set to PERIODIC if a periodic plasma is to be simulated.')
-
-            elif BC['phi'][var]['lower'] != 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC':
-                print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
-                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
-
-                raise InputError('PERIODIC boundary conditions on phi involve both lower and upper boundaries. The read-in of params_boundaryconditions.dat has the upper boundary condition as PERIODIC but the lower boundary condition is NOT. Both boundary conditions on phi must be set to PERIODIC if a periodic plasma is to be simulated.')
-
-            elif BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC':
-
-                if BC['f'][var]['type'] != 'periodic': # note that validity and consistency checks on inputs for the distribution function have already been done above
+                # CHECK FOR CONSISTENCY IN BOUNDARY CONDITIONS BETWEEN BOTH LOWER AND UPPER SPECIFICATIONS
+                if BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] != 'PERIODIC':
                     print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
                     print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
-                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
-                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['f'][var]['lower'].upper())
-                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
-                    print "e.g. periodic boundaries on phi require periodic boundaries on f for the same variable\n"
-                    raise InputError('PERIODIC boundary conditions on were specifed consistently for phi in params_boundaryconditions.dat; however, periodic boundary conditions must also be consistently specified on the distribution function. Revisit params_boundaryconditions.dat and ensure that both lower and upper boundaries on the distribution function f and the potential phi are set to PERIODIC if a periodic plasma is intended to be simulated.')
-                elif BC['f'][var]['type'] == 'periodic': # note that validity and consistency checks on inputs for the distribution function have already been done above
-                    pass
+                    print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
+
+                    raise InputError('PERIODIC boundary conditions on phi involve both lower and upper boundaries. The read-in of params_boundaryconditions.dat has the lower boundary condition as PERIODIC but the upper boundary condition is NOT. Both boundary conditions on phi must be set to PERIODIC if a periodic plasma is to be simulated.')
+
+                elif BC['phi'][var]['lower'] != 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC':
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                    print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
+
+                    raise InputError('PERIODIC boundary conditions on phi involve both lower and upper boundaries. The read-in of params_boundaryconditions.dat has the upper boundary condition as PERIODIC but the lower boundary condition is NOT. Both boundary conditions on phi must be set to PERIODIC if a periodic plasma is to be simulated.')
+
+                elif BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC':
+
+                    if BC['f'][var]['type'] != 'periodic': # note that validity and consistency checks on inputs for the distribution function have already been done above
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                        print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                        print "lower boundary condition on phi for variable %s: %s" % (var, BC['f'][var]['lower'].upper())
+                        print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
+                        print "e.g. periodic boundaries on phi require periodic boundaries on f for the same variable\n"
+                        raise InputError('PERIODIC boundary conditions on were specifed consistently for phi in params_boundaryconditions.dat; however, periodic boundary conditions must also be consistently specified on the distribution function. Revisit params_boundaryconditions.dat and ensure that both lower and upper boundaries on the distribution function f and the potential phi are set to PERIODIC if a periodic plasma is intended to be simulated.')
+                    elif BC['f'][var]['type'] == 'periodic': # note that validity and consistency checks on inputs for the distribution function have already been done above
+                        pass
 
 
-            # CHECK FOR CONSISTENCY ON PHI BCS WITH HIGH ORDER CORRECTION METHOD SPECIFIED (note we have already checked this against the distribution function BCs)
-            # here, we are only checking to see if that BCs on phi aren't periodic, to ensure that HOC is NOT set to fourier (relies on periodicity))
-            # the following conditional check asks: "if (BCs on phi are not periodic) AND (HOC is FOURIER)"
-            if ((BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] != 'PERIODIC') or (BC['phi'][var]['lower'] != 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC')) and HOC[var] == 'fourier':
-                print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent with the specified high order correction method in params.dat: \n\n"
-                print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
-                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
-                print "upper boundary condition on phi for variable %s: %s\n\n" % (var, HOC[var].upper())
-                print "\n\nFourier high order corrections require periodic boundary conditions on both phi and the distribution function f\n"
+                # CHECK FOR CONSISTENCY ON PHI BCS WITH HIGH ORDER CORRECTION METHOD SPECIFIED (note we have already checked this against the distribution function BCs)
+                # here, we are only checking to see if that BCs on phi aren't periodic, to ensure that HOC is NOT set to fourier (relies on periodicity))
+                # the following conditional check asks: "if (BCs on phi are not periodic) AND (HOC is FOURIER)"
+                if ((BC['phi'][var]['lower'] == 'PERIODIC' and BC['phi'][var]['upper'] != 'PERIODIC') or (BC['phi'][var]['lower'] != 'PERIODIC' and BC['phi'][var]['upper'] == 'PERIODIC')) and HOC[var] == 'fourier':
+                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent with the specified high order correction method in params.dat: \n\n"
+                    print "lower boundary condition on phi for variable %s: %s" % (var, BC['phi'][var]['lower'].upper())
+                    print "upper boundary condition on phi for variable %s: %s\n\n" % (var, BC['phi'][var]['upper'].upper())
+                    print "upper boundary condition on phi for variable %s: %s\n\n" % (var, HOC[var].upper())
+                    print "\n\nFourier high order corrections require periodic boundary conditions on both phi and the distribution function f\n"
 
-                raise InputError('the high order correction is specified as FOURIER; however, the BCs on the electric potential phi are not periodic. FOURIER corrections require PERIODIC BCs on phi and the distribution function as the methods rely on periodicity')
+                    raise InputError('the high order correction is specified as FOURIER; however, the BCs on the electric potential phi are not periodic. FOURIER corrections require PERIODIC BCs on phi and the distribution function as the methods rely on periodicity')
 
     #--------------------------------------------------------------------------------------------#
     # BIAS values
@@ -836,33 +776,37 @@ def inputfile(filename):
     Bias['y'] = {}
     Bias['z'] = {}
 
-    Bias['x']['lower'] = safe_eval(BC_infile_lines[214][BC_infile_lines[214].find('=')+1:].strip())
-    Bias['x']['upper'] = safe_eval(BC_infile_lines[215][BC_infile_lines[215].find('=')+1:].strip())
-    Bias['y']['lower'] = safe_eval(BC_infile_lines[217][BC_infile_lines[217].find('=')+1:].strip())
-    Bias['y']['upper'] = safe_eval(BC_infile_lines[218][BC_infile_lines[218].find('=')+1:].strip())
-    Bias['z']['lower'] = safe_eval(BC_infile_lines[220][BC_infile_lines[220].find('=')+1:].strip())
-    Bias['z']['upper'] = safe_eval(BC_infile_lines[221][BC_infile_lines[221].find('=')+1:].strip())
+    Bias['x']['lower'] = safe_eval(BC_infile_lines[227][BC_infile_lines[227].find('=')+1:].strip())
+    Bias['x']['upper'] = safe_eval(BC_infile_lines[228][BC_infile_lines[228].find('=')+1:].strip())
+    Bias['y']['lower'] = safe_eval(BC_infile_lines[230][BC_infile_lines[230].find('=')+1:].strip())
+    Bias['y']['upper'] = safe_eval(BC_infile_lines[231][BC_infile_lines[231].find('=')+1:].strip())
+    Bias['z']['lower'] = safe_eval(BC_infile_lines[233][BC_infile_lines[233].find('=')+1:].strip())
+    Bias['z']['upper'] = safe_eval(BC_infile_lines[234][BC_infile_lines[234].find('=')+1:].strip())
 
     # check for valid inputs on active variables for any boundary that is specified as BIAS
     for var in ['x', 'y', 'z']:
-        for boundary in ['lower', 'upper']:
-            if var in phasespace_vars:
-                if BC['phi'][var][boundary] == 'BIAS':
-                    if Bias[var][boundary] is None: # if the BC is BIAS but the value input for the BIAS value is None
-                        print "\nThe following specifications in params_boundaryconditions.dat are inconsistent:\n"
-                        print "%s boundary condition on phi for variable %s: %s" % (boundary, var, BC['phi'][var][boundary].upper())
-                        print "%s BIAS value on phi for variable %s: %s\n" % (boundary, var, Bias[var][boundary])
-                        print "e.g. if a boundary condition on phi is set to BIAS for a variable, a number must be specifed under BIAS value\n"
-                        raise InputError('A phi boundary condition on an active variable (number of grid points on this variable has been set as non-None) has been specified as BIAS; however, the corresponding BIAS value is NoneType. Must be a number.')
-                    elif type(Bias[var][boundary]) == str:
-                        print "\nThe following specifications in params_boundaryconditions.dat are inconsistent:\n"
-                        print "%s boundary condition on phi for variable %s: %s" % (boundary, var, BC['phi'][var][boundary].upper())
-                        print "%s BIAS value on phi for variable %s: %s\n" % (boundary, var, Bias[var][boundary])
-                        print "e.g. if a boundary condition on phi is set to BIAS for a variable, a number must be specifed under BIAS value\n"
+        if var in phasespace_vars:
+            if HOC[var] == 'FOURIER':
+                pass
+            else:
+                for boundary in ['lower', 'upper']:
+                    if var in phasespace_vars:
+                        if BC['phi'][var][boundary] == 'BIAS':
+                            if Bias[var][boundary] is None: # if the BC is BIAS but the value input for the BIAS value is None
+                                print "\nThe following specifications in params_boundaryconditions.dat are inconsistent:\n"
+                                print "%s boundary condition on phi for variable %s: %s" % (boundary, var, BC['phi'][var][boundary].upper())
+                                print "%s BIAS value on phi for variable %s: %s\n" % (boundary, var, Bias[var][boundary])
+                                print "e.g. if a boundary condition on phi is set to BIAS for a variable, a number must be specifed under BIAS value\n"
+                                raise InputError('A phi boundary condition on an active variable (number of grid points on this variable has been set as non-None) has been specified as BIAS; however, the corresponding BIAS value is NoneType. Must be a number.')
+                            elif type(Bias[var][boundary]) == str:
+                                print "\nThe following specifications in params_boundaryconditions.dat are inconsistent:\n"
+                                print "%s boundary condition on phi for variable %s: %s" % (boundary, var, BC['phi'][var][boundary].upper())
+                                print "%s BIAS value on phi for variable %s: %s\n" % (boundary, var, Bias[var][boundary])
+                                print "e.g. if a boundary condition on phi is set to BIAS for a variable, a number must be specifed under BIAS value\n"
 
-                        raise InputError('A phi boundary condition on an active variable (number of grid points on this variable has been set as non-None) has been specified as BIAS; however, the corresponding BIAS value is str type. Must be a number.')
-                    else:
-                        pass
+                                raise InputError('A phi boundary condition on an active variable (number of grid points on this variable has been set as non-None) has been specified as BIAS; however, the corresponding BIAS value is str type. Must be a number.')
+                            else:
+                                pass
 
     # E is calculated by the following call flow, first an ORCHESTRATOR is called:
     #
@@ -923,177 +867,182 @@ def inputfile(filename):
 
     for var in ['x', 'y', 'z']:
         if var in phasespace_vars:
-            BC['phi'][var]['type'] = BC['phi'][var]['lower'] + '_' + BC['phi'][var]['upper']
-            if BC['phi'][var]['type'] == 'PERIODIC_PERIODIC':
-                BC['phi'][var]['type'] = 'PBC'
 
-                if BC['f'][var]['lower'] != 'periodic' and BC['f'][var]['upper'] != 'periodic':
-                    raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+            if HOC[var] == 'FOURIER':
+                pass # uses electric field E, periodic boundary conditions only
 
+            else: # is FD corrections, and electric potential phi in a Poisson solver, can be periodic or other BCs
+                BC['phi'][var]['type'] = BC['phi'][var]['lower'] + '_' + BC['phi'][var]['upper']
+                if BC['phi'][var]['type'] == 'PERIODIC_PERIODIC':
+                    BC['phi'][var]['type'] = 'PBC'
 
-            if BC['phi'][var]['type'] == 'BIAS_BIAS':
-                BC['phi'][var]['type'] = 'LDBC_UDBC'
-
-                # Dirichlet condition, phi = BIAS value
-                phi_BC[var][0] = float(Bias[var]['lower'])
-                # Dirichlet condition, phi = BIAS value
-                phi_BC[var][-1] = float(Bias[var]['upper'])
-
-                if BC['f'][var]['lower'] != 'absorbing' or BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
-
-            elif BC['phi'][var]['type'] == 'BIAS_SELF-CONSISTENT':
-                BC['phi'][var]['type'] = 'LDBC_UNBC'
-
-                # Dirichlet condition, phi = BIAS value
-                phi_BC[var][0] = float(Bias[var]['lower'])
-                # Neumann condition, dphi = sigma_upper, translates to phi_BC[-1] = -6 var.width * sigma_upper (see https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb for details)
-                # phi_BC[-1] = - 6 * var.width * sim_params['sigma'][var]['upper'], changes with time step
-
-                if BC['f'][var]['lower'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    raise InputError('A lower boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
-
-                if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
-                    sigma[var]['upper'] = 0    # initialize to zero charge at time zero
-                    sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
-                else:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
-                    print "upper boundary condition on f for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
-                    print "\ne.g. an upper boundary condition on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR"
-                    print "\ne.g. an upper boundary condition on f as ASBORBING must have the upper boundary condition on phi as BIAS\n"
-
-                    raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
-
-            elif BC['phi'][var]['type'] == 'SELF-CONSISTENT_BIAS':
-                BC['phi'][var]['type'] = 'LNBC_UDBC'
-
-                # Neumann condition, dphi = -sigma_lower, translates to phi_BC[0] = -6 var.width * sigma_lower (see https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb for details)
-                #phi_BC[var][0] = - 6 * var.width * sim_params['sigma'][var]['lower'], changes with time step
-                # Dirichlet condition, phi = BIAS value
-                phi_BC[var][-1] = float(Bias[var]['upper'])
-
-                # check upper boundary
-                if BC['f'][var]['upper'] == 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    pass
-                else:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
-                    print "upper boundary condition on f for variable %s: %s\n\n" % (var, BC['f'][var]['upper'].upper())
-                    print "\ne.g. an upper boundary condition set on phi as BIAS must have the upper boundary condition on f as ABSORBING\n"
-
-                    raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
-
-                # check lower boundary
-                if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
-                    sigma[var]['lower'] = 0    # initialize to zero charge at time zero
-                    sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
-                else:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "lower boundary condition on phi: %s" % BC['phi'][var]['lower'].upper()
-                    print "lower boundary condition on f: %s\n" % BC['f'][var]['lower'].upper()
-                    print "\ne.g. an lower boundary condition set on phi as SELF-CONSISTENT must have the lower boundary condition on f as COLLECTOR"
-                    print "e.g. an lower boundary condition set on f as ABSORBING must have the lower boundary condition on phi as BIAS"
-                    print "e.g. an lower boundary condition set on f as PERIODIC requires the upper boundary on f to be PERIODIC as well as both lower and upper boundary conditions on phi to be set to PERIODIC\n"
-                    raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector if self-consistent boundary potentials are desired). Equivalently, phi is not compatible with f (e.g. if periodic boundaries on f were desired, the potential must also be periodic)')
-
-            elif BC['phi'][var]['type'] == 'SYMMETRIC_BIAS' or BC['phi'][var]['type'] == 'SYMMETRY_BIAS':
-                BC['phi'][var]['type'] = 'LNBC_UDBC'
-
-                # Neumann condition, dphi = 0 for symmetry
-                phi_BC[var][0] = 0.
-                # Dirichlet condition, phi = BIAS value
-                phi_BC[var][-1] = float(Bias[var]['upper'])
-
-                if BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
-                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
-                    print "\ne.g. an upper boundary condition set on phi as BIAS must have the upper boundary condition on f as ABSORBING\n "
-                    raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+                    if BC['f'][var]['lower'] != 'periodic' and BC['f'][var]['upper'] != 'periodic':
+                        raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
 
 
-            elif BC['phi'][var]['type'] == 'SYMMETRIC_SELF-CONSISTENT' or BC['phi'][var]['type'] == 'SYMMETRY_SELF-CONSISTENT':
-                BC['phi'][var]['type'] = 'LDBC_LNBC'
+                if BC['phi'][var]['type'] == 'BIAS_BIAS':
+                    BC['phi'][var]['type'] = 'LDBC_UDBC'
 
-                # We default to a LDBC_LNBC solver, both boundary conditions on left edge, entries 0 (Dirichlet) and 1 (Neumann)
-                # cf. DECSKS-04 notebook for more details:
-                #
-                #    https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb
-                #
-                # Dirichlet condition, set reference potential phi = 0
-                phi_BC[var][0] = 0. # reference potential set to zero
-                # Neumann condition, dphi = 0 for symmetry
-                phi_BC[var][1] = 0.
+                    # Dirichlet condition, phi = BIAS value
+                    phi_BC[var][0] = float(Bias[var]['lower'])
+                    # Dirichlet condition, phi = BIAS value
+                    phi_BC[var][-1] = float(Bias[var]['upper'])
+
+                    if BC['f'][var]['lower'] != 'absorbing' or BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+                elif BC['phi'][var]['type'] == 'BIAS_SELF-CONSISTENT':
+                    BC['phi'][var]['type'] = 'LDBC_UNBC'
+
+                    # Dirichlet condition, phi = BIAS value
+                    phi_BC[var][0] = float(Bias[var]['lower'])
+                    # Neumann condition, dphi = sigma_upper, translates to phi_BC[-1] = -6 var.width * sigma_upper (see https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb for details)
+                    # phi_BC[-1] = - 6 * var.width * sim_params['sigma'][var]['upper'], changes with time step
+
+                    if BC['f'][var]['lower'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        raise InputError('A lower boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+                    if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                        sigma[var]['upper'] = 0    # initialize to zero charge at time zero
+                        sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                    else:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                        print "upper boundary condition on f for variable %s: %s\n" % (var, BC['f'][var]['upper'].upper())
+                        print "\ne.g. an upper boundary condition on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR"
+                        print "\ne.g. an upper boundary condition on f as ASBORBING must have the upper boundary condition on phi as BIAS\n"
+
+                        raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+                elif BC['phi'][var]['type'] == 'SELF-CONSISTENT_BIAS':
+                    BC['phi'][var]['type'] = 'LNBC_UDBC'
+
+                    # Neumann condition, dphi = -sigma_lower, translates to phi_BC[0] = -6 var.width * sigma_lower (see https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb for details)
+                    #phi_BC[var][0] = - 6 * var.width * sim_params['sigma'][var]['lower'], changes with time step
+                    # Dirichlet condition, phi = BIAS value
+                    phi_BC[var][-1] = float(Bias[var]['upper'])
+
+                    # check upper boundary
+                    if BC['f'][var]['upper'] == 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        pass
+                    else:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "upper boundary condition on phi for variable %s: %s\n" % (var, BC['phi'][var]['upper'].upper())
+                        print "upper boundary condition on f for variable %s: %s\n\n" % (var, BC['f'][var]['upper'].upper())
+                        print "\ne.g. an upper boundary condition set on phi as BIAS must have the upper boundary condition on f as ABSORBING\n"
+
+                        raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
+
+                    # check lower boundary
+                    if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                        sigma[var]['lower'] = 0    # initialize to zero charge at time zero
+                        sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                    else:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "lower boundary condition on phi: %s" % BC['phi'][var]['lower'].upper()
+                        print "lower boundary condition on f: %s\n" % BC['f'][var]['lower'].upper()
+                        print "\ne.g. an lower boundary condition set on phi as SELF-CONSISTENT must have the lower boundary condition on f as COLLECTOR"
+                        print "e.g. an lower boundary condition set on f as ABSORBING must have the lower boundary condition on phi as BIAS"
+                        print "e.g. an lower boundary condition set on f as PERIODIC requires the upper boundary on f to be PERIODIC as well as both lower and upper boundary conditions on phi to be set to PERIODIC\n"
+                        raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector if self-consistent boundary potentials are desired). Equivalently, phi is not compatible with f (e.g. if periodic boundaries on f were desired, the potential must also be periodic)')
+
+                elif BC['phi'][var]['type'] == 'SYMMETRIC_BIAS' or BC['phi'][var]['type'] == 'SYMMETRY_BIAS':
+                    BC['phi'][var]['type'] = 'LNBC_UDBC'
+
+                    # Neumann condition, dphi = 0 for symmetry
+                    phi_BC[var][0] = 0.
+                    # Dirichlet condition, phi = BIAS value
+                    phi_BC[var][-1] = float(Bias[var]['upper'])
+
+                    if BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
+                        print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                        print "\ne.g. an upper boundary condition set on phi as BIAS must have the upper boundary condition on f as ABSORBING\n "
+                        raise InputError('An upper boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
 
 
-                if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
-                    # By virtue of the setup, the above enforcements on the lower boundary ensures this unenforced upper Neumann BC is
-                    # satisfied automatically given the relationship that Neumann BCs are fixed by due to the Poisson equation
+                elif BC['phi'][var]['type'] == 'SYMMETRIC_SELF-CONSISTENT' or BC['phi'][var]['type'] == 'SYMMETRY_SELF-CONSISTENT':
+                    BC['phi'][var]['type'] = 'LDBC_LNBC'
+
+                    # We default to a LDBC_LNBC solver, both boundary conditions on left edge, entries 0 (Dirichlet) and 1 (Neumann)
+                    # cf. DECSKS-04 notebook for more details:
                     #
-                    # see github.com/dsirajud/IPython-Notebooks/DECSKS-04 for more information (final few sections of the notebook)
+                    #    https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb
                     #
-                    # Thus, we do not need to actually enforce the wall potential directly in terms of the charge accumulated for this boundary; however,
-                    # we initialize and track the objects here so that the data can be accessed, analyzed or otherwise plotted, should the user wish
-                    sigma[var]['upper'] = 0    # initialize to zero charge at time zero
-                    sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
-                else:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
-                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
-                    print "\ne.g. an upper boundary condition set on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR\n "
-
-                    raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
-
-            elif BC['phi'][var]['type'] == 'SELF-CONSISTENT_SELF-CONSISTENT':
-                BC['phi'][var]['type'] = 'LDBC_LNBC'
-
-                # We default to a LDBC_LNBC solver, both boundary conditions on left edge, entries 0 (Dirichlet) and 1 (Neumann)
-                # cf. DECSKS-04 notebook for more details:
-                #
-                #    https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb
-                #
-                # Dirichlet condition, set reference potential phi = 0
-                phi_BC[var][0] = 0. # reference potential set to zero
-                # Neumann condition, dphi = 0 for symmetry
-                #phi_BC[var][1] = - 6 * var.width * sim_params['sigma'][var]['lower'], changes with time step
+                    # Dirichlet condition, set reference potential phi = 0
+                    phi_BC[var][0] = 0. # reference potential set to zero
+                    # Neumann condition, dphi = 0 for symmetry
+                    phi_BC[var][1] = 0.
 
 
-                if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    # initialize wall charge densities
-                    sigma[var]['lower'] = 0    # initialize to zero charge at time zero
-                    sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
-                else:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "lower boundary condition on phi on variable %s: SELF-CONSISTENT" % var
-                    print "lower boundary condition on f on variable %s: %s\n\n" % (var, BC['f'][var]['lower'].upper())
-                    print "\ne.g. a lower boundary condition set on phi as SELF-CONSISTENT must have the lower boundary condition on f as COLLECTOR\n "
+                    if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                        # By virtue of the setup, the above enforcements on the lower boundary ensures this unenforced upper Neumann BC is
+                        # satisfied automatically given the relationship that Neumann BCs are fixed by due to the Poisson equation
+                        #
+                        # see github.com/dsirajud/IPython-Notebooks/DECSKS-04 for more information (final few sections of the notebook)
+                        #
+                        # Thus, we do not need to actually enforce the wall potential directly in terms of the charge accumulated for this boundary; however,
+                        # we initialize and track the objects here so that the data can be accessed, analyzed or otherwise plotted, should the user wish
+                        sigma[var]['upper'] = 0    # initialize to zero charge at time zero
+                        sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                    else:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "upper boundary condition on phi: %s" % BC['phi'][var]['upper'].upper()
+                        print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                        print "\ne.g. an upper boundary condition set on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR\n "
 
-                    raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+                        raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
 
-                if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
-                    # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
-                    # By virtue of the setup, the above enforcements on the lower boundary ensures this unenforced upper Neumann BC is
-                    # satisfied automatically given the relationship that Neumann BCs are fixed by due to the Poisson equation
+                elif BC['phi'][var]['type'] == 'SELF-CONSISTENT_SELF-CONSISTENT':
+                    BC['phi'][var]['type'] = 'LDBC_LNBC'
+
+                    # We default to a LDBC_LNBC solver, both boundary conditions on left edge, entries 0 (Dirichlet) and 1 (Neumann)
+                    # cf. DECSKS-04 notebook for more details:
                     #
-                    # see github.com/dsirajud/IPython-Notebooks/DECSKS-04 for more information (final few sections of the notebook)
+                    #    https://github.com/dsirajud/IPython-notebooks/DECSKS-04...ipynb
                     #
-                    # Thus, we do not need to actually enforce the wall potential directly in terms of the charge accumulated for this boundary; however,
-                    # we initialize and track the objects here so that the data can be accessed, analyzed or otherwise plotted, should the user wish
-                    sigma[var]['upper'] = 0    # initialize to zero charge at time zero
-                    sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
-                else:
-                    print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
-                    print "upper boundary condition on phi: SELF-CONSISTENT"
-                    print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
-                    print "\ne.g an upper boundary condition set on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR\n "
+                    # Dirichlet condition, set reference potential phi = 0
+                    phi_BC[var][0] = 0. # reference potential set to zero
+                    # Neumann condition, dphi = 0 for symmetry
+                    #phi_BC[var][1] = - 6 * var.width * sim_params['sigma'][var]['lower'], changes with time step
 
-                    raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
 
-          # else: boundary conditions have already been checked for valid inputs, no invalid input will be encountered
+                    if BC['f'][var]['lower'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        # initialize wall charge densities
+                        sigma[var]['lower'] = 0    # initialize to zero charge at time zero
+                        sigma_n[var]['lower'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                    else:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "lower boundary condition on phi on variable %s: SELF-CONSISTENT" % var
+                        print "lower boundary condition on f on variable %s: %s\n\n" % (var, BC['f'][var]['lower'].upper())
+                        print "\ne.g. a lower boundary condition set on phi as SELF-CONSISTENT must have the lower boundary condition on f as COLLECTOR\n "
+
+                        raise InputError('A lower boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+                    if BC['f'][var]['upper'] == 'collector': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
+                        # initialize wall charge densities, sigma for the collector (f) /self-consistent (phi) conditions
+                        # By virtue of the setup, the above enforcements on the lower boundary ensures this unenforced upper Neumann BC is
+                        # satisfied automatically given the relationship that Neumann BCs are fixed by due to the Poisson equation
+                        #
+                        # see github.com/dsirajud/IPython-Notebooks/DECSKS-04 for more information (final few sections of the notebook)
+                        #
+                        # Thus, we do not need to actually enforce the wall potential directly in terms of the charge accumulated for this boundary; however,
+                        # we initialize and track the objects here so that the data can be accessed, analyzed or otherwise plotted, should the user wish
+                        sigma[var]['upper'] = 0    # initialize to zero charge at time zero
+                        sigma_n[var]['upper'] = np.zeros(Nt + 1)  # this was put in at one point for plotting wall charge vs. time
+                    else:
+                        print "\nThe following boundary conditions specified in params_boundaryconditions.dat are inconsistent together:\n\n"
+                        print "upper boundary condition on phi: SELF-CONSISTENT"
+                        print "upper boundary condition on f: %s\n\n" % BC['f'][var]['upper'].upper()
+                        print "\ne.g an upper boundary condition set on phi as SELF-CONSISTENT must have the upper boundary condition on f as COLLECTOR\n "
+
+                        raise InputError('An upper boundary condition on phi was specified as SELF-CONSISTENT; however, the corresponding boundary condition on f is not compatible (must be set to collector)')
+
+              # else: boundary conditions have already been checked for valid inputs, no invalid input will be encountered
 
     # --------------------------------------------------------------------------
     # ELECTRIC POTENTIAL PHI FUNCTION HANDLE STRING and BOUNDARY CONDITION TYPE FUNCTION HANDLE STRING
@@ -1146,7 +1095,11 @@ def inputfile(filename):
     compute_electric_potential_phi_prefix = "DECSKS.lib.fieldsolvers.Poisson_6th_"
     for var in ['x', 'y', 'z']:
         if var in phasespace_vars:
-            compute_electric_potential_phi_handle[var] = compute_electric_potential_phi_prefix + BC['phi'][var]['type']
+            if HOC[var] == 'FOURIER': # uses a Gauss law solver to find E directly, which is called by the orchestrator on the fieldsolver
+                pass
+            else: # computes the electric field E by differentiating phi in an orchestrator fieldsolver function (string handle constructed above)
+                  # inside the orchestrator, a particular Poisson solver is called according with the boundary conditions indicated in params_boundaryconditions.dat
+                compute_electric_potential_phi_handle[var] = compute_electric_potential_phi_prefix + BC['phi'][var]['type']
         else:
             pass
 
@@ -1155,9 +1108,12 @@ def inputfile(filename):
 
     if 'x' not in phasespace_vars:
         raise NotImplementedError('Current 1D1V version of DECSKS is expecting x to be the active configuration variable. Please revise the intended simulation so that x is the symbol chosen in params.dat.')
-
     else:
-        Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx_active, BC)
+        if HOC['x'] == 'FOURIER': # uses a Gauss solver to find E directly
+            Poisson_6th_order_FD_solver_matrices = None
+
+        else: # uses a Poisson solver to find phi, then differentiates to obtain E
+            Poisson_6th_order_FD_solver_matrices = assemble_Poisson_6th_order_FD_solver_matrices(Nx_active, BC)
 
     derivative_method = {}
     derivative_method_prefix = 'DECSKS.lib.derivatives'
@@ -1235,7 +1191,7 @@ def splitting_coefficients(filepath, split_scheme):
     coeff = splitting['order']['coeffs'] = a, b, a, b, ...
     stage = splitting['order']['stages'] = 1, 1, 2, 2, ...
     access ith coefficient by
-    splitting[ coeff[i]][int(stage[i])]
+    splitting[ coeff[i] ][ int(stage[i]) ]
     """
     infile = open(filepath, 'r')
     lines = infile.readlines()
@@ -1249,9 +1205,9 @@ def splitting_coefficients(filepath, split_scheme):
         b1 = eval(lines[16][lines[16].find('=')+1:].strip())
         b2 = eval(lines[17][lines[17].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 2, b = 2)
+        number_of_stages = dict(a = 2, b = 2)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order, number_of_stages = number_of_stages,
                             a = [None, a1, a2],
                             b = [None, b1, b2])
 
@@ -1267,9 +1223,9 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[38][lines[38].find('=')+1:].strip())
         b4 = eval(lines[39][lines[39].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 4, b = 4)
+        number_of_stages = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order, number_of_stages = number_of_stages,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -1285,9 +1241,9 @@ def splitting_coefficients(filepath, split_scheme):
         b3 = eval(lines[60][lines[60].find('=')+1:].strip())
         b4 = eval(lines[61][lines[61].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 4, b = 4)
+        number_of_stages = dict(a = 4, b = 4)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order, number_of_stages = number_of_stages,
                             a = [None, a1, a2, a3, a4],
                             b = [None, b1, b2, b3, b4])
 
@@ -1311,9 +1267,9 @@ def splitting_coefficients(filepath, split_scheme):
         b5 = eval(lines[89][lines[89].find('=')+1:].strip())
         b6 = eval(lines[90][lines[90].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 6, b = 6)
+        number_of_stages = dict(a = 6, b = 6)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order, number_of_stages = number_of_stages,
                             a = [None, a1, a2, a3, a4, a5, a6],
                             b = [None, b1, b2, b3, b4, b5, b6])
 
@@ -1342,9 +1298,9 @@ def splitting_coefficients(filepath, split_scheme):
         b6 = eval(lines[124][lines[124].find('=')+1:].strip())
         b7 = eval(lines[125][lines[125].find('=')+1:].strip())
 
-        number_of_substeps = dict(a = 8, b = 7)
+        number_of_stagess = dict(a = 8, b = 7)
         order = dict(coeffs = coeffs, stages = stages)
-        splitting = dict(order = order, number_of_substeps = number_of_substeps,
+        splitting = dict(order = order, number_of_stages = number_of_stages,
                             a = [None, a1, a2, a3, a4, a5, a6, a7, a8],
                             b = [None, b1, b2, b3, b4, b5, b6, b7])
 

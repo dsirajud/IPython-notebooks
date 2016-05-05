@@ -5,7 +5,7 @@
 # 1D1V Vlasov-Poisson system, two species                                     #
 #                                                                             #
 #     __author__     = David Sirajuddin                                       #
-#     __version__    = 2.2                                                    #
+#     __version__    = 2.0                                                    #
 #     __email__      = sirajuddin@wisc.edu                                    #
 #     __status__     = in development                                         #
 #                                                                             #
@@ -31,8 +31,6 @@
 import _mypath     # adds relative path to sys.path for flexible deployment
 import DECSKS
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('GTKAgg')
 import numpy as np
 import time
 # =========================================================================== #
@@ -55,13 +53,22 @@ t = DECSKS.lib.domain.Setup(sim_params, var = 't')
 fe, fi = DECSKS.lib.density.setup(sim_params, t, x, vx) # NOTE mu and tau in ion density must match those just below
 
 # store total mass for conservation checks, TODO do not need the x phase space variable pass in this function
-sim_params['me_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fe, sim_params)))
-sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi, sim_params)))
+sim_params['me_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)))
+sim_params['mi_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)))
 
 # TODO add this to lib.read, right now you need to make sure you use
 # TODO the same mu and tau as in density.setup for sim_params['density']
 
     #DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,f,0,x,vx)
+
+print sim_params['BC']['f']['x']['type']
+print sim_params['BC']['f']['vx']['type']
+print sim_params['BC']['f']['x']['lower']
+print sim_params['BC']['f']['x']['upper']
+print sim_params['BC']['f']['vx']['lower']
+print sim_params['BC']['f']['vx']['upper']
+
+
 Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
 Plot(n = 0)
 Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
@@ -70,26 +77,18 @@ Plot(n = 0)
 print 'simulation has started, status updates are broadcasted after each timestep'
 
 for n in t.stepnumbers:
-    fe, fi, phi = DECSKS.lib.split.scheme(
+    fe, fi = DECSKS.lib.split.scheme(
         fe, fi,
-        t,
-        x, vx, ax,
+        t, x, vx, ax,
         n,
         sim_params
         )
 
-    matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2)
-    matplotlib.pyplot.grid()
-    matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], 0, 35])
-    matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
-    matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
-    matplotlib.pyplot.title(r's18-13 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], t.stepnumbers[n]*t.width, n))
-    it_str = 'it%05d' % n
-    matplotlib.pyplot.savefig('phi_s18-13' + it_str)
-    matplotlib.pyplot.clf()
-
     #    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
     #    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
+
+    #    print sim_params['sigma']['x']['lower']
+    #    print sim_params['sigma']['x']['upper']
 
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
     Plot(n)
@@ -106,13 +105,13 @@ for n in t.stepnumbers:
     #sigma_n_right = sim_params['sigma_n']['x']['upper']
 
     #trange = np.arange(t.N+1)
-#plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
-#plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
-#plt.grid()
-#plt.xlabel(r'time step $n$', fontsize = 18)
-#plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
-#plt.legend(loc = 'best')
-#plt.figure()
+    #plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
+    #plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
+    #plt.grid()
+    #plt.xlabel(r'time step $n$', fontsize = 18)
+    #plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
+    #plt.legend(loc = 'best')
+
 
 
 #phi_left = sim_params['sigma_n']['x']['lower'] # E = -1/2 sigma, phi = 1/2 sigma, here sigma = ni - ne

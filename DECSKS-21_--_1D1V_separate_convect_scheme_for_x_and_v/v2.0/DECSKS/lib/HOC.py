@@ -115,11 +115,11 @@ def Beta_matrix_3D(sim_params, z, vz, s):
     # we require an identically dimensioned matrix. Hence, we slice the rows up to N values.
     # There is no loss of information here given that every row entry in the z.CFL.frac matrix
     # is constant, given z.CFL.frac = z.CFL.frac (vz.prepointvaluemesh)
-
+ 
     # Naming per DECSKS-09 notebook:
     #
     #        alpha = z.CFL.frac, shape: (z.N, vz.N)
-    #        alpha_hat = truncated z.CFL.frac[:N, :vz.N], vz.N = z.CFL.frac.shape[1]
+    #        alpha_hat = truncated (or extended if N > z.N) z.CFL.frac[:N, :vz.N], vz.N = z.CFL.frac.shape[1]
     #        alpha_tilde : alpha_tilde[q,j] = alpha_hat ** q,q = 0, 1, ... N-1
     #
 

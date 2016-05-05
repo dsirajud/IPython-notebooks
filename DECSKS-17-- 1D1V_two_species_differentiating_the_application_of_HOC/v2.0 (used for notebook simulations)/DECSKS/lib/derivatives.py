@@ -47,6 +47,8 @@ def trigonometric3D(f, z, sim_params):
 
     # need to specify the axis in numpy v1.11.0.dev0+fe64f97, has opposite default axis
     # as prior versions!
+
+
     Ff = np.fft.fft(f, axis = 0)
     D = sim_params['Xi'][z.str] * Ff # selects the Xi matrix based on 'x' or 'vx'
     d = np.real(np.fft.ifft(D, axis = 1)) # or for v-advection if rows are maintained can toggle axis = 2 here

@@ -96,7 +96,7 @@ density profile: bump on tail, const
     triangle
     triple gaussian bell
 --------------------------------------------------------------------------------
-split scheme = LF2
+split scheme = O6-4
 splitting coeffs in filename (in ./etc/): params_splitting_coeffs.dat
 
 #   split scheme options

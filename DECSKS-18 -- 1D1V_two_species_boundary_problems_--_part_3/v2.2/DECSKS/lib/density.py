@@ -100,8 +100,8 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'ion maxwellian':
         x,v = z1, z2
-        vD = 0 # drift velocity
-        mu = 100. # 1836.15267389 # mass ratio mi / me for Hydrogen
+        mu = 1836.15267389 # 1836.15267389 # mass ratio mi / me for Hydrogen
+        vD = 1 / np.sqrt(mu) # drift velocity        
         tau = 1/30.            # Ti / Te temperature ratio
         print "initializing H ion maxwellian profile: drift velocity vD = %g, mi / me = %g, Ti / Te = %g " % (vD, mu, tau)
         for j in range(v.Ngridpoints):
@@ -110,7 +110,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'cosine 22-bell':
         x, vx = z1, z2
-        xc, vc = 5., 2.
+        xc, vc = -5., 2.
         a = 6.
         r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
         for i in range(x.Ngridpoints):
@@ -191,7 +191,7 @@ def initial_profile(f0, density, z1, z2 = None):
                 else:
                     f0[i,j] = 0
         return f0
-    
+
     if density == 'ion cosine symmetric 22-bells':
         x, vx = z1, z2
         xc1, vc1 = 5., -2.
@@ -238,6 +238,24 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
+    if density == 'ion cosine 22-bell right-side':
+        x, vx = z1, z2
+        xc, vc = 5., -2.
+        a = 6.
+        r = np.zeros([x.Ngridpoints, vx.Ngridpoints])
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                r[i,j] = np.sqrt( (x.gridvalues[i] - xc) ** 2
+                                  + (vx.gridvalues[j] - vc) ** 2)
+
+        for i in range(x.Ngridpoints):
+            for j in range(vx.Ngridpoints):
+                if r[i,j] <= a:
+                    f0[i,j] = (np.cos(np.pi * r[i,j] / (2.*a) )) ** 22
+                else:
+                    f0[i,j] = 0
+
+        return f0
 
     if density == 'ion cosine 22-bell left-side':
         x, vx = z1, z2
@@ -284,8 +302,8 @@ def initial_profile(f0, density, z1, z2 = None):
 
     if density == 'bump on tail':
         x,v = z1, z2
-        for i in range(x.Ngridpoints):
-            for j in range(v.Ngridpoints):
+        for i in range(x.N):
+            for j in range(v.N):
                 f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + 0.04*np.cos(0.3*x.gridvalues[i])) * ( 0.9*np.exp(-v.gridvalues[j]**2 / 2.) + 0.2*np.exp(-4 * (v.gridvalues[j] - 4.5) ** 2) )
 
         return f0

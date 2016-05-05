@@ -13,7 +13,7 @@ Requirements for value entry:
 (3) if needed, use numpy prefix as np, e.g. np.pi
 -------------------------------------------------------------------------------
 
-Number of grid points, x = 256
+Number of grid points, x = 240
 lower boundary value ax = -10 * np.pi / 3
 upper boundary value bx = 10 * np.pi / 3
 

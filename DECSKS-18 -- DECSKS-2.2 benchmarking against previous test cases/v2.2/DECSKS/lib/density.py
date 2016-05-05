@@ -60,6 +60,9 @@ def initial_profile(f0, density, z1, z2 = None):
           string argument, density
     """
 
+    # ------------------------------------------------------------------------------
+    # 1D1V DISTRIBUTIONS
+
     if density == 'const ion background for bump on tail':
 
         # in general, we calculate
@@ -80,6 +83,42 @@ def initial_profile(f0, density, z1, z2 = None):
         f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
 
         return f0
+
+
+    elif density == 'const ion background for symmetric two streams':
+
+        # in general, we calculate
+        # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
+        ne_avg = 1.01493843058  # s18-20c, 256 x 256 v in [-8, 8]
+        #ne_avg = 1.00000000624  # s18-20b, vth = 0.0625
+        #ne_avg = 1.0           # s18-20, vth = 0.5
+                                # grid was periodic in x, periodic in vx
+                                # Nx = 256, Nvx = 512
+                                # [ax, bx] = [-5*np.pi, 5*np.pi]
+                                # [avx, bvx] = [-6.0, 6.0]
+
+        fi0 = ne_avg / z2.L     # z2 = vx, units of per x,  per vx
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
+
+        return f0
+
+    elif density == 'const ion background for two streams':
+
+        # in general, we calculate
+        # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
+
+        # s18-18, s18-19
+        ne_avg = 1.71428571429 # grid was periodic in x, periodic in vx
+                                # Nx = 256, Nvx = 512
+                                # [ax, bx] = [-2*np.pi, 2*np.pi]
+                                # [avx, bvx] = [-6.0, 6.0]
+
+        fi0 = ne_avg / z2.L     # z2 = vx, units of per x,  per vx
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
+
+        return f0
+
+
 
     elif density == 'const ion background for landau':
 
@@ -305,8 +344,19 @@ def initial_profile(f0, density, z1, z2 = None):
         return f0
 
     elif density == 'landau':
+        # s07-01, 02, 03, 04, 05 cases, weak (linear) landau damping
         x,v = z1, z2
         eps, k = 0.01, 0.5
+        print "initializing Landau profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.gridvalues[i])) * np.exp(-v.gridvalues[j] ** 2 / 2.)
+        return f0
+
+    elif density == 'strong landau damping':
+        # s18-17 case, strong landau damping, simulation from Qiu [manuscript number: JOMP-D-15-00441]
+        x,v = z1, z2
+        eps, k = 0.5, 0.5
         print "initializing Landau profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
         for i in range(x.Ngridpoints):
             for j in range(v.Ngridpoints):
@@ -334,6 +384,35 @@ def initial_profile(f0, density, z1, z2 = None):
                 f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + 0.04*np.cos(0.3*x.gridvalues[i])) * ( 0.9*np.exp(-v.gridvalues[j]**2 / 2.) + 0.2*np.exp(-4 * (v.gridvalues[j] - 4.5) ** 2) )
 
         return f0
+
+    elif density == 'two streams':
+        # s18-18, s18-19 case, simulation from Qiu [manuscript number: JOMP-D-15-00441, example 3.1]
+        x,v = z1, z2
+        eps, k = 0.01, 0.5
+        print "initializing two stream electron density profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] = 2 / (7 * np.sqrt(2*np.pi)) * (1 + 5*v.gridvalues[j] ** 2) * (
+                    1 + eps * (np.cos(2 * k * x.gridvalues[i]) + np.cos(3 * k * x.gridvalues[i])) / 1.2 + np.cos(k*x.gridvalues[i])
+                    ) * np.exp(-v.gridvalues[j] ** 2 / 2)
+        return f0
+
+    elif density == 'symmetric two streams':
+        # s18-20, s18-20b case, simulation from Qiu [manuscript number: JOMP-D-15-00441, example 3.4]
+        x,v = z1, z2
+        eps, k = 0.0005, 0.2
+        vth = 0.03125  # s18-20: vth = 0.5, s18-20b: vth = 0.0625, s18-20c: vth = 0.03125
+        u = 5*np.sqrt(3) / 4.
+        print "initializing two stream electron density profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] = 1 / (np.sqrt(8*np.pi) * vth) * ( np.exp(-(v.gridvalues[j] - u)** 2 / (2*vth ** 2)) + np.exp(-(v.gridvalues[j] + u) ** 2 / (2 * vth ** 2)) ) * \
+                  (1 + eps * np.cos(k*x.gridvalues[i]))
+
+        return f0
+
+    # ------------------------------------------------------------------------------
+    # 1D DISTRIBUTIONS
 
     elif density == 'gaussian':
         mu, sigma = 0.0, 0.04

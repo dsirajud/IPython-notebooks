@@ -53,8 +53,8 @@ VELOCITY (vx, vy, vz) BOUNDARY CONDITIONS INPUTS ON DISTRIBUTION FUNCTION
 -------------------------------------------------------------------------------
 *******************************************************************************
 
-lower boundary condition vx = PERIODIC
-upper boundary condition vx = PERIODIC
+lower boundary condition vx = CUTOFF
+upper boundary condition vx = CUTOFF
 
 lower boundary condition vy = None
 upper boundary condition vy = None
@@ -212,8 +212,8 @@ BIAS VALUE INPUTS
 --------------------------------------------------------------------------------
 ********************************************************************************
 
-bias on lower boundary in x = -5.
-bias on upper boundary in x = 5.
+bias on lower boundary in x = None
+bias on upper boundary in x = None
 
 bias on lower boundary in y = None
 bias on upper boundary in y = None

@@ -15,7 +15,7 @@ Requirements for value entry:
 
 Number of grid points, x = 240
 lower boundary value ax = 0.
-upper boundary value bx = 10.
+upper boundary value bx = 20.
 
 Number of grid points, y = None
 lower boundary value ay = None
@@ -26,8 +26,8 @@ lower boundary value az = None
 upper boundary value bz = None
 
 Number of grid points, vx = 400
-lower boundary value avx = -14.0
-upper boundary value bvx =  14.0
+lower boundary value avx = -6.0
+upper boundary value bvx =  6.0
 
 Number of grid points, vy = None
 lower boundary value avy = None
@@ -37,8 +37,8 @@ Number of grid points, vz = None
 lower boundary value avz = None
 upper boundary value bvz = None
 
-Number of time steps, Nt = 1000
-Simulation duration, time T = 10
+Number of time steps, Nt = 62832
+Simulation duration, time T = 2000 * 2 * np.pi
 
 -------------------------------------------------------------------------------
 High order corrections 
@@ -67,7 +67,7 @@ Initial density specification
 ==============================
 
 mass ratio mu (mass of ion / mass of electron, e.g. mu = 1836.15267389 for H plasmas): 1836.15267389
-density profiles (specify in order -- electron, ion with one space after comma): cosine 22-bell, ion cosine 22-bell
+density profiles (specify in order -- electron, ion with one space after comma): electron maxwellian, ion maxwellian
 
 # density options:
 
@@ -95,10 +95,10 @@ Plot window specification (used in lib.plots.Setup)
 --------------------------------------------------------------------------------
 
 x, min = 0.
-x, max = 10.2
+x, max = 20.
 
-y, min = -14.
-y, max = 14.
+y, min = -6.
+y, max = 6.
 
 --------------------------------------------------------------------------------
 record outputs? (yes/no): no

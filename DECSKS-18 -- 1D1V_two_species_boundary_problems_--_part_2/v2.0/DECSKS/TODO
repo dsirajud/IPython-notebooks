@@ -1,0 +1,8 @@
+
+- implement the cutoff/open condition properly for velocity (i.e. > z.N - 1 vs. >= z.N - 1 gets zeroed out, latter is for absorbing)
+
+    - put in lib.read input validity checks
+
+- symmetry condition
+
+- then all caught up

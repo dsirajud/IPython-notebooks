@@ -6,9 +6,9 @@ import DECSKS
 # ORCHESTRATORS
 #==============================================================================#
 
-def compute_electric_field_fd(fe, fi, x, vx, sim_params):
+def compute_electric_field_fd(fe, fi, x, vx, n, sim_params):
 
-    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, sim_params)
+    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, n, sim_params)
 
     # currently the finite difference weight matrix W_dn1 is a 6th order LTE to
     # match the 6th order LTE on the Poisson solve
@@ -17,7 +17,7 @@ def compute_electric_field_fd(fe, fi, x, vx, sim_params):
 
     return Ex
 
-def compute_electric_field_fourier(fe, fi, x, vx, sim_params):
+def compute_electric_field_fourier(fe, fi, x, vx, n, sim_params):
     """Computes self-consistent electric field E by solving Gauss' law
     using FFT/IFFT for two species.
 
@@ -35,8 +35,8 @@ def compute_electric_field_fourier(fe, fi, x, vx, sim_params):
     outputs:
     E -- (ndarray,dim=2) electric field, E(x,v) = E(x) at time t^n for all (i,j)
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     n_total = single_integration(fi - fe, of = x, wrt = vx)
 
@@ -64,7 +64,7 @@ def compute_electric_field_fourier(fe, fi, x, vx, sim_params):
 # TWO SPECIES SOLVERS
 #==============================================================================#
 def Poisson_6th_PBC(fe, fi,
-                x, vx,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for periodic BCs
 
@@ -74,15 +74,16 @@ def Poisson_6th_PBC(fe, fi,
     fi -- (ndarray, dim=2) ion density fe(x,v,n) at time step t^n
                           used to compute ni(x,n) at time step t^n
     x -- (instance) spatial variable
-    vx -- (instance) velocity variable
+    v -- (instance) velocity variable
+    n -- (int) time step number, t^n
 
 
     outputs:
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
@@ -113,7 +114,7 @@ def Poisson_6th_PBC(fe, fi,
     return phi
 
 def Poisson_6th_LDBC_UDBC(fe, fi,
-                x, vx,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for
 
@@ -132,15 +133,16 @@ def Poisson_6th_LDBC_UDBC(fe, fi,
     fi -- (ndarray, dim=2) ion density fe(x,v,n) at time step t^n
                           used to compute ni(x,n) at time step t^n
     x -- (instance) spatial variable
-    vx -- (instance) velocity variable
+    v -- (instance) velocity variable
+    n -- (int) time step number, t^n
 
 
     outputs:
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
@@ -167,7 +169,7 @@ def Poisson_6th_LDBC_UDBC(fe, fi,
     return phi
 
 def Poisson_6th_LNBC_UDBC(fe, fi,
-                x, vx,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for
 
@@ -189,13 +191,15 @@ def Poisson_6th_LNBC_UDBC(fe, fi,
                           used to compute ni(x,n) at time step t^n
     x -- (instance) spatial variable
     v -- (instance) velocity variable
+    n -- (int) time step number, t^n
+
 
     outputs:
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
@@ -227,7 +231,7 @@ def Poisson_6th_LNBC_UDBC(fe, fi,
 
 
 def Poisson_6th_LDBC_UNBC(fe, fi,
-                x, vx,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for
 
@@ -249,13 +253,15 @@ def Poisson_6th_LDBC_UNBC(fe, fi,
                           used to compute ni(x,n) at time step t^n
     x -- (instance) spatial variable
     v -- (instance) velocity variable
+    n -- (int) time step number, t^n
+
 
     outputs:
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
@@ -286,7 +292,7 @@ def Poisson_6th_LDBC_UNBC(fe, fi,
     return phi
 
 def Poisson_6th_LDBC_LNBC(fe, fi,
-                x, vx,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for LDBC/LNBC
 
@@ -312,8 +318,8 @@ def Poisson_6th_LDBC_LNBC(fe, fi,
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
@@ -346,7 +352,7 @@ def Poisson_6th_LDBC_LNBC(fe, fi,
 
 
 def Poisson_6th_UDBC_UNBC(fe, fi,
-                x, vx, 
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for LDBC/LNBC
 
@@ -372,8 +378,8 @@ def Poisson_6th_UDBC_UNBC(fe, fi,
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, sim_params)
+    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
+    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
 
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
@@ -437,7 +443,7 @@ def Gauss_1S(ni, f, x, vx, n, sim_params):
     outputs:
     E -- (ndarray,dim=2) electric field, E(x,v) = E(x) at time t^n for all (i,j)
     """
-    f = DECSKS.lib.domain.extract_active_grid(f, sim_params)
+    f = DECSKS.lib.domain.extract_active_grid(f, x, sim_params)
     ne = single_integration(f, of = x, wrt = vx)
     n_total = ni - ne
 
@@ -458,7 +464,7 @@ def Gauss_1S(ni, f, x, vx, n, sim_params):
     return E
 
 def Poisson_6th_PBC_1S(ni, f,
-                x, vx,
+                x, vx, n,
                 sim_params):
     """6th order LTE finite difference Poisson solver for periodic BCs
 
@@ -476,7 +482,7 @@ def Poisson_6th_PBC_1S(ni, f,
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    f = DECSKS.lib.domain.extract_active_grid(f, sim_params)
+    f = DECSKS.lib.domain.extract_active_grid(f, x, sim_params)
 
     # charge densities
     ne = single_integration(f, of = x, wrt = vx)

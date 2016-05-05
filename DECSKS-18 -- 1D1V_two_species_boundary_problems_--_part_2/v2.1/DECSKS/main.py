@@ -39,7 +39,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-07.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_bumpontail.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -79,8 +79,8 @@ for n in t.stepnumbers:
         sim_params
         )
 
-    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
-    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
+    #    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
+    #    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
 
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
     Plot(n)
@@ -93,16 +93,16 @@ for n in t.stepnumbers:
     DECSKS.lib.status.check_and_clean(t, n, tic, rm_plots)
 
 
-sigma_n_left = sim_params['sigma_n']['x']['lower']
-sigma_n_right = sim_params['sigma_n']['x']['upper']
+    #sigma_n_left = sim_params['sigma_n']['x']['lower']
+    #sigma_n_right = sim_params['sigma_n']['x']['upper']
 
-trange = np.arange(t.N+1)
-plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
-plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
-plt.grid()
-plt.xlabel(r'time step $n$', fontsize = 18)
-plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
-plt.legend(loc = 'best')
+    #trange = np.arange(t.N+1)
+    #plt.plot(trange,sigma_n_left, linewidth = 2, label = r'$\sigma (t, x= -10)$')
+    #plt.plot(trange,sigma_n_right, linewidth = 2, label = r'$\sigma (t, x= +10)$')
+    #plt.grid()
+    #plt.xlabel(r'time step $n$', fontsize = 18)
+    #plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
+    #plt.legend(loc = 'best')
 #plt.figure()
 
 
@@ -115,7 +115,7 @@ plt.legend(loc = 'best')
 #plt.ylabel(r'$\phi (t,x)$', fontsize = 18)
 #plt.legend(loc = 'best')
 
-plt.show()
+#plt.show()
 
 
 

@@ -37,7 +37,7 @@ class PlotSetup(Plots):
         self.ymin = plot_params['ymin']
         self.ymax = plot_params['ymax']
 
-        if len(f.shape) == 2: # f = f[t,x,v], 2 dim in phase space
+        if len(f.shape) == 2: # f = f[x,vx], 2 dim in phase space
             self.dimensionality = '1D1V'
             self.splitscheme = sim_params['split_scheme']
             self.filename = self.filetype + self.divider \
@@ -64,23 +64,21 @@ class PlotSetup(Plots):
     def __call__(self, n):
         if len(self.f.shape) == 2:
             # f = f[x,vx], 2 dim in phase space
-            ft = self.f
-            pylab.pcolormesh(self.X, self.V, ft.T, cmap = 'jet')
+            pylab.pcolormesh(self.X, self.V, self.f.T, cmap = 'jet')
             pylab.colorbar()
             pylab.clim(0,0.38) # for Landau test case
             pylab.grid()
             pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)
             pylab.ylabel('$v$', fontsize = 18)
-            pylab.title('$N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.N, self.v.N, self.it*self.t.width, n))
-            pylab.savefig(self.path + self.filename)
+            pylab.title('s18-14 DECSKS-2.2: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.Ngridpoints, self.v.Ngridpoints, self.it*self.t.width, n))
+            pylab.savefig(self.path + 's18-14_' + self.filename)
             pylab.clf()
             return None
 
         if len(self.f.shape) == 1:
             # f = f[x], 1 dim in phase space
-            ft = self.f[n,:]
-            pylab.plot(self.x.gridvalues,ft,'ob')
+            pylab.plot(self.x.gridvalues,self.f,'ob')
             pylab.grid()
             pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)

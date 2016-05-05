@@ -8,38 +8,51 @@ Boundary conditions on the distribution functions, f
  - options (do not include quotes):
 
     * 'periodic'
-    * 'absorbing' or 'open' or 'cutoff'
-    * 'collector' (absorbs all charges that reach boundary and collects them in a total wall charge object)
+
+    * 'absorbing'        (removes all particles that reach BOTH the boundary AND beyond)
+
+    * 'cutoff'           (removes only those particles that go beyond the boundary cutoff; 
+                         can only be used with velocity variables, see below for reasoning)
+
+    * 'collector'        (absorbs all charges that reach a boundary and collects them in a 
+                         wall charge density object)
+
     * 'symmetric' or 'symmetry' (only available as a lower boundary option)
 
 - The boundary conditions on configuration will need to be compatible with 
   those on the field quantities below (guidance is provided in that section
-  in the forenotes)
+  in the forenotes), e.g. 'absorbing' here must be used with 'BIAS' on phi
 
 - consistency is also needed within each set (lower/upper). For example, 
   it does not make sense to have the lower BC be 'periodic' and the upper
   BC to be 'absorbing' as a periodic condition involves both boundaries.
 
-- synonyms are accepted as prescribed above, and are treated identically 
-  e.g. ('absorbing' is treated the same as 'open'). The reason for including
-  synonyms is for readability and context, e.g. an 'open' system more naturally 
-  describes contexts for only tracking velocities within a certain window of a
-  larger system, or it might be preferred to take the interpretation that
-  we are not tracking velocities after a certain cutoff value, so 'cutoff'
-  might be specified be preferred to be specified by the user. In the same context,
-  'absorbing' is most natural when considering a condition on a configuration
-  variable rather than velocity (e.g. absorbing walls at a certain value x). 
-  In other interpretations, an 'open' system might thought to describe both
-  configuration and velocity well, e.g. plasma thrusters where density leaves 
-  the system, and we only track a certain window of velocities
+- synonyms are accepted as prescribed above, e.g. 'symmetric' is treated
+  the same as 'symmetry'. 
+
+- 'cutoff' and 'absorbing' are implementation-wise almost identical, the 
+  only difference being 'cutoff' zeroes out any particle that advects beyond
+  the grid boundary (> or <), whereas 'absorbing' zeroes out any particle that advects
+  to AND beyond the boundary (>= or <=). For example, if 'cutoff' is on an upper boundary, 
+  any particle with postpoint k > z.N-1 is zeroed out. If 'absorbing' is specified 
+  on an upper boundary, then any particle with postpoint k >= z.N-1 is zeroed out.
+  Note: 'cutoff' or 'absorbing' can be used on a velocity variable; however,
+  'cutoff' cannot be used on a configuration variable as the physical meaning of
+  this condition suggests we are windowing in on one region of a larger system.
+  While this is not an issue for the advection step, this condition on a configuration
+  variable makes it unclear how to calculate or specify the boundary conditions on
+  the electric potential phi (below) as we do not have information about the charges 
+  outside of the domain.  Hence, we reserve 'absorbing' for configuration, which is 
+  physically suggestive of closing a system with a boundary, where the potential can
+  be consistently calculated or biased.
 
 -------------------------------------------------------------------------------
 CONFIGURATION (x, y, z) BOUNDARY CONDITIONS INPUTS ON DISTRIBUTION FUNCTION
 -------------------------------------------------------------------------------
 *******************************************************************************
 
-lower boundary condition x = SYMMETRY
-upper boundary condition x = ABSORBING
+lower boundary condition x = COLLECTOR
+upper boundary condition x = COLLECTOR
 
 lower boundary condition y = None
 upper boundary condition y = None
@@ -194,8 +207,8 @@ PHI BOUNDARY CONDITIONS INPUTS (e.g. BIAS, SYMMETRIC, SYMMETRY, SELF-CONSISTENT)
 -------------------------------------------------------------------------------
 ********************************************************************************
 
-lower boundary condition on x = SYMMETRIC
-upper boundary condition on x = BIAS
+lower boundary condition on x = SELF-CONSISTENT
+upper boundary condition on x = SELF-CONSISTENT
 
 lower boundary condition on y = None
 upper boundary condition on y = None
@@ -212,8 +225,8 @@ BIAS VALUE INPUTS
 --------------------------------------------------------------------------------
 ********************************************************************************
 
-bias on lower boundary in x = -5.
-bias on upper boundary in x = 5.
+bias on lower boundary in x = None
+bias on upper boundary in x = None
 
 bias on lower boundary in y = None
 bias on upper boundary in y = None

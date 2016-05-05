@@ -1224,7 +1224,7 @@ static char __pyx_k_collector_upper_boundary[] = "collector_upper_boundary";
 static char __pyx_k_symmetric_lower_boundary[] = "symmetric_lower_boundary";
 static char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static char __pyx_k_DECSKS_lib_boundaryconditions[] = "DECSKS.lib.boundaryconditions";
-static char __pyx_k_home_dsirajud_Work_IPython_note[] = "/home/dsirajud/Work/IPython-notebooks/DECSKS-18 -- 1D1V_two_species_boundary_problems_--_part_3/v2.2/DECSKS/lib/boundaryconditions.pyx";
+static char __pyx_k_home_dsirajud_Work_IPython_note[] = "/home/dsirajud/Work/IPython-notebooks/DECSKS-18 -- DECSKS-2.2 benchmarking against previous test cases/v2.2/DECSKS/lib/boundaryconditions.pyx";
 static char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
@@ -5650,48 +5650,48 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14collector_upper_bo
  */
   __pyx_v_sigma_nk = (__pyx_v_sigma_nk * __pyx_v_vzwidth);
 
-  /* "DECSKS/lib/boundaryconditions.pyx":321
- * 
- *     # update cumulative charge density
+  /* "DECSKS/lib/boundaryconditions.pyx":322
+ *     # update cumulative charge density sigma = sum_k sum_j sum_n sigma_nk * dvx * dt
+ *     # k = k1, k2, j = 0, ..., Nvx -1, n = 0, 1, 2, ... Nt
  *     sim_params['sigma'][z.str]['upper'] += sigma_nk*dt             # <<<<<<<<<<<<<<
  *     z.postpointmesh[k,:,:] = zpostpointmesh
  * 
  */
-  __pyx_t_1 = PyObject_GetItem(__pyx_v_sim_params, __pyx_n_s_sigma); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __pyx_t_1 = PyObject_GetItem(__pyx_v_sim_params, __pyx_n_s_sigma); if (unlikely(__pyx_t_1 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_34 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_str); if (unlikely(!__pyx_t_34)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_34 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_str); if (unlikely(!__pyx_t_34)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_34);
-  __pyx_t_35 = PyObject_GetItem(__pyx_t_1, __pyx_t_34); if (unlikely(__pyx_t_35 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __pyx_t_35 = PyObject_GetItem(__pyx_t_1, __pyx_t_34); if (unlikely(__pyx_t_35 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_35);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_34); __pyx_t_34 = 0;
   __Pyx_INCREF(__pyx_n_s_upper);
   __pyx_t_36 = __pyx_n_s_upper;
-  __pyx_t_34 = PyObject_GetItem(__pyx_t_35, __pyx_t_36); if (unlikely(__pyx_t_34 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
+  __pyx_t_34 = PyObject_GetItem(__pyx_t_35, __pyx_t_36); if (unlikely(__pyx_t_34 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_34);
-  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_sigma_nk * __pyx_v_dt)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_sigma_nk * __pyx_v_dt)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_37 = PyNumber_InPlaceAdd(__pyx_t_34, __pyx_t_1); if (unlikely(!__pyx_t_37)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_37 = PyNumber_InPlaceAdd(__pyx_t_34, __pyx_t_1); if (unlikely(!__pyx_t_37)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_37);
   __Pyx_DECREF(__pyx_t_34); __pyx_t_34 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_t_35, __pyx_t_36, __pyx_t_37) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 321; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(__pyx_t_35, __pyx_t_36, __pyx_t_37) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_37); __pyx_t_37 = 0;
   __Pyx_DECREF(__pyx_t_36); __pyx_t_36 = 0;
   __Pyx_DECREF(__pyx_t_35); __pyx_t_35 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":322
- *     # update cumulative charge density
+  /* "DECSKS/lib/boundaryconditions.pyx":323
+ *     # k = k1, k2, j = 0, ..., Nvx -1, n = 0, 1, 2, ... Nt
  *     sim_params['sigma'][z.str]['upper'] += sigma_nk*dt
  *     z.postpointmesh[k,:,:] = zpostpointmesh             # <<<<<<<<<<<<<<
  * 
  *     return f_old, Uf_old
  */
-  __pyx_t_35 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_35)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_35 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_35)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_35);
-  __pyx_t_37 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_37)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_37 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_37)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_37);
-  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_37);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_37);
@@ -5702,11 +5702,11 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14collector_upper_bo
   __Pyx_GIVEREF(__pyx_slice__28);
   PyTuple_SET_ITEM(__pyx_t_1, 2, __pyx_slice__28);
   __pyx_t_37 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_t_35, __pyx_t_1, ((PyObject *)__pyx_v_zpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(__pyx_t_35, __pyx_t_1, ((PyObject *)__pyx_v_zpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_35); __pyx_t_35 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":324
+  /* "DECSKS/lib/boundaryconditions.pyx":325
  *     z.postpointmesh[k,:,:] = zpostpointmesh
  * 
  *     return f_old, Uf_old             # <<<<<<<<<<<<<<
@@ -5714,7 +5714,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14collector_upper_bo
  * @cython.boundscheck(False)
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 325; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_f_old));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_f_old));
@@ -5766,7 +5766,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_14collector_upper_bo
   return __pyx_r;
 }
 
-/* "DECSKS/lib/boundaryconditions.pyx":327
+/* "DECSKS/lib/boundaryconditions.pyx":328
  * 
  * @cython.boundscheck(False)
  * def symmetric_lower_boundary(             # <<<<<<<<<<<<<<
@@ -5833,76 +5833,76 @@ static PyObject *__pyx_pw_6DECSKS_3lib_18boundaryconditions_17symmetric_lower_bo
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_f_old)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_Uf_old)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_zpostpointmesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  4:
         if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_vzpostpointmesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 4); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 4); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  5:
         if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_vzprepointmesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 5); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 5); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  6:
         if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_vzprepointvaluemesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 6); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 6); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  7:
         if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_dt)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 7); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 7); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  8:
         if (likely((values[8] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_Nz)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 8); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 8); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  9:
         if (likely((values[9] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_Nvz)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 9); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 9); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case 10:
         if (likely((values[10] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_k)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 10); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 10); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case 11:
         if (likely((values[11] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_charge)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 11); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 11); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case 12:
         if (likely((values[12] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_sim_params)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 12); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 12); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case 13:
         if (likely((values[13] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_z)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 13); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 13); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case 14:
         if (likely((values[14] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_vz)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 14); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, 14); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "symmetric_lower_boundary") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "symmetric_lower_boundary") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 15) {
       goto __pyx_L5_argtuple_error;
@@ -5930,30 +5930,30 @@ static PyObject *__pyx_pw_6DECSKS_3lib_18boundaryconditions_17symmetric_lower_bo
     __pyx_v_vzpostpointmesh = ((PyArrayObject *)values[4]);
     __pyx_v_vzprepointmesh = ((PyArrayObject *)values[5]);
     __pyx_v_vzprepointvaluemesh = ((PyArrayObject *)values[6]);
-    __pyx_v_dt = __pyx_PyFloat_AsFloat(values[7]); if (unlikely((__pyx_v_dt == (float)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 335; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_Nz = __Pyx_PyInt_As_int(values[8]); if (unlikely((__pyx_v_Nz == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 336; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_Nvz = __Pyx_PyInt_As_int(values[9]); if (unlikely((__pyx_v_Nvz == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 336; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_k = __Pyx_PyInt_As_int(values[10]); if (unlikely((__pyx_v_k == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 336; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_charge = __Pyx_PyInt_As_int(values[11]); if (unlikely((__pyx_v_charge == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_dt = __pyx_PyFloat_AsFloat(values[7]); if (unlikely((__pyx_v_dt == (float)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 336; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_Nz = __Pyx_PyInt_As_int(values[8]); if (unlikely((__pyx_v_Nz == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_Nvz = __Pyx_PyInt_As_int(values[9]); if (unlikely((__pyx_v_Nvz == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_k = __Pyx_PyInt_As_int(values[10]); if (unlikely((__pyx_v_k == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_charge = __Pyx_PyInt_As_int(values[11]); if (unlikely((__pyx_v_charge == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
     __pyx_v_sim_params = values[12];
     __pyx_v_z = values[13];
     __pyx_v_vz = values[14];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("symmetric_lower_boundary", 1, 15, 15, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("DECSKS.lib.boundaryconditions.symmetric_lower_boundary", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_f_k), __pyx_ptype_5numpy_ndarray, 1, "f_k", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_f_old), __pyx_ptype_5numpy_ndarray, 1, "f_old", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_Uf_old), __pyx_ptype_5numpy_ndarray, 1, "Uf_old", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_zpostpointmesh), __pyx_ptype_5numpy_ndarray, 1, "zpostpointmesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 331; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vzpostpointmesh), __pyx_ptype_5numpy_ndarray, 1, "vzpostpointmesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vzprepointmesh), __pyx_ptype_5numpy_ndarray, 1, "vzprepointmesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vzprepointvaluemesh), __pyx_ptype_5numpy_ndarray, 1, "vzprepointvaluemesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_f_k), __pyx_ptype_5numpy_ndarray, 1, "f_k", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_f_old), __pyx_ptype_5numpy_ndarray, 1, "f_old", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 330; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_Uf_old), __pyx_ptype_5numpy_ndarray, 1, "Uf_old", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 331; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_zpostpointmesh), __pyx_ptype_5numpy_ndarray, 1, "zpostpointmesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vzpostpointmesh), __pyx_ptype_5numpy_ndarray, 1, "vzpostpointmesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vzprepointmesh), __pyx_ptype_5numpy_ndarray, 1, "vzprepointmesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_vzprepointvaluemesh), __pyx_ptype_5numpy_ndarray, 1, "vzprepointvaluemesh", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 335; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_boundary(__pyx_self, __pyx_v_f_k, __pyx_v_f_old, __pyx_v_Uf_old, __pyx_v_zpostpointmesh, __pyx_v_vzpostpointmesh, __pyx_v_vzprepointmesh, __pyx_v_vzprepointvaluemesh, __pyx_v_dt, __pyx_v_Nz, __pyx_v_Nvz, __pyx_v_k, __pyx_v_charge, __pyx_v_sim_params, __pyx_v_z, __pyx_v_vz);
 
   /* function exit code */
@@ -6059,48 +6059,48 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   __pyx_pybuffernd_vzprepointvaluemesh.rcbuffer = &__pyx_pybuffer_vzprepointvaluemesh;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f_k.rcbuffer->pybuffer, (PyObject*)__pyx_v_f_k, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f_k.rcbuffer->pybuffer, (PyObject*)__pyx_v_f_k, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_f_k.diminfo[0].strides = __pyx_pybuffernd_f_k.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_f_k.diminfo[0].shape = __pyx_pybuffernd_f_k.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_f_k.diminfo[1].strides = __pyx_pybuffernd_f_k.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_f_k.diminfo[1].shape = __pyx_pybuffernd_f_k.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f_old.rcbuffer->pybuffer, (PyObject*)__pyx_v_f_old, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_f_old.rcbuffer->pybuffer, (PyObject*)__pyx_v_f_old, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_f_old.diminfo[0].strides = __pyx_pybuffernd_f_old.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_f_old.diminfo[0].shape = __pyx_pybuffernd_f_old.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_f_old.diminfo[1].strides = __pyx_pybuffernd_f_old.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_f_old.diminfo[1].shape = __pyx_pybuffernd_f_old.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_Uf_old.rcbuffer->pybuffer, (PyObject*)__pyx_v_Uf_old, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_Uf_old.rcbuffer->pybuffer, (PyObject*)__pyx_v_Uf_old, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_Uf_old.diminfo[0].strides = __pyx_pybuffernd_Uf_old.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Uf_old.diminfo[0].shape = __pyx_pybuffernd_Uf_old.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Uf_old.diminfo[1].strides = __pyx_pybuffernd_Uf_old.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Uf_old.diminfo[1].shape = __pyx_pybuffernd_Uf_old.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_zpostpointmesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_zpostpointmesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides = __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_zpostpointmesh.diminfo[0].shape = __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides = __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape = __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_vzpostpointmesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_vzpostpointmesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_vzpostpointmesh.diminfo[0].shape = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_vzprepointmesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_vzprepointmesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_vzprepointmesh.diminfo[0].strides = __pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_vzprepointmesh.diminfo[0].shape = __pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_vzprepointmesh.diminfo[1].strides = __pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_vzprepointmesh.diminfo[1].shape = __pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vzprepointvaluemesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_vzprepointvaluemesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_vzprepointvaluemesh.rcbuffer->pybuffer, (PyObject*)__pyx_v_vzprepointvaluemesh, &__Pyx_TypeInfo_nn___pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_vzprepointvaluemesh.diminfo[0].strides = __pyx_pybuffernd_vzprepointvaluemesh.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_vzprepointvaluemesh.diminfo[0].shape = __pyx_pybuffernd_vzprepointvaluemesh.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_vzprepointvaluemesh.diminfo[1].strides = __pyx_pybuffernd_vzprepointvaluemesh.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_vzprepointvaluemesh.diminfo[1].shape = __pyx_pybuffernd_vzprepointvaluemesh.rcbuffer->pybuffer.shape[1];
 
-  /* "DECSKS/lib/boundaryconditions.pyx":372
+  /* "DECSKS/lib/boundaryconditions.pyx":373
  *     to the exact grid point needed if vz.N != vz.Ngridpoints (as would be the case for periodic boundary conditions)
  *     """
  *     vzpostpointmesh = vzprepointmesh.copy() # by this point, vzpostpointmesh has not been assigned (is an array of zeroes), init to prepointmesh values             # <<<<<<<<<<<<<<
  *                                             # and replace exiting particles with their partner velocities if encountered when scanning of all [i,j]
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vzprepointmesh), __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vzprepointmesh), __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 373; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -6113,14 +6113,14 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 373; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 373; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 373; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_4 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -6136,13 +6136,13 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
       }
     }
     __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_vzpostpointmesh.diminfo[0].shape = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape = __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.shape[1];
-    if (unlikely(__pyx_t_5 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 372; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__pyx_t_5 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 373; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_t_4 = 0;
   __Pyx_DECREF_SET(__pyx_v_vzpostpointmesh, ((PyArrayObject *)__pyx_t_1));
   __pyx_t_1 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":376
+  /* "DECSKS/lib/boundaryconditions.pyx":377
  * 
  *     cdef int i, j
  *     if k == 0:             # <<<<<<<<<<<<<<
@@ -6152,7 +6152,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   __pyx_t_9 = ((__pyx_v_k == 0) != 0);
   if (__pyx_t_9) {
 
-    /* "DECSKS/lib/boundaryconditions.pyx":377
+    /* "DECSKS/lib/boundaryconditions.pyx":378
  *     cdef int i, j
  *     if k == 0:
  *         for j in range(Nvz/2):             # <<<<<<<<<<<<<<
@@ -6163,7 +6163,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
     for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_10; __pyx_t_5+=1) {
       __pyx_v_j = __pyx_t_5;
 
-      /* "DECSKS/lib/boundaryconditions.pyx":378
+      /* "DECSKS/lib/boundaryconditions.pyx":379
  *     if k == 0:
  *         for j in range(Nvz/2):
  *             for i in range(Nz):             # <<<<<<<<<<<<<<
@@ -6174,7 +6174,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
       for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
         __pyx_v_i = __pyx_t_12;
 
-        /* "DECSKS/lib/boundaryconditions.pyx":379
+        /* "DECSKS/lib/boundaryconditions.pyx":380
  *         for j in range(Nvz/2):
  *             for i in range(Nz):
  *                 if zpostpointmesh[i,j] <= 0:             # <<<<<<<<<<<<<<
@@ -6188,7 +6188,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
         __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)) <= 0) != 0);
         if (__pyx_t_9) {
 
-          /* "DECSKS/lib/boundaryconditions.pyx":381
+          /* "DECSKS/lib/boundaryconditions.pyx":382
  *                 if zpostpointmesh[i,j] <= 0:
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]             # <<<<<<<<<<<<<<
@@ -6205,7 +6205,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
           if (__pyx_t_18 < 0) __pyx_t_18 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides) = (-(*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":382
+          /* "DECSKS/lib/boundaryconditions.pyx":383
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]             # <<<<<<<<<<<<<<
@@ -6222,7 +6222,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
           if (__pyx_t_22 < 0) __pyx_t_22 += __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides) = ((__pyx_v_Nvz - 1) - (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzprepointmesh.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_vzprepointmesh.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_vzprepointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":383
+          /* "DECSKS/lib/boundaryconditions.pyx":384
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzprepointmesh[i,j]
  *                     Uf_old[i,j] = -Uf_old[i,j]             # <<<<<<<<<<<<<<
@@ -6247,7 +6247,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   }
   __pyx_L3:;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":385
+  /* "DECSKS/lib/boundaryconditions.pyx":386
  *                     Uf_old[i,j] = -Uf_old[i,j]
  * 
  *     if k == 1:             # <<<<<<<<<<<<<<
@@ -6257,7 +6257,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   __pyx_t_9 = ((__pyx_v_k == 1) != 0);
   if (__pyx_t_9) {
 
-    /* "DECSKS/lib/boundaryconditions.pyx":386
+    /* "DECSKS/lib/boundaryconditions.pyx":387
  * 
  *     if k == 1:
  *         for j in range(Nvz / 2):             # <<<<<<<<<<<<<<
@@ -6268,7 +6268,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
     for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_10; __pyx_t_5+=1) {
       __pyx_v_j = __pyx_t_5;
 
-      /* "DECSKS/lib/boundaryconditions.pyx":387
+      /* "DECSKS/lib/boundaryconditions.pyx":388
  *     if k == 1:
  *         for j in range(Nvz / 2):
  *             for i in range(Nz):             # <<<<<<<<<<<<<<
@@ -6279,7 +6279,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
       for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
         __pyx_v_i = __pyx_t_12;
 
-        /* "DECSKS/lib/boundaryconditions.pyx":388
+        /* "DECSKS/lib/boundaryconditions.pyx":389
  *         for j in range(Nvz / 2):
  *             for i in range(Nz):
  *                 if zpostpointmesh[i,j] <= 0:             # <<<<<<<<<<<<<<
@@ -6293,7 +6293,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
         __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_27, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_28, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)) <= 0) != 0);
         if (__pyx_t_9) {
 
-          /* "DECSKS/lib/boundaryconditions.pyx":390
+          /* "DECSKS/lib/boundaryconditions.pyx":391
  *                 if zpostpointmesh[i,j] <= 0:
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]             # <<<<<<<<<<<<<<
@@ -6310,7 +6310,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
           if (__pyx_t_32 < 0) __pyx_t_32 += __pyx_pybuffernd_zpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_31, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_32, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides) = (-(*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_zpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_29, __pyx_pybuffernd_zpostpointmesh.diminfo[0].strides, __pyx_t_30, __pyx_pybuffernd_zpostpointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":391
+          /* "DECSKS/lib/boundaryconditions.pyx":392
  *                     # prepare for partner remap in lib.convect_configuration.remap_step
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzpostpointmesh[i,j]             # <<<<<<<<<<<<<<
@@ -6327,7 +6327,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
           if (__pyx_t_36 < 0) __pyx_t_36 += __pyx_pybuffernd_vzpostpointmesh.diminfo[1].shape;
           *__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_35, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_36, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides) = ((__pyx_v_Nvz - 1) - (*__Pyx_BufPtrStrided2d(__pyx_t_6DECSKS_3lib_18boundaryconditions_DTYPEINT_t *, __pyx_pybuffernd_vzpostpointmesh.rcbuffer->pybuffer.buf, __pyx_t_33, __pyx_pybuffernd_vzpostpointmesh.diminfo[0].strides, __pyx_t_34, __pyx_pybuffernd_vzpostpointmesh.diminfo[1].strides)));
 
-          /* "DECSKS/lib/boundaryconditions.pyx":392
+          /* "DECSKS/lib/boundaryconditions.pyx":393
  *                     zpostpointmesh[i,j] = -zpostpointmesh[i,j]
  *                     vzpostpointmesh[i,j] = Nvz - 1 - vzpostpointmesh[i,j]
  *                     Uf_old[i,j] = -Uf_old[i,j]             # <<<<<<<<<<<<<<
@@ -6352,18 +6352,18 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   }
   __pyx_L9:;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":394
+  /* "DECSKS/lib/boundaryconditions.pyx":395
  *                     Uf_old[i,j] = -Uf_old[i,j]
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh             # <<<<<<<<<<<<<<
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
@@ -6374,22 +6374,22 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   __Pyx_GIVEREF(__pyx_slice__30);
   PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_slice__30);
   __pyx_t_2 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_zpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_zpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":395
+  /* "DECSKS/lib/boundaryconditions.pyx":396
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh             # <<<<<<<<<<<<<<
  * 
  *     return f_k, f_old, Uf_old
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_vz, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_vz, __pyx_n_s_postpointmesh); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_k); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1);
@@ -6400,17 +6400,17 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   __Pyx_GIVEREF(__pyx_slice__32);
   PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_slice__32);
   __pyx_t_1 = 0;
-  if (unlikely(PyObject_SetItem(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_vzpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_vzpostpointmesh)) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":397
+  /* "DECSKS/lib/boundaryconditions.pyx":398
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh
  * 
  *     return f_k, f_old, Uf_old             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 397; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_v_f_k));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_f_k));
@@ -6425,7 +6425,7 @@ static PyObject *__pyx_pf_6DECSKS_3lib_18boundaryconditions_16symmetric_lower_bo
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":327
+  /* "DECSKS/lib/boundaryconditions.pyx":328
  * 
  * @cython.boundscheck(False)
  * def symmetric_lower_boundary(             # <<<<<<<<<<<<<<
@@ -8746,45 +8746,45 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice__26);
   __Pyx_GIVEREF(__pyx_slice__26);
 
-  /* "DECSKS/lib/boundaryconditions.pyx":322
- *     # update cumulative charge density
+  /* "DECSKS/lib/boundaryconditions.pyx":323
+ *     # k = k1, k2, j = 0, ..., Nvx -1, n = 0, 1, 2, ... Nt
  *     sim_params['sigma'][z.str]['upper'] += sigma_nk*dt
  *     z.postpointmesh[k,:,:] = zpostpointmesh             # <<<<<<<<<<<<<<
  * 
  *     return f_old, Uf_old
  */
-  __pyx_slice__27 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__27)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__27 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__27)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__27);
   __Pyx_GIVEREF(__pyx_slice__27);
-  __pyx_slice__28 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__28)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 322; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__28 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__28)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 323; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__28);
   __Pyx_GIVEREF(__pyx_slice__28);
 
-  /* "DECSKS/lib/boundaryconditions.pyx":394
+  /* "DECSKS/lib/boundaryconditions.pyx":395
  *                     Uf_old[i,j] = -Uf_old[i,j]
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh             # <<<<<<<<<<<<<<
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh
  * 
  */
-  __pyx_slice__29 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__29)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__29 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__29)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__29);
   __Pyx_GIVEREF(__pyx_slice__29);
-  __pyx_slice__30 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__30)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 394; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__30 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__30)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__30);
   __Pyx_GIVEREF(__pyx_slice__30);
 
-  /* "DECSKS/lib/boundaryconditions.pyx":395
+  /* "DECSKS/lib/boundaryconditions.pyx":396
  * 
  *     z.postpointmesh[k,:,:] = zpostpointmesh
  *     vz.postpointmesh[k,:,:] = vzpostpointmesh             # <<<<<<<<<<<<<<
  * 
  *     return f_k, f_old, Uf_old
  */
-  __pyx_slice__31 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__31)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__31 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__31)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__31);
   __Pyx_GIVEREF(__pyx_slice__31);
-  __pyx_slice__32 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__32)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__32 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__32)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__32);
   __Pyx_GIVEREF(__pyx_slice__32);
 
@@ -8950,17 +8950,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__53);
   __pyx_codeobj__54 = (PyObject*)__Pyx_PyCode_New(14, 0, 18, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__53, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_dsirajud_Work_IPython_note, __pyx_n_s_collector_upper_boundary, 274, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__54)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-  /* "DECSKS/lib/boundaryconditions.pyx":327
+  /* "DECSKS/lib/boundaryconditions.pyx":328
  * 
  * @cython.boundscheck(False)
  * def symmetric_lower_boundary(             # <<<<<<<<<<<<<<
  *         np.ndarray[DTYPE_t, ndim=2] f_k,
  *         np.ndarray[DTYPE_t, ndim=2] f_old,
  */
-  __pyx_tuple__55 = PyTuple_Pack(17, __pyx_n_s_f_k, __pyx_n_s_f_old, __pyx_n_s_Uf_old, __pyx_n_s_zpostpointmesh, __pyx_n_s_vzpostpointmesh, __pyx_n_s_vzprepointmesh, __pyx_n_s_vzprepointvaluemesh, __pyx_n_s_dt, __pyx_n_s_Nz, __pyx_n_s_Nvz, __pyx_n_s_k, __pyx_n_s_charge, __pyx_n_s_sim_params, __pyx_n_s_z, __pyx_n_s_vz, __pyx_n_s_i, __pyx_n_s_j); if (unlikely(!__pyx_tuple__55)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__55 = PyTuple_Pack(17, __pyx_n_s_f_k, __pyx_n_s_f_old, __pyx_n_s_Uf_old, __pyx_n_s_zpostpointmesh, __pyx_n_s_vzpostpointmesh, __pyx_n_s_vzprepointmesh, __pyx_n_s_vzprepointvaluemesh, __pyx_n_s_dt, __pyx_n_s_Nz, __pyx_n_s_Nvz, __pyx_n_s_k, __pyx_n_s_charge, __pyx_n_s_sim_params, __pyx_n_s_z, __pyx_n_s_vz, __pyx_n_s_i, __pyx_n_s_j); if (unlikely(!__pyx_tuple__55)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__55);
   __Pyx_GIVEREF(__pyx_tuple__55);
-  __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(15, 0, 17, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_dsirajud_Work_IPython_note, __pyx_n_s_symmetric_lower_boundary, 327, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(15, 0, 17, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_dsirajud_Work_IPython_note, __pyx_n_s_symmetric_lower_boundary, 328, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -9221,16 +9221,16 @@ PyMODINIT_FUNC PyInit_boundaryconditions(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_collector_upper_boundary, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "DECSKS/lib/boundaryconditions.pyx":327
+  /* "DECSKS/lib/boundaryconditions.pyx":328
  * 
  * @cython.boundscheck(False)
  * def symmetric_lower_boundary(             # <<<<<<<<<<<<<<
  *         np.ndarray[DTYPE_t, ndim=2] f_k,
  *         np.ndarray[DTYPE_t, ndim=2] f_old,
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6DECSKS_3lib_18boundaryconditions_17symmetric_lower_boundary, NULL, __pyx_n_s_DECSKS_lib_boundaryconditions); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6DECSKS_3lib_18boundaryconditions_17symmetric_lower_boundary, NULL, __pyx_n_s_DECSKS_lib_boundaryconditions); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_symmetric_lower_boundary, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_symmetric_lower_boundary, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 328; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "DECSKS/lib/boundaryconditions.pyx":1

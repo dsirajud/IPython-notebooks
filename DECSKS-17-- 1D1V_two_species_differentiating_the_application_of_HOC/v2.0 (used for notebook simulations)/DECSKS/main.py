@@ -32,6 +32,7 @@ import _mypath     # adds relative path to sys.path for flexible deployment
 import DECSKS
 import matplotlib.pyplot as plt
 import numpy as np
+np.set_printoptions(threshold=np.nan)
 import time
 # =========================================================================== #
 
@@ -40,7 +41,7 @@ rm_plots = 0
 tic = time.clock()
 
 # DECSKS16 labels the notebook which changed this read file from read to read_DECSKS16
-sim_params = DECSKS.lib.read_DECSKS16.inputfile('./etc/params_s17-02.dat')
+sim_params = DECSKS.lib.read_DECSKS16.inputfile('./etc/params_s17-01.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -63,10 +64,10 @@ ni = np.sum(fi, axis = 1) * vx.width
 ne_int = np.sum(ne) * x.width
 ni_int = np.sum(ni) * x.width
 
-print "neint = "
-print ne_int
-print "niint = "
-print ni_int 
+print "initially, we have integral ne dx = %g" % ne_int
+print "initially, we have integral ni dx = %g" % ni_int
+print "checks on mass conservation will be broadcasted at each step\n"
+
 
 # store total mass for conservation checks, TODO do not need the x phase space variable pass
 sim_params['me_0'] = np.sum(np.abs(DECSKS.lib.domain.extract_active_grid(fe[0,:,:], x, sim_params)))
