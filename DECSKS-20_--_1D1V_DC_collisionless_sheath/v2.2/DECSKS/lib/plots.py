@@ -66,13 +66,21 @@ class PlotSetup(Plots):
             # f = f[x,vx], 2 dim in phase space
             pylab.pcolormesh(self.X, self.V, self.f.T, cmap = 'jet')
             pylab.colorbar()
-            pylab.clim(0,0.38) # for Landau test case
+
+            #            pylab.clim(0.0, 0.45)
+            # clim for various test cases
+                # pylab.clim(0,0.38) # for bump on tail test cases (s17-01, 02, 03, 04)
+                # pylab.clim(-0.004, 0.004) # for linear landau test cases (s07-01, 02, 03, 04, 05)
+                # pylab.clim(0.0, 0.45) # for two stream instability (s18-18)
+                # pylab.clim(0.0, 0.6) # for strong landau test cases (s18-17)
+
+
             pylab.grid()
             pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)
             pylab.ylabel('$v$', fontsize = 18)
-            pylab.title('s20-02 DECSKS-2.2: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.Ngridpoints, self.v.Ngridpoints, self.it*self.t.width, n))
-            pylab.savefig(self.path + 's20-02_' + self.filename)
+            pylab.title('s18-23 DECSKS-2.2: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.Ngridpoints, self.v.Ngridpoints, self.it*self.t.width, n))
+            pylab.savefig(self.path + 's18-23_' + self.filename)
             pylab.clf()
             return None
 

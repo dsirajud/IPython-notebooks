@@ -1,0 +1,195 @@
+kedimport math
+import numpy
+import pylab
+
+def simplegrid():
+
+    xmin = 0.0
+    xmax = 1.0
+
+    nzones = 7
+
+    dx = (xmax - xmin)/float(nzones)
+
+    xl = numpy.arange(nzones)*dx
+    xr = (numpy.arange(nzones)+1)*dx
+
+    xc = 0.5*(xl + xr)
+
+    pylab.plot([xmin,xmax], [0,0], color="k", lw=2)
+    pylab.plot([xmin - 2*dx,xmin], [0,0], color="k", linestyle = '--', lw=2)
+    pylab.plot([xmax, xmax + 2*dx], [0,0], color="k", linestyle = '--', lw=2)
+
+    # plot ghost points and ghost boundaries
+
+    # left ghost point
+    pylab.plot(xc[0] - dx, 0, 'D', markeredgecolor = 'k', markerfacecolor = 'white')
+
+    # left ghost boundary
+    pylab.plot([xl[0] - dx, xl[0] - dx], [-0.05, 0.05], color="g")
+
+    # left ghost boundary label
+    pylab.text(xl[0] - dx, -.075, r"$-3/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+    
+
+    # right ghost point
+    pylab.plot(xc[-1] + dx, 0, 'D', markeredgecolor = 'k', markerfacecolor = 'white')
+
+    # right ghost boundary
+    pylab.plot([xr[-1] + dx, xr[-1] + dx], [-0.05, 0.05], color="g")
+
+    # left ghost boundary label
+    pylab.text(xr[-1] + dx, -.075, r"$N+1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+
+
+
+    # left wall
+    pylab.plot([xl[0], xl[0]], [0, 0.5], color = 'k', lw = 2)
+
+    # right wall
+    pylab.plot([xr[-1], xr[-1]], [0, 0.5], color = 'k', lw = 2)
+
+    # label regions
+
+    # left ghost region
+    pylab.text(xl[0] - .75*dx, .35, r"$\mathrm{ghost\, region}$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+
+    # right ghost region
+    pylab.text(xr[-1] + .75*dx, .35, r"$\mathrm{ghost\, region}$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+    # domain
+    pylab.text(xl[5] - dx, .4, r"$\mathrm{domain}\, \mathcal{M} = \bigcup_i \,\mathcal{C}_i = \bigcup_i\, [x_{i-1/2}, x_{i+1/2}]$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+
+
+    n = 0
+    while (n < nzones):
+
+
+        # draw center marker
+        pylab.plot(xc[n], 0, 'D', color="k")
+
+        # draw edge marker
+        if (n == 0):
+            pylab.plot([xl[0], xl[0]], [-0.05, 0.05], color="g")
+
+        pylab.plot([xr[n], xr[n]], [-0.05, 0.05], color="g")
+
+        n += 1
+
+    # left boundary
+    pylab.text(xl[0], -0.075, r"$-1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+    # left ghost point
+    pylab.text(xc[0] - dx, -0.1, r"$-1$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'k')
+
+    # right ghost point
+    pylab.text(xc[-1] + dx, -0.1, r"$N$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'k')
+
+    # left boundary
+    pylab.text(xl[0], -0.155, r"$x = a$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="medium", color = 'red')
+
+
+    # right boundary
+    pylab.text(xr[-1], -0.2, r"$(N-1) + 1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+
+    # right boundary
+    pylab.text(xr[-1], -0.125, r"$x = b$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="medium", color = 'red')
+
+
+    # label a few edges
+    pylab.text(xl[1], -0.075, r"$1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+    pylab.text(xl[2], -0.075, r"$3/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+    pylab.text(xl[3], -0.075, r"$i-1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+    pylab.text(xl[4], -0.075, r"$i + 1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+    pylab.text(xl[5], -0.075, r"$\ldots$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+    pylab.text(xl[6], -0.2, r"$(N-1) - 1/2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small", color = 'g')
+
+
+
+    # label a few cell-centers at the center, general i
+    pylab.text(xc[0], -0.1, r"$0$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+    pylab.text(xc[1], -0.1, r"$1$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+
+    pylab.text(xc[2], -0.1, r"$\ldots$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+    pylab.text(xc[3], -0.1, r"$i$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+    pylab.text(xc[4], -0.1, r"$\ldots$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+    pylab.text(xc[5], -0.1, r"$N-2$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+    pylab.text(xc[6], -0.1, r"$N-1$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="small")
+
+
+
+    pylab.axis([xmin-3/2.*dx,xmax+3/2.*dx, -0.25, 0.6])
+    pylab.axis("off")
+
+    pylab.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95)
+
+    f = pylab.gcf()
+    f.set_size_inches(9.0,2.0)
+
+    pylab.savefig("cc_grid_bvp.png")
+
+if __name__== "__main__":
+    simplegrid()

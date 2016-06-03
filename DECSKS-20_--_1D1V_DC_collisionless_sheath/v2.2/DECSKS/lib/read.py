@@ -434,10 +434,12 @@ def inputfile(filename):
 
     if record_outputs == 'yes':
         # output filepath setup
+        print "\ncourtesy notice: selected outputs as indicated in etc/params_output.dat will be written to etc/outputs/\n"
         filename = lines[104][lines[104].find(':')+1:].strip()
         filepath = './etc/' + filename
         outfiles = output_files(filepath) # dictionary of opened files
     else:
+        print "\ncourtesy notice: no output data will be written\n"
         outfiles = None
 
     # --------------------------------------------------------------------------
@@ -1349,32 +1351,24 @@ def output_files(filepath):
     filename_I2 = lines[10][lines[10].find(':')+1:].strip()
     filename_IW = lines[12][lines[12].find(':')+1:].strip()
     filename_WE = lines[13][lines[13].find(':')+1:].strip()
-    filename_CFLx = lines[15][lines[15].find(':')+1:].strip()
-    filename_CFLv = lines[16][lines[16].find(':')+1:].strip()
-    filename_S = lines[18][lines[18].find(':')+1:].strip()
+    filename_S = lines[15][lines[15].find(':')+1:].strip()
 
     filepath_I1 = rel_path + filename_I1
     filepath_I2 = rel_path + filename_I2
     filepath_IW = rel_path + filename_IW
     filepath_WE = rel_path + filename_WE
-    #    filepath_CFLx = rel_path + filename_CFLx
-    #    filepath_CFLv = rel_path + filename_CFLv
     filepath_S = rel_path + filename_S
 
     outfile_I1 = open(filepath_I1, 'w')
     outfile_I2 = open(filepath_I2, 'w')
     outfile_IW = open(filepath_IW, 'w')
     outfile_WE = open(filepath_WE, 'w')
-    #    outfile_CFLx = open(filepath_CFLx, 'w')
-    #    outfile_CFLv = open(filepath_CFLv, 'w')
     outfile_S = open(filepath_S, 'w')
 
     outfiles = dict(I1 = outfile_I1,
                     I2 = outfile_I2,
                     IW = outfile_IW,
                     WE = outfile_WE,
-    #                    CFLx = outfile_CFLx,
-    #                    CFLv = outfile_CFLv,
                     S = outfile_S)
 
     return outfiles

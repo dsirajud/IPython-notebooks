@@ -138,8 +138,12 @@ def initial_profile(f0, density, z1, z2 = None):
 
     elif density == 'const ion background for maxwellian':
 
-        ne_avg = 1.00418377084 # = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
+        #        ne_avg = 1.00418377084 # = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
                                # for nonperiodic in x, periodic in vx
+
+        ne_avg = 1.00392156863 # s18-23
+        #        ne_avg = 1.00048851979 # for s18-22, Nvx = 2048, Nx = 2048 over [-10, 10] for both
+        #        ne_avg = 1.00392156863 # for s18-22, Nvx = 400 over [-10, 10], Nx = 256 over [-10, 10]
         fi0 = ne_avg / z2.L
         f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
 
@@ -163,6 +167,13 @@ def initial_profile(f0, density, z1, z2 = None):
         print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
         for j in range(v.Ngridpoints):
             f0[:,j] = 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2)
+        return f0
+
+    elif density == 'electron leftward maxwellian':
+        x,v = z1, z2
+        vD = 0. # drift velocity
+        print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
+        f0 = np.where(v.gridvalues[j] < 0, 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2), 0.)
         return f0
 
     elif density == 'ion maxwellian':

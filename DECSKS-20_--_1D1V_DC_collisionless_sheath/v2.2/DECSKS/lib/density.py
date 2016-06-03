@@ -60,26 +60,97 @@ def initial_profile(f0, density, z1, z2 = None):
           string argument, density
     """
 
+    # ------------------------------------------------------------------------------
+    # 1D1V DISTRIBUTIONS
+
     if density == 'const ion background for bump on tail':
 
-        ne_avg = 0.970710678119 #  = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
-                                # for periodic in x, periodic in vx
-        fi0 = ne_avg / z2.L
+        # in general, we calculate
+        # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
+
+        # s17-01, s17-02, ... value
+        ne_avg = 0.970710678119 # grid was periodic in x, periodic in vx
+                                # Nx = 240, Nvx = 300
+                                # [ax, bx] = [-2*np.pi / .3, 2*np.pi / 3.]
+                                # [avx, bvx] = [-8.0, 8.0]
+                                #
+                                # the other domain we use in the s17 set
+                                # is [ax,bx] = 10*np.pi / 3 * [-1,1]
+                                # which also covers only integral periods
+                                # so is the same value for ne_avg
+
+        fi0 = ne_avg / z2.L     # z2 = vx, units of per x,  per vx
         f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
 
         return f0
 
-    if density == 'const ion background for maxwellian':
 
-        ne_avg = 1.00418377084 # = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
+    elif density == 'const ion background for symmetric two streams':
+
+        # in general, we calculate
+        # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
+        ne_avg = 1.01493843058  # s18-20c, 256 x 256 v in [-8, 8]
+        #ne_avg = 1.00000000624  # s18-20b, vth = 0.0625
+        #ne_avg = 1.0           # s18-20, vth = 0.5
+                                # grid was periodic in x, periodic in vx
+                                # Nx = 256, Nvx = 512
+                                # [ax, bx] = [-5*np.pi, 5*np.pi]
+                                # [avx, bvx] = [-6.0, 6.0]
+
+        fi0 = ne_avg / z2.L     # z2 = vx, units of per x,  per vx
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
+
+        return f0
+
+    elif density == 'const ion background for two streams':
+
+        # in general, we calculate
+        # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
+
+        # s18-18, s18-19
+        ne_avg = 1.71428571429 # grid was periodic in x, periodic in vx
+                                # Nx = 256, Nvx = 512
+                                # [ax, bx] = [-2*np.pi, 2*np.pi]
+                                # [avx, bvx] = [-6.0, 6.0]
+
+        fi0 = ne_avg / z2.L     # z2 = vx, units of per x,  per vx
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
+
+        return f0
+
+
+
+    elif density == 'const ion background for landau':
+
+        # in general, we calculate
+        # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
+
+        # s07-01, s07-02, ... value
+        ne_avg = 0.999999999997 # grid was periodic in x, periodic in vx
+                                # Nx = 240, Nvx = 300
+                                # [ax, bx] = [-2*np.pi, 2*np.pi]
+                                # [avx, bvx] = [-7.0, 7.0]
+
+        fi0 = ne_avg / z2.L     # z2 = vx, units of per x,  per vx
+        f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
+
+        return f0
+
+    elif density == 'const ion background for maxwellian':
+
+        #        ne_avg = 1.00418377084 # = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
                                # for nonperiodic in x, periodic in vx
+
+        ne_avg = 1.00392156863 # s18-23
+        #        ne_avg = 1.00048851979 # for s18-22, Nvx = 2048, Nx = 2048 over [-10, 10] for both
+        #        ne_avg = 1.00392156863 # for s18-22, Nvx = 400 over [-10, 10], Nx = 256 over [-10, 10]
         fi0 = ne_avg / z2.L
         f0 = fi0 * np.ones([z1.Ngridpoints, z2.Ngridpoints])
 
         #        f0[:,150] = ne_avg / (z2.prepointvalues[-1] - z2.prepointvalues[0])
         return f0
 
-    if density == 'const ion background for cosine 22-bell':
+    elif density == 'const ion background for cosine 22-bell':
 
         ne_avg = 0.202145648319 # = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
                                 # for nonperiodic in x, periodic in vx
@@ -90,7 +161,7 @@ def initial_profile(f0, density, z1, z2 = None):
         #        f0[:,150] = ne_avg / (z2.prepointvalues[-1] - z2.prepointvalues[0])
         return f0
 
-    if density == 'electron maxwellian':
+    elif density == 'electron maxwellian':
         x,v = z1, z2
         vD = 0. # drift velocity
         print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
@@ -98,17 +169,24 @@ def initial_profile(f0, density, z1, z2 = None):
             f0[:,j] = 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2)
         return f0
 
-    if density == 'ion maxwellian':
+    elif density == 'electron leftward maxwellian':
         x,v = z1, z2
-        mu = 3671.5 # 1836.15267389 mass ratio mi / me for Hydrogen
-        vD = -1 / np.sqrt(mu) # drift velocity        
+        vD = 0. # drift velocity
+        print "initializing electron maxwellian profile with drift velocity vD = %g" % vD
+        f0 = np.where(v.gridvalues[j] < 0, 1 / np.sqrt(2*np.pi) * np.exp(-1/2. * (v.gridvalues[j] - vD) ** 2), 0.)
+        return f0
+
+    elif density == 'ion maxwellian':
+        x,v = z1, z2
+        mu = 1836.15267389 # 1836.15267389 # mass ratio mi / me for Hydrogen
+        vD = 1 / np.sqrt(mu) # drift velocity
         tau = 1/30.            # Ti / Te temperature ratio
         print "initializing H ion maxwellian profile: drift velocity vD = %g, mi / me = %g, Ti / Te = %g " % (vD, mu, tau)
         for j in range(v.Ngridpoints):
             f0[:,j] = 1 / np.sqrt(2*np.pi*tau/mu) * np.exp(-(v.gridvalues[j] - vD) ** 2 / (2 * tau / mu))
         return f0
 
-    if density == 'cosine 22-bell':
+    elif density == 'cosine 22-bell':
         x, vx = z1, z2
         xc, vc = -5., 2.
         a = 6.
@@ -127,7 +205,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'wide cosine 22-bell':
+    elif density == 'wide cosine 22-bell':
         x, vx = z1, z2
         xc, vc = 3., 4.5
         a = 12.
@@ -146,7 +224,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'ion cosine 22-bell':
+    elif density == 'ion cosine 22-bell':
         x, vx = z1, z2
         xc, vc = 5., -2.
         a = 6.
@@ -165,7 +243,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'cosine symmetric 22-bells':
+    elif density == 'cosine symmetric 22-bells':
         x, vx = z1, z2
         xc1, vc1 = 5., 2.
         xc2, vc2 = -5., -2.
@@ -181,7 +259,6 @@ def initial_profile(f0, density, z1, z2 = None):
                 r2[i,j] = np.sqrt( (x.gridvalues[i] - xc2) ** 2
                                   + (vx.gridvalues[j] - vc2) ** 2)
 
-
         for i in range(x.Ngridpoints):
             for j in range(vx.Ngridpoints):
                 if r1[i,j] <= a:
@@ -192,7 +269,7 @@ def initial_profile(f0, density, z1, z2 = None):
                     f0[i,j] = 0
         return f0
 
-    if density == 'ion cosine symmetric 22-bells':
+    elif density == 'ion cosine symmetric 22-bells':
         x, vx = z1, z2
         xc1, vc1 = 5., -2.
         xc2, vc2 = -5., 2.
@@ -208,7 +285,6 @@ def initial_profile(f0, density, z1, z2 = None):
                 r2[i,j] = np.sqrt( (x.gridvalues[i] - xc2) ** 2
                                   + (vx.gridvalues[j] - vc2) ** 2)
 
-
         for i in range(x.Ngridpoints):
             for j in range(vx.Ngridpoints):
                 if r1[i,j] <= a:
@@ -219,7 +295,7 @@ def initial_profile(f0, density, z1, z2 = None):
                     f0[i,j] = 0
         return f0
 
-    if density == 'cosine 22-bell right-side':
+    elif density == 'cosine 22-bell right-side':
         x, vx = z1, z2
         xc, vc = 5., 2.
         a = 6.
@@ -238,7 +314,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'ion cosine 22-bell right-side':
+    elif density == 'ion cosine 22-bell right-side':
         x, vx = z1, z2
         xc, vc = 5., -2.
         a = 6.
@@ -257,7 +333,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'ion cosine 22-bell left-side':
+    elif density == 'ion cosine 22-bell left-side':
         x, vx = z1, z2
         xc, vc = -5., -2.
         a = 6.
@@ -276,17 +352,27 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-
-    if density == 'landau':
+    elif density == 'landau':
+        # s07-01, 02, 03, 04, 05 cases, weak (linear) landau damping
         x,v = z1, z2
         eps, k = 0.01, 0.5
-        print "initializing Landau profile"
+        print "initializing Landau profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
         for i in range(x.Ngridpoints):
             for j in range(v.Ngridpoints):
                 f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.gridvalues[i])) * np.exp(-v.gridvalues[j] ** 2 / 2.)
         return f0
 
-    if density == 'quadratic ion maxwellian':
+    elif density == 'strong landau damping':
+        # s18-17 case, strong landau damping, simulation from Qiu [manuscript number: JOMP-D-15-00441]
+        x,v = z1, z2
+        eps, k = 0.5, 0.5
+        print "initializing Landau profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] = 1 / np.sqrt(2*np.pi) * (1 + eps*np.cos(k*x.gridvalues[i])) * np.exp(-v.gridvalues[j] ** 2 / 2.)
+        return f0
+
+    elif density == 'quadratic ion maxwellian':
         x, v = z1, z2
         tau = 1/30.
         mu = 1836.15267389
@@ -300,7 +386,7 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'bump on tail':
+    elif density == 'bump on tail':
         x,v = z1, z2
         for i in range(x.N):
             for j in range(v.N):
@@ -308,12 +394,41 @@ def initial_profile(f0, density, z1, z2 = None):
 
         return f0
 
-    if density == 'gaussian':
+    elif density == 'two streams':
+        # s18-18, s18-19 case, simulation from Qiu [manuscript number: JOMP-D-15-00441, example 3.1]
+        x,v = z1, z2
+        eps, k = 0.01, 0.5
+        print "initializing two stream electron density profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] = 2 / (7 * np.sqrt(2*np.pi)) * (1 + 5*v.gridvalues[j] ** 2) * (
+                    1 + eps * (np.cos(2 * k * x.gridvalues[i]) + np.cos(3 * k * x.gridvalues[i])) / 1.2 + np.cos(k*x.gridvalues[i])
+                    ) * np.exp(-v.gridvalues[j] ** 2 / 2)
+        return f0
+
+    elif density == 'symmetric two streams':
+        # s18-20, s18-20b case, simulation from Qiu [manuscript number: JOMP-D-15-00441, example 3.4]
+        x,v = z1, z2
+        eps, k = 0.0005, 0.2
+        vth = 0.03125  # s18-20: vth = 0.5, s18-20b: vth = 0.0625, s18-20c: vth = 0.03125
+        u = 5*np.sqrt(3) / 4.
+        print "initializing two stream electron density profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
+        for i in range(x.Ngridpoints):
+            for j in range(v.Ngridpoints):
+                f0[i,j] = 1 / (np.sqrt(8*np.pi) * vth) * ( np.exp(-(v.gridvalues[j] - u)** 2 / (2*vth ** 2)) + np.exp(-(v.gridvalues[j] + u) ** 2 / (2 * vth ** 2)) ) * \
+                  (1 + eps * np.cos(k*x.gridvalues[i]))
+
+        return f0
+
+    # ------------------------------------------------------------------------------
+    # 1D DISTRIBUTIONS
+
+    elif density == 'gaussian':
         mu, sigma = 0.0, 0.04
         f0[:] = np.exp(-(z1.gridvalues - mu)**2/(2*sigma**2))
         return f0
 
-    if density == 'n cosine bell':
+    elif density == 'n cosine bell':
         # 6th degree cosine bell, cos(2pix)**6 in |x| < 0.5
         n = 6
         for i in range(z1.N):
@@ -323,7 +438,7 @@ def initial_profile(f0, density, z1, z2 = None):
                 f0[i] = 0.1
         return f0
 
-    if density == 'rectangle and gaussian bell':
+    elif density == 'rectangle and gaussian bell':
 
         for i in range(z1.N):
             if -0.4 <= z1.gridvalues[i] <= -0.2:
@@ -334,7 +449,7 @@ def initial_profile(f0, density, z1, z2 = None):
                 f0[i] = 0.1 + 0.0
         return f0
 
-    if density == 'triangle':
+    elif density == 'triangle':
 
         for i in range(z1.N):
             if np.abs(z1.gridvalues[i]) < 0.25:
@@ -343,10 +458,18 @@ def initial_profile(f0, density, z1, z2 = None):
                 f0[i] = 0.1
         return f0
 
-    if density == 'triple gaussian bell':
+    elif density == 'triple gaussian bell':
 
         f0[:] = 0.5*np.exp(-((z1.gridvalues + 0.2) / 0.03)**2) + np.exp(-((z1.gridvalues) / 0.06)**2) + 0.5*np.exp(-((z1.gridvalues - 0.2) / 0.03)**2)
         return f0
+
+
+    else:
+
+        print "\nthe following density as specified in params.dat is not recognized: %s\n" % density
+
+        raise NotImplementedError('the density specified for one or both species is not recognized, verify in params.dat that the density selected is available in lib.density')
+
 
 def global_conservation_check(sim_params, f_new, n):
     """Checks if mass is conserved over the remapping procedure

@@ -47,6 +47,7 @@ def scheme(
 
             fe = DECSKS.lib.convect_configuration.scheme(
                     fe,
+                    t,
                     n,
                     int(stage[s]),
                     sim_params,
@@ -57,6 +58,7 @@ def scheme(
 
             fi = DECSKS.lib.convect_configuration.scheme(
                     fi,
+                    t,
                     n,
                     int(stage[s]),
                     sim_params,
@@ -64,10 +66,6 @@ def scheme(
                     z = x,
                     vz = vx,
                     charge = 1)
-
-            # source boundary condition, at upper boundary
-            fe[x.N-1, :] = sim_params['S_e']
-            fi[x.N-1, :] = sim_params['S_i']
 
         elif coeff[s] == 'b': # advect v
             # calculate electric field at most recent positions of ions and electrons
@@ -77,6 +75,7 @@ def scheme(
             vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
             fe = DECSKS.lib.convect_velocity.scheme(
                 fe,
+                t,
                 n,
                 sim_params,
                 z = vx,
@@ -88,6 +87,7 @@ def scheme(
             vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
             fi = DECSKS.lib.convect_velocity.scheme(
                 fi,
+                t,
                 n,
                 sim_params,
                 z = vx,

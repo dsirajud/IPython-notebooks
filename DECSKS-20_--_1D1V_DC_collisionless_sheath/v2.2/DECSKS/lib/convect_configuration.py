@@ -4,6 +4,7 @@ import numpy.ma as ma
 
 def scheme(
     f_initial,
+    t,
     n,
     stage,
     sim_params,
@@ -53,6 +54,7 @@ def scheme(
                        sim_params,
                        f_initial,
                        Uf,
+                       t,
                        n,
                        stage,
                        z,
@@ -137,6 +139,7 @@ def remap_step(
         sim_params,
         f_old,
         Uf_old,
+        t,
         n,
         stage,
         z,
@@ -150,7 +153,7 @@ def remap_step(
     f_k1 = np.zeros_like(f_copy)
     f_k1, f_copy, Uf_copy, z = \
       eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
-          f_k1, f_copy, Uf_copy, z, vz, sim_params, charge, k = 0)
+          f_k1, f_copy, Uf_copy, t, z, vz, sim_params, charge, k = 0)
 
 
 
@@ -160,7 +163,7 @@ def remap_step(
     f_k2 = np.zeros_like(f_old)
     f_k2, f_old, Uf_old, z = \
       eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
-          f_k2, f_old, Uf_old, z, vz, sim_params, charge, k = 1)
+          f_k2, f_old, Uf_old, t, z, vz, sim_params, charge, k = 1)
 
     # for now, we do not have a symmetry boundary condition, hence vz.postpointmesh[k,:,:] = vz.prepointmesh
 
@@ -368,4 +371,3 @@ def finalize_density_nonperiodic(sim_params, f_remapped, f_final, z, vz):
     f_final[:f_remapped.shape[0], :f_remapped.shape[1]] = f_remapped
 
     return f_final
-

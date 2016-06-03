@@ -13,6 +13,7 @@ ctypedef np.int64_t DTYPEINT_t
 def periodic(f_k,
              f_old,
              Uf,
+             t,
              z,
              vz,
              sim_params,
@@ -45,6 +46,7 @@ def periodic(f_k,
 def nonperiodic(f_k,
                 f_old,
                 Uf,
+                t,
                 z,
                 vz,
                 sim_params,
@@ -82,6 +84,7 @@ def nonperiodic(f_k,
                                               vz.postpointmesh[k,:,:],
                                               vz.prepointmesh,
                                               vz.prepointvaluemesh,
+                                              t.width,
                                               z.N, vz.N, k, charge,
                                               sim_params,
                                               z, vz)
@@ -94,6 +97,7 @@ def nonperiodic(f_k,
                                               vz.postpointmesh[k,:,:],
                                               vz.prepointmesh,
                                               vz.prepointvaluemesh,
+                                              t.width,
                                               z.N, vz.N, k, charge,
                                               sim_params,
                                               z, vz)
@@ -111,6 +115,7 @@ def absorbing_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_k,
                               np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
                               np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
                               np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
                               int Nz, int Nvz, int k, int charge,
                               sim_params,
                               z, vz):
@@ -136,6 +141,7 @@ def absorbing_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
                               np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
                               np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
                               np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
                               int Nz, int Nvz, int k, int charge,
                               sim_params,
                               z, vz):
@@ -164,6 +170,7 @@ def cutoff_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_k,
                               np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
                               np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
                               np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
                               int Nz, int Nvz, int k, int charge,
                               sim_params,
                               z, vz):
@@ -190,6 +197,7 @@ def cutoff_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
                               np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
                               np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
                               np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+                              float dt,
                               int Nz, int Nvz, int k, int charge,
                               sim_params,
                               z, vz):
@@ -219,6 +227,7 @@ def collector_lower_boundary(
         np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+        float dt,
         int Nz, int Nvz, int k, int charge,
         sim_params,
         z, vz
@@ -256,7 +265,7 @@ def collector_lower_boundary(
     sigma_nk *= vzwidth
 
     # update cumulative charge density
-    sim_params['sigma'][z.str]['lower'] += sigma_nk
+    sim_params['sigma'][z.str]['lower'] += sigma_nk*dt
     z.postpointmesh[k,:,:] = zpostpointmesh
 
     return f_k, f_old, Uf_old
@@ -269,6 +278,7 @@ def collector_upper_boundary(
         np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+        float dt,
         int Nz, int Nvz, int k, int charge,
         sim_params,
         z, vz
@@ -306,8 +316,10 @@ def collector_upper_boundary(
     sigma_nk *= charge
     sigma_nk *= vzwidth
 
-    # update cumulative charge density
-    sim_params['sigma'][z.str]['upper'] += sigma_nk
+
+    # update cumulative charge density sigma = sum_k sum_j sum_n sigma_nk * dvx * dt
+    # k = k1, k2, j = 0, ..., Nvx -1, n = 0, 1, 2, ... Nt
+    sim_params['sigma'][z.str]['upper'] += sigma_nk*dt
     z.postpointmesh[k,:,:] = zpostpointmesh
 
     return f_old, Uf_old
@@ -321,6 +333,7 @@ def symmetric_lower_boundary(
         np.ndarray[DTYPEINT_t, ndim=2] vzpostpointmesh,
         np.ndarray[DTYPEINT_t, ndim=2] vzprepointmesh,
         np.ndarray[DTYPE_t, ndim=2] vzprepointvaluemesh,
+        float dt,
         int Nz, int Nvz, int k,
         int charge,
         sim_params,
