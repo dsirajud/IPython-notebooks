@@ -2,48 +2,14 @@ import math
 import numpy
 import pylab
 
-
-def func(x):
-    # get midpoint value and store, the function will be piecewise but continuous at his critical point
-    x_crit = 0.315128259098501215428873837159675538342649935961030535963
-    if x < x_crit:
-        return 0.2*numpy.sin(2*numpy.pi * x / 1.) + .25
-    else:
-        b = (0.2*numpy.sin(2*numpy.pi * x_crit / 1.) + .25) + x_crit * .5 # last term is (x - x0)*slope, where x - x0 is the distance to x = 0
-        return  b - .5 *x
-
-
-    #def func(x):
-    #    # get midpoint value and store
-    #    if x < 0.5:
-    #        return 0.2*numpy.sin(2*numpy.pi * x / 1.) + .25
-    #    else:
-    #        return .25 + .25/2 - .25 *x
-
 def simplegrid():
 
     xmin = 0.0
     xmax = 1.0
 
-    Nx = 50
-    x = numpy.linspace(xmin-.05, xmax+.05, Nx)
-
-    f = numpy.zeros_like(x)
-    for i in range(Nx):
-        f[i] = func(x[i])
-
-    pylab.plot(x,f, lw = 2, color = 'cornflowerblue')
     nzones = 7
 
-
     dx = (xmax - xmin)/float(nzones)
-
-    # plot DBC boundary conditions
-    LDBC = f[0]
-    RDBC = f[-1]
-    #    pylab.plot([xmin-3/2.*dx,xmin], [LDBC,LDBC], color="b", lw=2)
-    #    pylab.plot([xmax,xmax + 3/2.*dx], [RDBC,RDBC], color="b", lw=2)
-
 
     xl = numpy.arange(nzones)*dx
     xr = (numpy.arange(nzones)+1)*dx
@@ -66,7 +32,7 @@ def simplegrid():
     pylab.text(xl[0] - dx, -.075, r"$-3/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
-
+    
 
     # right ghost point
     pylab.plot(xc[-1] + dx, 0, 'D', markeredgecolor = 'k', markerfacecolor = 'white')
@@ -83,11 +49,30 @@ def simplegrid():
 
 
     # left wall
-    pylab.plot([xl[0], xl[0]], [0.0, 0.42], color = 'k', lw = 2)
-
+    pylab.plot([xl[0], xl[0]], [0, 0.5], color = 'k', lw = 2)
 
     # right wall
-    pylab.plot([xr[-1], xr[-1]], [0, 0.42], color = 'k', lw = 2)
+    pylab.plot([xr[-1], xr[-1]], [0, 0.5], color = 'k', lw = 2)
+
+    # label regions
+
+    # left ghost region
+    pylab.text(xl[0] - .75*dx, .35, r"$\mathrm{ghost\, region}$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+
+    # right ghost region
+    pylab.text(xr[-1] + .75*dx, .35, r"$\mathrm{ghost\, region}$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+    # domain
+    pylab.text(xl[5] - dx, .4, r"$\mathrm{domain}\, \mathcal{M} = \bigcup_i \,\mathcal{C}_i = \bigcup_i\, [x_{i-1/2}, x_{i+1/2}]$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+
 
     n = 0
     while (n < nzones):
@@ -123,6 +108,7 @@ def simplegrid():
     pylab.text(xl[0], -0.155, r"$x = a$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="medium", color = 'red')
+
 
     # right boundary
     pylab.text(xr[-1], -0.2, r"$(N-1) + 1/2$",
@@ -162,6 +148,7 @@ def simplegrid():
                fontsize="small", color = 'g')
 
 
+
     # label a few cell-centers at the center, general i
     pylab.text(xc[0], -0.1, r"$0$",
                horizontalalignment='center', verticalalignment='top',
@@ -193,81 +180,25 @@ def simplegrid():
                fontsize="small")
 
 
-    # plot cell values, note that x is measured in terms of data units
-    # whereas y is measured in relative units (0 to 1)
-    # where 0 = bottom, 0.5 = middle, 1 = top
-    #
-    # for example, at x = 0, we have the function f = func(x[0])
-    # if we want to plot a rectangle from the data values
-    # y = 0 to y = func(x[0]), where the axis is spans
-    #
-    #         y in [-.25, 0.6], length = .6 - (-.25) = .85
-    #
-    # note that y = 0 is .25 units from the bottom, and
-    # .25 / .85 relative units from the bottom
-    #
-    # note that y = .25 is .5 units from the bottom, or
-    # 0.5 / .85 units of the whole axis
-    #
-    # in general, we at each f(x), we have the relative
-    # y height to be (distance from the bottom to the origin) + f(x)
-    # i.e. at f[xc[i]], the y value in axvspan should be
-    # ymax = (f[xc[i]] + .25) / .85
 
     pylab.axis([xmin-3/2.*dx,xmax+3/2.*dx, -0.25, 0.6])
     pylab.axis("off")
 
-    # plot rectangles at all function values at each center xc[i]
-    for i in range(len(xc)):
-        pylab.axvspan(xl[i], xl[i] + dx, 0.25 / .85, (func(xc[i]) + .25) / .85, facecolor='b', alpha=0.2)
-
-    # label the slopes at the edges
-
-    pylab.annotate(r'$\partial_x\phi (x_{-1/2})$', xy=(xl[0],func(0)), xytext=(xl[0]-.25, func(0)+.25),
-            arrowprops=dict(facecolor='black', shrink=0.05),
-            )
-
-    pylab.annotate(r'$\partial_x\phi (x_{(N-1)+1/2})$', xy=(xr[-1],func(1)), xytext=(xr[-1]+.08, func(1)+.25),
-            arrowprops=dict(facecolor='black', shrink=0.05),
-            )
-
-
-    # boundary ghost cells
-
     pylab.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95)
 
     f = pylab.gcf()
-    f.set_size_inches(9.0,3.0)
+    f.set_size_inches(9.0,2.0)
 
-    pylab.savefig("cc_grid_LNBC_RNBC_with_cell_values.png")
+    pylab.savefig("cc_grid_PBC_old.png")
     pylab.clf()
-
-    # ==============================================================================
-
-    
+def simplegrid2():
 
     xmin = 0.0
     xmax = 1.0
 
-    Nx = 50
-    x = numpy.linspace(xmin-.05, xmax, Nx)
-
-    f = numpy.zeros_like(x)
-    for i in range(Nx):
-        f[i] = func(x[i])
-
-    pylab.plot(x,f, lw = 2, color = 'cornflowerblue')
     nzones = 7
 
-
     dx = (xmax - xmin)/float(nzones)
-
-    # plot DBC boundary conditions
-    LDBC = f[0]
-    RDBC = f[-1]
-    #    pylab.plot([xmin-3/2.*dx,xmin], [LDBC,LDBC], color="b", lw=2)
-    pylab.plot([xmax,xmax + 3/2.*dx], [RDBC,RDBC], color="b", lw=2)
-
 
     xl = numpy.arange(nzones)*dx
     xr = (numpy.arange(nzones)+1)*dx
@@ -287,10 +218,10 @@ def simplegrid():
     pylab.plot([xl[0] - dx, xl[0] - dx], [-0.05, 0.05], color="g")
 
     # left ghost boundary label
-    pylab.text(xl[0] - dx, -.075, r"$-3/2$",
+    pylab.text(xl[0] - dx, -.075, r"$-1/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
-
+    
 
     # right ghost point
     pylab.plot(xc[-1] + dx, 0, 'D', markeredgecolor = 'k', markerfacecolor = 'white')
@@ -298,8 +229,8 @@ def simplegrid():
     # right ghost boundary
     pylab.plot([xr[-1] + dx, xr[-1] + dx], [-0.05, 0.05], color="g")
 
-    # left ghost boundary label
-    pylab.text(xr[-1] + dx, -.075, r"$N+1/2$",
+    # right ghost boundary label
+    pylab.text(xr[-1] + dx, -.075, r"$N+3/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
@@ -307,11 +238,30 @@ def simplegrid():
 
 
     # left wall
-    pylab.plot([xl[0], xl[0]], [0.0, 0.42], color = 'k', lw = 2)
-
+    pylab.plot([xl[0], xl[0]], [0, 0.5], color = 'k', lw = 2)
 
     # right wall
-    pylab.plot([xr[-1], xr[-1]], [0, 0.42], color = 'k', lw = 2)
+    pylab.plot([xr[-1], xr[-1]], [0, 0.5], color = 'k', lw = 2)
+
+    # label regions
+
+    # left ghost region
+    pylab.text(xl[0] - .75*dx, .35, r"$\mathrm{ghost\, region}$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+
+    # right ghost region
+    pylab.text(xr[-1] + .75*dx, .35, r"$\mathrm{ghost\, region}$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+    # domain
+    pylab.text(xl[5] - dx, .4, r"$\mathrm{domain}\, \mathcal{M} = \bigcup_i \,\mathcal{C}_i = \bigcup_i\, [x_{i-1/2}, x_{i+1/2}]$",
+               horizontalalignment='center', verticalalignment='top',
+               fontsize="large", color = 'b')
+
+
 
     n = 0
     while (n < nzones):
@@ -329,17 +279,17 @@ def simplegrid():
         n += 1
 
     # left boundary
-    pylab.text(xl[0], -0.075, r"$-1/2$",
+    pylab.text(xl[0], -0.075, r"$1/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
     # left ghost point
-    pylab.text(xc[0] - dx, -0.1, r"$-1$",
+    pylab.text(xc[0] - dx, -0.1, r"$0$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'k')
 
     # right ghost point
-    pylab.text(xc[-1] + dx, -0.1, r"$N$",
+    pylab.text(xc[-1] + dx, -0.1, r"$N+1$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'k')
 
@@ -348,8 +298,9 @@ def simplegrid():
                horizontalalignment='center', verticalalignment='top',
                fontsize="medium", color = 'red')
 
+
     # right boundary
-    pylab.text(xr[-1], -0.2, r"$(N-1) + 1/2$",
+    pylab.text(xr[-1], -0.2, r"$N + 1/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
@@ -361,11 +312,11 @@ def simplegrid():
 
 
     # label a few edges
-    pylab.text(xl[1], -0.075, r"$1/2$",
+    pylab.text(xl[1], -0.075, r"$3/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
-    pylab.text(xl[2], -0.075, r"$3/2$",
+    pylab.text(xl[2], -0.075, r"$5/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
@@ -381,17 +332,18 @@ def simplegrid():
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
-    pylab.text(xl[6], -0.2, r"$(N-1) - 1/2$",
+    pylab.text(xl[6], -0.2, r"$N - 1/2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small", color = 'g')
 
 
+
     # label a few cell-centers at the center, general i
-    pylab.text(xc[0], -0.1, r"$0$",
+    pylab.text(xc[0], -0.1, r"$1$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small")
 
-    pylab.text(xc[1], -0.1, r"$1$",
+    pylab.text(xc[1], -0.1, r"$2$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small")
 
@@ -408,65 +360,26 @@ def simplegrid():
                horizontalalignment='center', verticalalignment='top',
                fontsize="small")
 
-    pylab.text(xc[5], -0.1, r"$N-2$",
+    pylab.text(xc[5], -0.1, r"$N-1$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small")
 
-    pylab.text(xc[6], -0.1, r"$N-1$",
+    pylab.text(xc[6], -0.1, r"$N$",
                horizontalalignment='center', verticalalignment='top',
                fontsize="small")
 
 
-    # plot cell values, note that x is measured in terms of data units
-    # whereas y is measured in relative units (0 to 1)
-    # where 0 = bottom, 0.5 = middle, 1 = top
-    #
-    # for example, at x = 0, we have the function f = func(x[0])
-    # if we want to plot a rectangle from the data values
-    # y = 0 to y = func(x[0]), where the axis is spans
-    #
-    #         y in [-.25, 0.6], length = .6 - (-.25) = .85
-    #
-    # note that y = 0 is .25 units from the bottom, and
-    # .25 / .85 relative units from the bottom
-    #
-    # note that y = .25 is .5 units from the bottom, or
-    # 0.5 / .85 units of the whole axis
-    #
-    # in general, we at each f(x), we have the relative
-    # y height to be (distance from the bottom to the origin) + f(x)
-    # i.e. at f[xc[i]], the y value in axvspan should be
-    # ymax = (f[xc[i]] + .25) / .85
 
     pylab.axis([xmin-3/2.*dx,xmax+3/2.*dx, -0.25, 0.6])
     pylab.axis("off")
 
-    # plot rectangles at all function values at each center xc[i]
-    for i in range(len(xc)):
-        pylab.axvspan(xl[i], xl[i] + dx, 0.25 / .85, (func(xc[i]) + .25) / .85, facecolor='b', alpha=0.2)
-
-    # right boundary DBC
-    pylab.text(xr[-1], 0.55, r"$\phi (x_{(N-1)+1/2}) = g_{r}$",
-               horizontalalignment='center', verticalalignment='top',
-               fontsize="medium", color = 'b')
-
-    # label the slopes at the edges
-
-    pylab.annotate(r'$\partial_x\phi (x_{-1/2}) = g_{\ell}$', xy=(xl[0],func(0)), xytext=(xl[0]-.25, func(0)+.25),
-            arrowprops=dict(facecolor='black', shrink=0.05),
-            )
-
-    # boundary ghost cells
-
     pylab.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95)
 
     f = pylab.gcf()
-    f.set_size_inches(9.0,3.0)
+    f.set_size_inches(9.0,2.0)
 
-
-
-    pylab.savefig("cc_grid_LNBC_RDBC_with_cell_values.png")
-
+    pylab.savefig("cc_grid_PBC_new.png")
 
 if __name__== "__main__":
     simplegrid()
+    simplegrid2()
