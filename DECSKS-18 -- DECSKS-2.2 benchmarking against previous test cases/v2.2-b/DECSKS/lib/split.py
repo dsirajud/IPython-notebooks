@@ -84,8 +84,8 @@ def scheme(
             print "ion contribution"
             print np.sum(fi[:x.Ngridpoints-1,:vx.Ngridpoints-1]) * x.width * vx.width
 
-            IQ = np.sum(-fe[:x.Ngridpoints-1,:vx.Ngridpoints-1] + fi[:x.Ngridpoints-1,:vx.Ngridpoints-1]) * x.width * vx.width \
-              + sim_params['sigma'][x.str]['lower']  * x.width + sim_params['sigma'][x.str]['upper'] * x.width
+            IQ = np.sum(-fe[:x.Ngridpoints-1,:vx.Ngridpoints-1] + fi[:x.Ngridpoints-1,:vx.Ngridpoints-1]) * x.width * vx.width 
+            #              + sim_params['sigma'][x.str]['lower']  * x.width + sim_params['sigma'][x.str]['upper'] * x.width
 
             print "total IQ"
             print IQ
@@ -137,8 +137,8 @@ def scheme(
             print "ion contribution"
             print np.sum(fi[:x.Ngridpoints-1,:vx.Ngridpoints-1]) * x.width * vx.width
 
-            IQ = np.sum(-fe[:x.Ngridpoints-1,:vx.Ngridpoints-1] + fi[:x.Ngridpoints-1,:vx.Ngridpoints-1]) * x.width * vx.width \
-              + sim_params['sigma'][x.str]['lower'] * x.width + sim_params['sigma'][x.str]['upper'] * x.width
+            IQ = np.sum(-fe[:x.Ngridpoints-1,:vx.Ngridpoints-1] + fi[:x.Ngridpoints-1,:vx.Ngridpoints-1]) * x.width * vx.width 
+              #+ sim_params['sigma'][x.str]['lower'] * x.width + sim_params['sigma'][x.str]['upper'] * x.width
             print "total IQ"
             print IQ
 

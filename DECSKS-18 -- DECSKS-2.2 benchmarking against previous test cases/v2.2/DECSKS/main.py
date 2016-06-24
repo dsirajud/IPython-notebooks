@@ -40,7 +40,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s07-02.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s07-01.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -69,8 +69,8 @@ print sim_params['BC']['f']['x']['lower']
 print sim_params['BC']['f']['x']['upper']
 print sim_params['BC']['f']['vx']['lower']
 print sim_params['BC']['f']['vx']['upper']
-print sim_params['compute_electric_potential_phi_handle'][x.str]
-print sim_params['phi_BC']['x']
+#$print sim_params['compute_electric_potential_phi_handle'][x.str]
+#print sim_params['phi_BC']['x']
 
 
 Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
@@ -79,21 +79,21 @@ Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
 Plot(n = 0)
 
 print "integral (fe - fi) dx dvx = %g" % (np.sum(fe[:x.N,:vx.N] - fi[:x.N,:vx.N])*x.width * vx.width)
-phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
+#phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
 DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
 
-matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
-matplotlib.pyplot.grid()
+#matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
+#matplotlib.pyplot.grid()
 #matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], 0, 35])
-matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
-matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
-matplotlib.pyplot.title(r's18-23 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], 0.0, 0))
-it_str = 'it%05d' % 0
-matplotlib.pyplot.savefig('./plots/' + 'phi_s18-23_' + it_str)
-matplotlib.pyplot.clf()
+#matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
+#matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
+#matplotlib.pyplot.title(r's18-23 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], 0.0, 0))
+#it_str = 'it%05d' % 0
+#matplotlib.pyplot.savefig('./plots/' + 'phi_s18-23_' + it_str)
+#matplotlib.pyplot.clf()
 
-print sim_params['sigma']['x']['lower']
-print sim_params['sigma']['x']['upper']
+#print sim_params['sigma']['x']['lower']
+#print sim_params['sigma']['x']['upper']
 
 print 'simulation has started, status updates are broadcasted after each timestep'
 
@@ -108,8 +108,8 @@ for n in t.stepnumbers:
     #    sim_params['sigma_n']['x']['lower'][n] = sim_params['sigma']['x']['lower']
     #    sim_params['sigma_n']['x']['upper'][n] = sim_params['sigma']['x']['upper']
 
-    print sim_params['sigma']['x']['lower']
-    print sim_params['sigma']['x']['upper']
+    #   print sim_params['sigma']['x']['lower']
+    #    print sim_params['sigma']['x']['upper']
 
     Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
     Plot(n)
@@ -117,16 +117,16 @@ for n in t.stepnumbers:
     Plot(n)
 
 
-    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
-    matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
-    matplotlib.pyplot.grid()
+    #    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
+    #    matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
+    #    matplotlib.pyplot.grid()
     #    matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], 0, 35])
-    matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
-    matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
-    matplotlib.pyplot.title(r's18-23 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], t.stepnumbers[n]*t.width, n))
-    it_str = 'it%05d' % n
-    matplotlib.pyplot.savefig('./plots/' + 'phi_s18-23_' + it_str)
-    matplotlib.pyplot.clf()
+    #    matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
+    #    matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
+    #    matplotlib.pyplot.title(r's18-23 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], t.stepnumbers[n]*t.width, n))
+    #    it_str = 'it%05d' % n
+    #    matplotlib.pyplot.savefig('./plots/' + 'phi_s18-23_' + it_str)
+    #    matplotlib.pyplot.clf()
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat

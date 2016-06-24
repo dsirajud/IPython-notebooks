@@ -88,8 +88,7 @@ def total_charge(f, fi, n, x, v, sim_params):
     #    print "right wall contribution"
     #    print sim_params['sigma'][x.str]['upper']
 
-    IQ = np.sum(-f[:x.Ngridpoints-1,:v.Ngridpoints-1] + fi[:x.Ngridpoints-1,:v.Ngridpoints-1]) * x.width * v.width \
-      + sim_params['sigma'][x.str]['lower'] + sim_params['sigma'][x.str]['upper']
+    IQ = np.sum(-f[:x.Ngridpoints-1,:v.Ngridpoints-1] + fi[:x.Ngridpoints-1,:v.Ngridpoints-1]) * x.width * v.width 
 
     #    print "total IQ"
     #    print IQ

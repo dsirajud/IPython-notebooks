@@ -1,0 +1,23 @@
+
+To switch between FD and Fourier
+
+If on FD, and want to switch to Fourier:
+
+    x etc/params.dat change HOC (L1) to fourier
+
+If on Fourier, and want to switch to FD:
+
+    x etc/params.dat change high order correction mode (L1) to FD
+
+    x etc/params.dat choose order of accuracy (L2), N
+
+    x Generate finite difference weights and stencils needed by running the script
+
+        $ python generate_finite_difference_schemes_required_for_a_chosen_GE_on_CS.py N
+
+    where N (int) should be replaced with the same value as in the previous step
+
+    x lib/read.py uncomment out sim_params entry pertaining to FD_schemes
+
+    x /main.py uncomment out sim_params['W'] line that assembles FD weight matrix
+
