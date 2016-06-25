@@ -38,21 +38,40 @@ t_04 = np.linspace(0,T, Nt_04+1)
 Nt_05 = 60
 t_05 = np.linspace(0,T, Nt_05+1)
 
-# I1
+##### I1
 
+#v2.3 data
 # s07-03
-I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 3)
+I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 3, version = 2.3)
+
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, 'p', markersize = 12, color = (227/256.,119/256., 194/256.), linewidth = 2, label = 'DECSKS-2.3: s7-03')
+
+# s07-04
+I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 4, version = 2.3)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t_04, I1, '-', linewidth = 2, color = (127/256., 127/256., 127/256.), label = 'DECSKS-2.3: s7-04')
+
+# s07-05
+I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 5, version = 2.3)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, '^', linewidth = 2, color = (148/256., 103/256., 189/256.), label = 'DECSKS-2.3: s7-05')
+
+
+#v2.2 data
+# s07-03
+I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 3, version = 2.2)
 
 I1 = np.abs((I1 - I1[0]) / I1[0])
 plt.semilogy(t, I1, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s7-03')
 
 # s07-04
-I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 4)
+I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 4, version = 2.2)
 I1 = np.abs((I1 - I1[0]) / I1[0])
 plt.semilogy(t_04, I1, '-r', linewidth = 2, label = 'DECSKS-2.2: s7-04')
 
 # s07-05
-I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 5)
+I1 = file_to_array(quantity = 'I1', notebook_number = 7, sim_number = 5, version = 2.2)
 I1 = np.abs((I1 - I1[0]) / I1[0])
 plt.semilogy(t, I1, 'Db', linewidth = 2, label = 'DECSKS-2.2: s7-05')
 
@@ -85,24 +104,40 @@ plt.legend(loc = 'best')
 plt.grid()
 plt.figure()
 
-# I2
+##### I2
 
+#v2.3 data
 # s07-03
-I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 3)
+I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 3, version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, 'p', markersize = 12, color = (227/256.,119/256., 194/256.), linewidth = 2, label = 'DECSKS-2.3: s7-03')
+
+# s07-04
+I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 4, version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t_04, I2, '-', linewidth = 2, color = (127/256., 127/256., 127/256.),label = 'DECSKS-2.3: s7-04')
+
+# s07-05
+I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 5, version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '^', color = (148/256., 103/256., 189/256.),linewidth = 2, label = 'DECSKS-2.3: s7-05')
+
+
+#v2.2 data
+# s07-03
+I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 3, version = 2.2)
 I2 = np.abs((I2 - I2[0]) / I2[0])
 plt.semilogy(t, I2, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s7-03')
 
 # s07-04
-I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 4)
+I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 4, version = 2.2)
 I2 = np.abs((I2 - I2[0]) / I2[0])
 plt.semilogy(t_04, I2, '-r', linewidth = 2, label = 'DECSKS-2.2: s7-04')
 
 # s07-05
-I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 5)
+I2 = file_to_array(quantity = 'I2', notebook_number = 7, sim_number = 5, version = 2.2)
 I2 = np.abs((I2 - I2[0]) / I2[0])
 plt.semilogy(t, I2, 'Db', linewidth = 2, label = 'DECSKS-2.2: s7-05')
-
-
 
 # DECSKS-1.2 data
 # s07-03
@@ -131,20 +166,38 @@ plt.grid()
 plt.figure()
 
 
-# IW
+##### IW
 
+#v2.3 data
 # s07-03
-IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 3)
+IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 3, version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, 'p', markersize = 12, color = (227/256.,119/256., 194/256.), linewidth = 2, label = 'DECSKS-2.3: s7-03')
+
+# s07-04
+IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 4, version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t_04, IW, '-', linewidth = 2, color = (127/256., 127/256., 127/256.),label = 'DECSKS-2.3: s7-04')
+
+# s07-05
+IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 5, version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, '^', color = (148/256., 103/256., 189/256.),linewidth = 2, label = 'DECSKS-2.3: s7-05')
+
+
+#v2.2 data
+# s07-03
+IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 3, version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s7-03')
 
 # s07-04
-IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 4)
+IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 4, version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t_04, IW, '-r', linewidth = 2, label = 'DECSKS-2.2: s7-04')
 
 # s07-05
-IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 5)
+IW = file_to_array(quantity = 'IW', notebook_number = 7, sim_number = 5, version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, 'Db', linewidth = 2, label = 'DECSKS-2.2: s7-05')
 
@@ -176,20 +229,38 @@ plt.legend(loc = 'best')
 plt.grid()
 plt.figure()
 
-# S
+##### S
 
+#v2.3 data
 # s07-03
-S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 3)
+S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 3, version = 2.3)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, 'p', markersize = 12, color = (227/256.,119/256., 194/256.), linewidth = 2, label = 'DECSKS-2.3: s7-03')
+
+# s07-04
+S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 4, version = 2.3)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t_04, S, '-', linewidth = 2, color = (127/256., 127/256., 127/256.),label = 'DECSKS2.3: s7-04')
+
+# s07-05
+S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 5, version = 2.3)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, '^',color = (148/256., 103/256., 189/256.), linewidth = 2, label = 'DECSKS-2.3: s7-05')
+
+
+#v2.2 data
+# s07-03
+S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 3, version = 2.2)
 S = np.abs((S - S[0]) / S[0])
 plt.semilogy(t, S, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s7-03')
 
 # s07-04
-S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 4)
+S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 4, version = 2.2)
 S = np.abs((S - S[0]) / S[0])
 plt.semilogy(t_04, S, '-r', linewidth = 2, label = 'DECSKS2.2: s7-04')
 
 # s07-05
-S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 5)
+S = file_to_array(quantity = 'S', notebook_number = 7, sim_number = 5, version = 2.2)
 S = np.abs((S - S[0]) / S[0])
 plt.semilogy(t, S, 'Db', linewidth = 2, label = 'DECSKS-2.2: s7-05')
 
@@ -221,25 +292,40 @@ plt.legend(loc = 'best')
 plt.grid()
 plt.figure()
 
-# WE
+##### WE
 
+#v2.3 data
+
+# s07-04
+WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 4, version = 2.3)
+WE = WE / WE[0]
+plt.semilogy(t_04, WE, '-.', color = (127/256., 127/256., 127/256.),linewidth = 2, label = 'DECSKS-2.3: s7-04')
+
+
+# s07-05
+WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 5, version = 2.3)
+WE = WE / WE[0]
+plt.semilogy(t, WE, '^', markersize = 14,color = (148/256., 103/256., 189/256.), linewidth = 2, label = 'DECSKS-2.3: s7-05')
+
+
+
+#v2.2 data
 # s07-03
-WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 3)
+WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 3, version = 2.2)
 WE = WE / WE[0]
 plt.semilogy(t, WE, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s7-03')
 
 
 # s07-04
-WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 4)
+WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 4, version = 2.2)
 WE = WE / WE[0]
-plt.semilogy(t_04, WE, '-r', linewidth = 2, label = 'DECSKS-2.2: s7-04')
+plt.semilogy(t_04, WE, '--', linewidth = 2, label = 'DECSKS-2.2: s7-04')
 
 
 # s07-05
-WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 5)
-WE = WE - WE[0] / WE[0]
+WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 5, version = 2.2)
+WE = WE / WE[0]
 plt.semilogy(t, WE, 'Db', linewidth = 2, label = 'DECSKS-2.2: s7-05')
-
 
 # Linear Landau damping prediction:
 
@@ -258,12 +344,12 @@ plt.semilogy(t, WE, '*m', markersize = 10, linewidth = 2, label = 'DECSKS-1.2: s
 # s07-04
 WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 4, version = 1.2)
 WE = WE / WE[0]
-plt.semilogy(t_04, WE, '-g', linewidth = 2, label = 'DECSKS-1.2: s7-04')
+plt.semilogy(t_04, WE, ':g', linewidth = 2, label = 'DECSKS-1.2: s7-04')
 
-# s07-05
-WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 5, version = 1.2)
+# s07-03
+WE = file_to_array(quantity = 'WE', notebook_number = 7, sim_number = 3, version = 2.3)
 WE = WE / WE[0]
-plt.semilogy(t, WE, 'Hy', linewidth = 2, label = 'DECSKS-1.2: s7-05')
+plt.semilogy(t, WE, 'p', markersize = 5, color = 'y', linewidth = 2, label = 'DECSKS-2.3: s7-03')
 
 
 plt.xlabel('time', fontsize = 14)

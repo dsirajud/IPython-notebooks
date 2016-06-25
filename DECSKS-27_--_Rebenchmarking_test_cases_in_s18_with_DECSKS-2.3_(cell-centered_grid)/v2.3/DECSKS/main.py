@@ -40,7 +40,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s07-02.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s17-01.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -50,12 +50,6 @@ vx = DECSKS.lib.domain.Setup(sim_params, var = 'v', dim = 'x')
 ax = DECSKS.lib.domain.Setup(sim_params, 'a', 'x')
 t = DECSKS.lib.domain.Setup(sim_params, var = 't')
 
-print x.gridvalues
-print x.gridvalues[0] - x.width / 2
-print x.gridvalues[-1] + x.width / 2
-print vx.gridvalues
-print vx.gridvalues[0] - vx.width / 2
-print vx.gridvalues[-1] + vx.width / 2
 
 # set up two species
 fe, fi = DECSKS.lib.density.setup(sim_params, t, x, vx) # NOTE mu and tau in ion density must match those just below
@@ -80,10 +74,10 @@ print sim_params['BC']['f']['vx']['upper']
 #print sim_params['phi_BC']['x']
 
 
-#Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
-#Plot(n = 0)
-#Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
-#Plot(n = 0)
+Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
+Plot(n = 0)
+Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
+Plot(n = 0)
 
 #phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
 DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
@@ -121,10 +115,10 @@ for n in t.stepnumbers:
     #   print sim_params['sigma']['x']['lower']
     #    print sim_params['sigma']['x']['upper']
 
-    #    Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
-    #    Plot(n)
-    #    Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
-    #    Plot(n)
+    Plot = DECSKS.lib.plots.PlotSetup(fe, n, t, x, vx, sim_params, species = 'electron')
+    Plot(n)
+    Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
+    Plot(n)
 
 
     #    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)

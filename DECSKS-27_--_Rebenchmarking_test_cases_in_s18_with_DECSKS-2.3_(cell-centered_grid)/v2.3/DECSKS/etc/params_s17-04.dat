@@ -13,7 +13,7 @@ Requirements for value entry:
 (3) if needed, use numpy prefix as np, e.g. np.pi
 -------------------------------------------------------------------------------
 
-Number of grid points, x = 240
+Number of grid points, x = 220
 lower boundary value ax = -10 * np.pi / 3
 upper boundary value bx = 10 * np.pi / 3
 
@@ -94,8 +94,8 @@ splitting coeffs in filename (in ./etc/): params_splitting_coeffs.dat
 Plot window specification (used in lib.plots.Setup)
 --------------------------------------------------------------------------------
 
-x, min = -10.
-x, max = 10.
+x, min = -10.428342280666119
+x, max = 10.428342280666119
 
 y, min = -8.
 y, max = 8.

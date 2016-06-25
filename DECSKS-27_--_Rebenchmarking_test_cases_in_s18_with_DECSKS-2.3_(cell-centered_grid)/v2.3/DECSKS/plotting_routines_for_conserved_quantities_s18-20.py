@@ -32,17 +32,29 @@ t = np.linspace(0,T, Nt+1)
 
 # I1
 
-I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = '')
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'a', version = 2.3)
 I1 = np.abs((I1 - I1[0]) / I1[0])
-plt.semilogy(t, I1, 'Db', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
+plt.semilogy(t, I1, 'or', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20, $v_{th} = 0.5$')
 
-I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'b')
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.3)
 I1 = np.abs((I1 - I1[0]) / I1[0])
-plt.semilogy(t, I1, 'Dc', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
+plt.semilogy(t, I1, 'og', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20b, $v_{th} = 0.0625$')
 
-I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'c')
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.3)
 I1 = np.abs((I1 - I1[0]) / I1[0])
-plt.semilogy(t, I1, 'Dm', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
+plt.semilogy(t, I1, 'oy', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20c, $v_{th} = 0.03125$')
+
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = '', version = 2.2)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, 'Db', markersize = 8, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
+
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.2)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, 'Dc', markersize = 8, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
+
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.2)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, 'Dm', markersize = 8, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
 
 
 plt.xlabel('time', fontsize = 14)
@@ -57,17 +69,32 @@ plt.figure()
 # I2
 
 # s18-20
-I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = '')
-I2 = np.abs((I2 - I2[0]) / I2[0])
-plt.semilogy(t, I2, '-b', markersize = 12, linewidth = 2, label = r's18-20, $v_{th} = 0.5$')
 
-I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'b')
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'a', version = 2.3)
 I2 = np.abs((I2 - I2[0]) / I2[0])
-plt.semilogy(t, I2, '-c', markersize = 12, linewidth = 2, label = r's18-20b, $v_{th} = 0.0625$')
+plt.semilogy(t, I2, '--r', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20, $v_{th} = 0.5$')
 
-I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'c')
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.3)
 I2 = np.abs((I2 - I2[0]) / I2[0])
-plt.semilogy(t, I2, '-m', markersize = 12, linewidth = 2, label = r's18-20c, $v_{th} = 0.03125$')
+plt.semilogy(t, I2, '--g', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20b, $v_{th} = 0.0625$')
+
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '--y', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20c, $v_{th} = 0.03125$')
+
+
+
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = '', version = 2.2)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '-b', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
+
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.2)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '-c', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
+
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.2)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '-m', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
 
 
 plt.xlabel('time', fontsize = 14)
@@ -81,17 +108,30 @@ plt.figure()
 # IW
 
 # s18-20
-IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = '')
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'a', version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, '--r', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20, $v_{th} = 0.5$')
+
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, '--g', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20b, $v_{th} = 0.0625$')
+
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, '--y', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20c, $v_{th} = 0.03125$')
+
+
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = '', version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, '-b', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
 
 # s18-20
-IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'b')
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, '-c', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
 
 # s18-20
-IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'c')
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, '-m', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
 
@@ -108,17 +148,31 @@ plt.figure()
 # S
 
 # s18-20
-S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = '')
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'a', version = 2.3)
 S = np.abs((S - S[0]) / S[0])
-plt.semilogy(t, S, '-b', markersize = 12, linewidth = 2, label = r's18-20, $v_{th} = 0.5$')
+plt.semilogy(t, S, '--r', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20, $v_{th} = 0.5$')
 
-S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'b')
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.3)
 S = np.abs((S - S[0]) / S[0])
-plt.semilogy(t, S, '-c', markersize = 12, linewidth = 2, label = r's18-20b, $v_{th} = 0.0625$')
+plt.semilogy(t, S, '--g', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20b, $v_{th} = 0.0625$')
 
-S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'c')
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.3)
 S = np.abs((S - S[0]) / S[0])
-plt.semilogy(t, S, '-m', markersize = 12, linewidth = 2, label = r's18-20c, $v_{th} = 0.03125$')
+plt.semilogy(t, S, '--y', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20c, $v_{th} = 0.03125$')
+
+
+
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = '', version = 2.2)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, '-b', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
+
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.2)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, '-c', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
+
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.2)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, '-m', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
 
 
 plt.xlabel('time', fontsize = 14)
@@ -133,17 +187,31 @@ plt.figure()
 
 # WE
 
-WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = '')
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'a', version = 2.3)
 WE = WE / WE[0]
-plt.semilogy(t, WE, '--b', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
+plt.semilogy(t, WE, '-r', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20, $v_{th} = 0.5$')
 
-WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'b')
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.3)
 WE = WE / WE[0]
-plt.semilogy(t, WE, '--c', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
+plt.semilogy(t, WE, '--g', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20b, $v_{th} = 0.0625$')
 
-WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'c')
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.3)
 WE = WE / WE[0]
-plt.semilogy(t, WE, '--m', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
+plt.semilogy(t, WE, '-.y', markersize = 12, linewidth = 2, label = r'DECSKS-2.3: s18-20c, $v_{th} = 0.03125$')
+
+
+
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = '', version = 2.2)
+WE = WE / WE[0]
+plt.semilogy(t, WE, ':b', markersize = 12, linewidth = 2, label = r'DECSKS-2.2: s18-20, $v_{th} = 0.5$')
+
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'b', version = 2.2)
+WE = WE / WE[0]
+plt.semilogy(t, WE, 'oc', markersize = 7, linewidth = 2, label = r'DECSKS-2.2: s18-20b, $v_{th} = 0.0625$')
+
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 20, sim_number_version = 'c', version = 2.2)
+WE = WE / WE[0]
+plt.semilogy(t, WE, 'Dm', markersize = 7, linewidth = 2, label = r'DECSKS-2.2: s18-20c, $v_{th} = 0.03125$')
 
 # Linear wave growth estimate, gamma = 1 / sqrt(8)
 gamma = 1 / np.sqrt(8) # from linear theory for this distribution function (s18-20)

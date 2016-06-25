@@ -32,13 +32,20 @@ t = np.linspace(0,T, Nt+1)
 
 # I1
 
-# s17-03
-I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 17)
+# s18-17
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 17, version = 2.2)
 
 I1 = np.abs((I1 - I1[0]) / I1[0])
 
-plt.semilogy(t, I1, 'Db', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-03')
+plt.semilogy(t, I1, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
 
+
+# s18-17
+I1 = file_to_array(quantity = 'I1', notebook_number = 18, sim_number = 17, version = 2.3)
+
+I1 = np.abs((I1 - I1[0]) / I1[0])
+
+plt.semilogy(t, I1, '*m', markersize = 10, linewidth = 2, label = 'DECSKS-2.3: s18-17')
 
 plt.xlabel('time', fontsize = 14)
 plt.ylabel('Abs. value of fractional error in the $L^1$ norm', fontsize = 12)
@@ -51,10 +58,19 @@ plt.figure()
 
 # I2
 
+
 # s18-17
-I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 17)
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 17, version = 2.2)
 I2 = np.abs((I2 - I2[0]) / I2[0])
-plt.semilogy(t, I2, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+plt.semilogy(t, I2, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+
+
+# s18-17
+I2 = file_to_array(quantity = 'I2', notebook_number = 18, sim_number = 17, version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '*m', markersize = 10, linewidth = 2, label = 'DECSKS-2.3: s18-17')
+
+
 
 plt.xlabel('time', fontsize = 14)
 plt.ylabel('Abs. value of fractional error in the $L^2$ norm', fontsize = 12)
@@ -67,9 +83,17 @@ plt.figure()
 # IW
 
 # s18-17
-IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 17)
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 17, version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
-plt.semilogy(t, IW, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+plt.semilogy(t, IW, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+
+
+# s18-17
+IW = file_to_array(quantity = 'IW', notebook_number = 18, sim_number = 17, version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, '*m', markersize = 10, linewidth = 2, label = 'DECSKS-2.3: s18-17')
+
+
 
 #plt.axis([0,T,1e-16, 1e-5])
 plt.xlabel('time', fontsize = 14)
@@ -83,9 +107,15 @@ plt.figure()
 # S
 
 # s18-17
-S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 17)
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 17, version = 2.2)
 S = np.abs((S - S[0]) / S[0])
-plt.semilogy(t, S, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+plt.semilogy(t, S, 'oc', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+
+# s18-17
+S = file_to_array(quantity = 'S', notebook_number = 18, sim_number = 17, version = 2.3)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, '*m', markersize = 10, linewidth = 2, label = 'DECSKS-2.3: s18-17')
+
 
 plt.xlabel('time', fontsize = 14)
 plt.ylabel('Abs. value of fractional error in the entropy $S$ invariant', fontsize = 12)
@@ -100,10 +130,14 @@ plt.figure()
 # WE
 
 # s18-17
-WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 17)
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 17, version = 2.2)
 WE = WE / WE[0]
-plt.semilogy(t, WE, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
+plt.semilogy(t, WE, '-c', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s18-17')
 
+# s18-17
+WE = file_to_array(quantity = 'WE', notebook_number = 18, sim_number = 17, version = 2.3)
+WE = WE / WE[0]
+plt.semilogy(t, WE, '--m', markersize = 10, linewidth = 2, label = 'DECSKS-2.3: s18-17')
 
 plt.xlabel('time', fontsize = 14)
 plt.ylabel('Normalized electrostatic energy, $W_E/W_{E0}$', fontsize = 12)

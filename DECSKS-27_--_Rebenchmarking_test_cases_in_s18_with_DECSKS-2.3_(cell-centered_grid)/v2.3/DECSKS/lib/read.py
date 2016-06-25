@@ -515,7 +515,7 @@ def inputfile(filename):
     # ---------------------------------------------------------------------
     # "Alternating" identity matrix
 
-    # in lib.HOC.correctors, require an diagonal matrix with shape = (Nz_active, Nz_active)
+    # in lib.HOC.correctors, require an diagonal matrix with shape = (Nz, Nz)
     # with entries as (-1)^i, where i is the row number, for details see on github
     #
     #    dsirajud/IPython-notebooks/
@@ -1863,20 +1863,19 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
         B = np.zeros([Nx,Nx])
         for i in range(Nx):
             if i == 0:
-                B[i,i] = 317/240.
-                B[i,i+1] = -133/120.
-                B[i,i+2] = 187/120.
-                B[i,i+3] = -23/20.
-                B[i,i+4] = 109/240.
-                B[i,i+5] = -3/40.
+                B[i,-2] = -1/240.
+                B[i,-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
 
             if i == 1:
-                B[i,i-1] = 3/40.
-                B[i,i] = 209/240.
-                B[i,i+1] = 1/60.
-                B[i,i+2] = 7/120.
-                B[i,i+3] = -1/40.
-                B[i,i+4] = 1/240.
+                B[i,-1] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,i+2] = -1/240.
+
 
             elif 1 < i < Nx-2:
                 B[i,i-2] = -1/240.
@@ -1886,20 +1885,18 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
                 B[i,i+2] = -1/240.
 
             elif i == Nx-2:
-                B[i,i-4] = 1/240.
-                B[i,i-3] = -1/40.
-                B[i,i-2] = 7/120.
-                B[i,i-1] = 1/60.
-                B[i,i] = 209/240.
-                B[i,i+1] = 3/40.
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,i+1] = 1/10.
+                B[i,0] = -1/240.
 
             elif i == Nx-1:
-                B[i,i] = 317/240.
-                B[i,i-1] = -133/120.
-                B[i,i-2] = 187/120.
-                B[i,i-3] = -23/20.
-                B[i,i-4] = 109/240.
-                B[i,i-5] = -3/40.
+                B[i,i-2] = -1/240.
+                B[i,i-1] = 1/10.
+                B[i,i] = 97/120.
+                B[i,0] = 1/10.
+                B[i,1] = -1/240.
 
     elif BC['phi']['x']['type'] == 'LDBC_UDBC':
 

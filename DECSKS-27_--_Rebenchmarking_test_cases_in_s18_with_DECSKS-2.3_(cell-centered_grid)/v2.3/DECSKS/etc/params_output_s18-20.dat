@@ -7,13 +7,13 @@ Output filenames (read in from ./DECSKS)
 parent directory of directory for files to be written to: etc/
 directory name for files to be written to: outputs/
 
-L1 norm filename: out_I1_s18-20c
-L2 norm filename: out_I2_s18-20c
+L1 norm filename: out_I1_s18-20a
+L2 norm filename: out_I2_s18-20a
 
-IW total energy filename: out_IW_s18-20c
-WE electrostatic energy filename: out_WE_s18-20c
+IW total energy filename: out_IW_s18-20a
+WE electrostatic energy filename: out_WE_s18-20a
 
-S entropy file name: out_S_s18-20c
+S entropy file name: out_S_s18-20a
 
 
 

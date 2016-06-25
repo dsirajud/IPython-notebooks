@@ -89,9 +89,9 @@ def initial_profile(f0, density, z1, z2 = None):
 
         # in general, we calculate
         # ne_avg = np.sum(f[:x.N, :vx.N])*x.width * vx.width / x.L
-        ne_avg = 1.01493843058  # s18-20c, 256 x 256 v in [-8, 8]
-        #ne_avg = 1.00000000624  # s18-20b, vth = 0.0625
-        #ne_avg = 1.0           # s18-20, vth = 0.5
+        #ne_avg = 1.00909760998  # s18-20c, 256 x 256 v in [-8, 8]
+        #ne_avg = 1.00000000338  # s18-20b, vth = 0.0625
+        ne_avg = 1.0           # s18-20, vth = 0.5
                                 # grid was periodic in x, periodic in vx
                                 # Nx = 256, Nvx = 512
                                 # [ax, bx] = [-5*np.pi, 5*np.pi]
@@ -412,7 +412,7 @@ def initial_profile(f0, density, z1, z2 = None):
         # s18-20, s18-20b case, simulation from Qiu [manuscript number: JOMP-D-15-00441, example 3.4]
         x,v = z1, z2
         eps, k = 0.0005, 0.2
-        vth = 0.03125  # s18-20: vth = 0.5, s18-20b: vth = 0.0625, s18-20c: vth = 0.03125
+        vth = 0.5  # s18-20: vth = 0.5, s18-20b: vth = 0.0625, s18-20c: vth = 0.03125
         u = 5*np.sqrt(3) / 4.
         print "initializing two stream electron density profile, spatial wavenumber k = %g, eccentricity epsilon = %g" % (k, eps)
         for i in range(x.Ngridpoints):

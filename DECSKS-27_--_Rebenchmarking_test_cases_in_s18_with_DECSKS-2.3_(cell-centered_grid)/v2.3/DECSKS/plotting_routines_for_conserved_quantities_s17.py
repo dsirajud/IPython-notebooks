@@ -33,18 +33,24 @@ t = np.linspace(0,T, Nt+1)
 # I1
 
 # s17-03
-I1 = file_to_array(quantity = 'I1', notebook_number = 17, sim_number = 3)
+I1 = file_to_array(quantity = 'I1', notebook_number = 17, sim_number = 3, version = 2.3)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, '-.r', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-03')
+
+# s17-04
+I1 = file_to_array(quantity = 'I1', notebook_number = 17, sim_number = 4, version = 2.2)
+I1 = np.abs((I1 - I1[0]) / I1[0])
+plt.semilogy(t, I1, ':g', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-04')
+
+# s17-03
+I1 = file_to_array(quantity = 'I1', notebook_number = 17, sim_number = 3, version = 2.2)
 I1 = np.abs((I1 - I1[0]) / I1[0])
 plt.semilogy(t, I1, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-03')
 
-
-
 # s17-04
-I1 = file_to_array(quantity = 'I1', notebook_number = 17, sim_number = 4)
+I1 = file_to_array(quantity = 'I1', notebook_number = 17, sim_number = 4, version = 2.2)
 I1 = np.abs((I1 - I1[0]) / I1[0])
 plt.semilogy(t, I1, '--c', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-04')
-
-
 
 plt.xlabel('time', fontsize = 14)
 plt.ylabel('Abs. value of fractional error in the $L^1$ norm', fontsize = 12)
@@ -58,15 +64,22 @@ plt.figure()
 # I2
 
 # s17-03
-I2 = file_to_array(quantity = 'I2', notebook_number = 17, sim_number = 3)
+I2 = file_to_array(quantity = 'I2', notebook_number = 17, sim_number = 3, version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, '-.r', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-03')
+
+# s17-04
+I2 = file_to_array(quantity = 'I2', notebook_number = 17, sim_number = 4, version = 2.3)
+I2 = np.abs((I2 - I2[0]) / I2[0])
+plt.semilogy(t, I2, ':g', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-04')
+
+# s17-03
+I2 = file_to_array(quantity = 'I2', notebook_number = 17, sim_number = 3, version = 2.2)
 I2 = np.abs((I2 - I2[0]) / I2[0])
 plt.semilogy(t, I2, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-03')
 
-
-
-
 # s17-04
-I2 = file_to_array(quantity = 'I2', notebook_number = 17, sim_number = 4)
+I2 = file_to_array(quantity = 'I2', notebook_number = 17, sim_number = 4, version = 2.2)
 I2 = np.abs((I2 - I2[0]) / I2[0])
 plt.semilogy(t, I2, '--c', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-04')
 
@@ -83,12 +96,22 @@ plt.figure()
 # IW
 
 # s17-03
-IW = file_to_array(quantity = 'IW', notebook_number = 17, sim_number = 3)
+IW = file_to_array(quantity = 'IW', notebook_number = 17, sim_number = 3, version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, '-.r', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-03')
+
+# s17-04
+IW = file_to_array(quantity = 'IW', notebook_number = 17, sim_number = 4, version = 2.3)
+IW = np.abs((IW - IW[0]) / IW[0])
+plt.semilogy(t, IW, ':g', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-04')
+
+# s17-03
+IW = file_to_array(quantity = 'IW', notebook_number = 17, sim_number = 3, version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-03')
 
 # s17-04
-IW = file_to_array(quantity = 'IW', notebook_number = 17, sim_number = 4)
+IW = file_to_array(quantity = 'IW', notebook_number = 17, sim_number = 4, version = 2.2)
 IW = np.abs((IW - IW[0]) / IW[0])
 plt.semilogy(t, IW, '--c', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-04')
 
@@ -104,12 +127,22 @@ plt.figure()
 # S
 
 # s17-03
-S = file_to_array(quantity = 'S', notebook_number = 17, sim_number = 3)
+S = file_to_array(quantity = 'S', notebook_number = 17, sim_number = 3, version = 2.3)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, '-.r', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-03')
+
+# s17-04
+S = file_to_array(quantity = 'S', notebook_number = 17, sim_number = 4, version = 2.3)
+S = np.abs((S - S[0]) / S[0])
+plt.semilogy(t, S, ':g', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-04')
+
+# s17-03
+S = file_to_array(quantity = 'S', notebook_number = 17, sim_number = 3, version = 2.2)
 S = np.abs((S - S[0]) / S[0])
 plt.semilogy(t, S, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-03')
 
 # s17-04
-S = file_to_array(quantity = 'S', notebook_number = 17, sim_number = 4)
+S = file_to_array(quantity = 'S', notebook_number = 17, sim_number = 4, version = 2.2)
 S = np.abs((S - S[0]) / S[0])
 plt.semilogy(t, S, '--c', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-04')
 
@@ -127,12 +160,24 @@ plt.figure()
 # WE
 
 # s17-03
-WE = file_to_array(quantity = 'WE', notebook_number = 17, sim_number = 3)
+WE = file_to_array(quantity = 'WE', notebook_number = 17, sim_number = 3, version = 2.3)
+WE = WE / WE[0]
+plt.semilogy(t, WE, '-.r', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-03')
+
+# s17-04
+WE = file_to_array(quantity = 'WE', notebook_number = 17, sim_number = 4, version = 2.3)
+WE = WE / WE[0]
+plt.semilogy(t, WE, ':g', markersize = 12, linewidth = 2, label = 'DECSKS-2.3: s17-04')
+
+
+
+# s17-03
+WE = file_to_array(quantity = 'WE', notebook_number = 17, sim_number = 3, version = 2.2)
 WE = WE / WE[0]
 plt.semilogy(t, WE, '-b', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-03')
 
 # s17-04
-WE = file_to_array(quantity = 'WE', notebook_number = 17, sim_number = 4)
+WE = file_to_array(quantity = 'WE', notebook_number = 17, sim_number = 4, version = 2.2)
 WE = WE / WE[0]
 plt.semilogy(t, WE, '--c', markersize = 12, linewidth = 2, label = 'DECSKS-2.2: s17-04')
 

@@ -79,9 +79,6 @@ def Poisson_6th_PBC(fe, fi,
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
-
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
 

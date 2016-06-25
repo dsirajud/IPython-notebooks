@@ -79,8 +79,8 @@ class PlotSetup(Plots):
             pylab.axis([self.xmin, self.xmax, self.ymin, self.ymax])
             pylab.xlabel('$x$', fontsize = 18)
             pylab.ylabel('$v_x$', fontsize = 18)
-            pylab.title('sXX-XX DECSKS-2.3: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.Ngridpoints, self.v.Ngridpoints, self.it*self.t.width, n))
-            pylab.savefig(self.path + 'sXX-XX_' + self.filename)
+            pylab.title('s17-01 DECSKS-2.3: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (self.x.Ngridpoints, self.v.Ngridpoints, self.it*self.t.width, n))
+            pylab.savefig(self.path + 's17-01_' + self.filename)
             pylab.clf()
             return None
 
