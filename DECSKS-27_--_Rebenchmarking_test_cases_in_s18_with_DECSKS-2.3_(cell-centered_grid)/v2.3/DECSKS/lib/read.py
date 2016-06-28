@@ -844,10 +844,11 @@ def inputfile(filename):
                 if BC['phi'][var]['type'] == 'BIAS_BIAS':
                     BC['phi'][var]['type'] = 'LDBC_UDBC'
 
+                    # Dirichlet condition, phi = BIAS value, see notebook s24 for reason for factor of -2.0 in the derivation (from interpolation to the half-integer index)
+                    # if grounded (phi = 0 at wall), the factor of -2.0 is of no consequence so this is general.
+                    phi_BC[var][0] = -2.0 * float(Bias[var]['lower'])
                     # Dirichlet condition, phi = BIAS value
-                    phi_BC[var][0] = float(Bias[var]['lower'])
-                    # Dirichlet condition, phi = BIAS value
-                    phi_BC[var][-1] = float(Bias[var]['upper'])
+                    phi_BC[var][-1] = -2.0 * float(Bias[var]['upper'])
 
                     if BC['f'][var]['lower'] != 'absorbing' or BC['f'][var]['upper'] != 'absorbing': # all synonyms for 'absorbing' (except 'collector') have been seen by this point, and if encountered changed to 'absorbing'
                         raise InputError('A boundary condition on phi was specified as BIAS; however, the corresponding boundary condition on f is not compatible (must be set to absorbing or equivalent synonym)')
@@ -1903,9 +1904,13 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
         # assemble D, a matrix of difference coefficients on phi
         D = np.zeros([Nx,Nx])
         for i in range(Nx):
-            if i == 0 or i == Nx - 1: # last row
-                D[i,i] = 1
-            else:              # interior rows
+            if i == 0:
+                D[i,i] = -3
+                D[i,i+1] = 1
+            elif i == Nx-1:
+                D[i,i] = -3
+                D[i,i-1] = 1
+            else:
                 D[i,i-1] = 1
                 D[i,i] = -2
                 D[i,i+1] = 1
@@ -1913,21 +1918,21 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
         # assemble B, a matrix of difference coefficients on the total density
         B = np.zeros([Nx, Nx])
         for i in range(Nx):
+            if i == 0:
+                B[i,i] = 317/240.
+                B[i,i+1] = -133/120.
+                B[i,i+2] = 187/120.
+                B[i,i+3] = -23/20.
+                B[i,i+4] = 109/240.
+                B[i,i+5] = -3/40.
 
-            # redundant, included for transparency
-            if i == 0 or i == Nx - 1:
-                B[i,i] = 0
-
-            elif i == 1:
+            if i == 1:
                 B[i,i-1] = 3/40.
                 B[i,i] = 209/240.
                 B[i,i+1] = 1/60.
                 B[i,i+2] = 7/120.
                 B[i,i+3] = -1/40.
                 B[i,i+4] = 1/240.
-
-            elif i == Nx-1:
-                B[i,i] = 0
 
             elif 1 < i < Nx-2:
                 B[i,i-2] = -1/240.
@@ -1943,6 +1948,14 @@ def assemble_Poisson_6th_order_FD_solver_matrices(Nx, BC):
                 B[i,i-1] = 1/60.
                 B[i,i] = 209/240.
                 B[i,i+1] = 3/40.
+
+            elif i == Nx-1:
+                B[i,i] = 317/240.
+                B[i,i-1] = -133/120.
+                B[i,i-2] = 187/120.
+                B[i,i-3] = -23/20.
+                B[i,i-4] = 109/240.
+                B[i,i-5] = -3/40.
 
     elif BC['phi']['x']['type'] == 'LNBC_UDBC':
 

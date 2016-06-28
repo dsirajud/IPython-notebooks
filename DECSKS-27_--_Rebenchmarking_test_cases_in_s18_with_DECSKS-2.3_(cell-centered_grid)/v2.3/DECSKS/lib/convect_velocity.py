@@ -193,6 +193,8 @@ def flux(
     # HOC specified in etc/params.dat, sim_params['derivative_method']
     # contains the related function handle as a string
     d = eval(sim_params['derivative_method'][z.str])(f_old, z, vz, sim_params)
+    #    d[1:,:,:] = 0
+
 
     # compute high order fluxes column-by-column
     Uf = np.zeros(f_old.shape)

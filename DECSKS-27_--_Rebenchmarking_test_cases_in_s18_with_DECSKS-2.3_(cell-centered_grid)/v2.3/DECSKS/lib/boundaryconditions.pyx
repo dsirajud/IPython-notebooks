@@ -122,12 +122,38 @@ def absorbing_lower_boundary(np.ndarray[DTYPE_t, ndim=2] f_k,
 
     # vars here are typed as C data types to minimize python interaction
     cdef int i, j
-    for i in range(Nz):
+    if k == 0:
+        #        print "k = 0 output LABC:"
         for j in range(Nvz):
-            if zpostpointmesh[i,j] <= 0:
-                f_old[i,j] = 0
-                Uf_old[i,j] = 0
-                zpostpointmesh[i,j] = 0 # set postpoint at the absorber
+            for i in range(Nz):
+                if vzprepointvaluemesh[i,j] < 0:
+                    # there is  acase where z.CFL.frac < 0, so k < 0 for near enough i, but if computed Uf > 0, the lim[Uf] = 0
+                    # so we are not counting the cases with negative postpoints suddenly because we are skipping over the limited Uf = 0 cases
+                    # thus we need to actually check sign on z.CFL.numbers = sign on vz.prepointvaluemesh[i,j] * dt = sign on vz.prepointvaluemesh
+                    # if we are correct and only use a boundary routine with a split scheme with positive time steps since V-P system is not
+                    # reversible
+
+                    if zpostpointmesh[i,j] == 0 and -Uf_old[i,j] <= 1/2. * f_old[i,j]: # then $k_{true}\in [-1/2,0]$
+                        Uf_old[i,j] = 2*Uf_old[i,j]
+                    elif zpostpointmesh[i,j] <= 0: # then $k_{true}\in (-\infty , -1/2)$
+                        Uf_old[i,j] = 0
+                        f_old[i,j] = 0
+                        zpostpointmesh[i,j] = 0 # dummy index to avoid off-grid index reference error
+
+
+    if k == 1:
+        #        print "k = 1 output LABC:"
+        for i in range(Nz):
+            for j in range(Nvz):
+                if vzprepointvaluemesh[i,j] < 0:
+                    if zpostpointmesh[i,j] <= -1:
+                        # then $k_{true}\in (-infty , 0]$, the k2 proportion is always allocated to i <= -1 (beyond the wall)
+                        # in an ABC, the proportion being absorbed is unimportant as this proportion is zeroed out
+                        # see notebook s24 for derivation of the ABC prescription
+                        #                        print "chi_2 f[x=%g,vx=%g] -> 0" % (z.prepointvaluemesh[i,j], vzprepointvaluemesh[i,j]) 
+
+                        Uf_old[i,j] = 0
+                        zpostpointmesh[i,j] = 0 # dummy index to avoid off-grid index reference error
 
     # permanently copy to instance attribute
     z.postpointmesh[k,:,:] = zpostpointmesh
@@ -148,13 +174,31 @@ def absorbing_upper_boundary(np.ndarray[DTYPE_t, ndim=2] f_old,
 
     # vars here are typed as C data types to minimize python interaction
     cdef int i, j
-    for i in range(Nz):
+    if k == 0:
+        #        print "k = 0 output UABC:"
         for j in range(Nvz):
-            if zpostpointmesh[i,j] >= Nz - 1:
-                f_old[i,j] = 0
-                Uf_old[i,j] = 0
+            for i in range(Nz):
+                if vzprepointvaluemesh[i,j] > 0: # the case for Uf = 0 indicates any such prepoint density remains where it is, zero is absorbed at a wall nearby
+                    if zpostpointmesh[i,j] == Nz-1 and Uf_old[i,j] <= 1/2. * f_old[i,j]: # then $k_{true}\in [Nz-1, Nz-1/2]$
+                        Uf_old[i,j] = 2*Uf_old[i,j]
 
-                zpostpointmesh[i,j] = Nz - 1 # set postpoint at the absorber
+                    elif zpostpointmesh[i,j] >= Nz-1: # then $k_{true}\in (Nz-1/2, \infty )$
+                        Uf_old[i,j] = 0
+                        f_old[i,j] = 0
+                        zpostpointmesh[i,j] = Nz-1 # dummy index to avoid off-grid index reference error
+
+    if k == 1:
+        #        print "k = 1 output UABC:"
+        for i in range(Nz):
+            for j in range(Nvz):
+                if vzprepointvaluemesh[i,j] > 0:
+                    if zpostpointmesh[i,j] >=  Nz:
+                        # then $k_{true}\in (Nz-1, \infty )$, the k2 proportion is always allocated to i >= Nz (beyond the wall)
+                        # in an ABC, the proportion being absorbed is unimportant as this proportion is zeroed out
+                        # see notebook s24 for derivation of the ABC prescription
+
+                        Uf_old[i,j] = 0
+                        zpostpointmesh[i,j] = Nz-1
 
     # permanently copy to instance attribute
     z.postpointmesh[k,:,:] = zpostpointmesh

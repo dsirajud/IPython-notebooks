@@ -141,7 +141,7 @@ def initial_profile(f0, density, z1, z2 = None):
         #        ne_avg = 1.00418377084 # = np.sum(f0[:x.N, :vx.N])*x.width * vx.width / x.L
                                # for nonperiodic in x, periodic in vx
 
-        ne_avg = 1.00392156863 # s18-23
+        ne_avg = 1.0
         #        ne_avg = 1.00048851979 # for s18-22, Nvx = 2048, Nx = 2048 over [-10, 10] for both
         #        ne_avg = 1.00392156863 # for s18-22, Nvx = 400 over [-10, 10], Nx = 256 over [-10, 10]
         fi0 = ne_avg / z2.L

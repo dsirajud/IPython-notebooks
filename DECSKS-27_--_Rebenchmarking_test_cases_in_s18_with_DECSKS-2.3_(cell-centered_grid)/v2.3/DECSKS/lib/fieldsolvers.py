@@ -7,7 +7,6 @@ import DECSKS
 #==============================================================================#
 
 def compute_electric_field_fd(fe, fi, x, vx, n, sim_params):
-
     phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, n, sim_params)
 
     # currently the finite difference weight matrix W_dn1 is a 6th order LTE to
@@ -135,9 +134,6 @@ def Poisson_6th_LDBC_UDBC(fe, fi,
     phi -- (ndarray,dim=2) scalar potential, phi(x,v) = phi(x) at time t^n,
            for i = 0, 1, ... , x.N - 1, one full period
     """
-    fe = DECSKS.lib.domain.extract_active_grid(fe, x, sim_params)
-    fi = DECSKS.lib.domain.extract_active_grid(fi, x, sim_params)
-
     # Poisson eq. has -(charge density) = ne - ni
     n_total = single_integration(fe - fi, of = x, wrt = vx)
 
@@ -151,7 +147,7 @@ def Poisson_6th_LDBC_UDBC(fe, fi,
 
     # the lower DBC has been read in and stored in sim_params['phi_BC'][x.str][0] based on params_boundaryconditions.dat input during lib.read execution
     # the upper DBC has been read in and stored in sim_params['phi_BC'][x.str][-1] based on params_boundaryconditions.dat input during lib.read execution
-
+    # phi_BC values are read in and stored in lib.read method at start of simulation
     b = x.width ** 2 * sim_params['Poisson_6th_order_FD_solver_matrices']['B'].dot(n_total) + sim_params['phi_BC'][x.str]
 
     # solve D*phi = b
@@ -506,7 +502,8 @@ def Poisson_6th_PBC_1S(ni, f,
 # MISCELLANEOUS METHODS USED ABOVE
 #==============================================================================#
 def single_integration(f, of = None, wrt = None):
-    """integrates once a two variable
+    """integrates via the midpoint rule (cell-centered grid)
+    along once a two variable
     function, i.e. computes integral f(z,wrt) d(wrt) = f(z),
     or integral f(wrt) d(wrt) = F. the keyword
     'of' is the unintegrated variable such that f is a function
@@ -535,42 +532,5 @@ def single_integration(f, of = None, wrt = None):
     F -- (ndarray, ndim = 1 or float) integrated result
     """
 
+    # integrates over the column direction, i.e. vz
     return np.sum(f, axis = 1)*wrt.width
-
-def extract_active_grid(sim_params, f_total_grid):
-    """We evolve the density from the previous time step, f_old
-    only on the gridpoints that are 'active' (cf. DECSKS-09 notebook)
-    We distinguish, e.g. in 1D, the two attributes of a phase space
-    variable z:
-
-        z.Ngridpoints -- (int) total number of gridpoints
-        z.N           -- (int) total number of 'active' gridpoints
-
-    The total grid indices  : 0, 1, ... , z.Ngridpoints - 1
-    The active grid indices : 0, 1, ... , z.N - 1
-
-    For all but periodic boundary conditions (PBCs), these are the same.
-    That is, for periodic boundary conditions (PBCs):
-
-        z.N = z.Ngridpoints - 1
-
-    so we evolve f_old[:z.N] -> f_new[:z.N]
-
-    and we complete by the density by periodicity:
-
-        f_new[z.Ngridpoints - 1] = f_new[0]
-
-    for all other BCs: z.N = z.Ngridpoints and this function has no
-    effect.
-
-    inputs:
-    f_total_grid -- (ndarray, ndim=2) 2D density constituting total grid
-
-    outputs:
-    f_active_grid -- (ndarray, ndim=2) 2D density containing all
-                     active gridpoints
-
-    """
-    f_active_grid = f_total_grid[0:sim_params['active_dims'][0], 0:sim_params['active_dims'][1]]
-
-    return f_active_grid

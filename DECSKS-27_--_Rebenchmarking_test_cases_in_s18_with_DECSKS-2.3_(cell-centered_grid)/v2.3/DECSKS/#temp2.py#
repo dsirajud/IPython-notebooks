@@ -1,0 +1,61 @@
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.875,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.79167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.70833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.625,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.54167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.45833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.375,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.29167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.20833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.125,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=9.04167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.95833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.875,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.79167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.70833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.625,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.54167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.45833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.375,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.29167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.20833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.125,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=8.04167,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+x advection, stage 1: f[x=9.95833,vx = -1.04] = 0.168517539121, f[x=7.95833,vx = -1.04] = 0.232297004743, equal? (TOL = 1e-15)?: True
+
+
+
+
+
+
+
+
+
+
+
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.875,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.79167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.70833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.625,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.54167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.45833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.375,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.29167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.20833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.125,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=9.04167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.95833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.875,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.79167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.70833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.625,vx = 1.04] =   0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.54167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.45833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.375,vx = 1.04] =   0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.29167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.20833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.125,vx = 1.04] =   0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=8.04167,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+x advection, stage 1: f[x=9.95833,vx = 1.04] = 0.232297004743, f[x=7.95833,vx = 1.04] = 0.232297004743, equal? (TOL = 1e-15)?: False
+
+                                                                                        0.232297004743

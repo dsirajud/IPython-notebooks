@@ -74,9 +74,12 @@ def scheme(
         elif coeff[s] == 'b': # advect v
             # calculate electric field at most recent positions of ions and electrons
             Ex = eval(sim_params['compute_electric_field_orchestrator_handle']['x'])(fe, fi, x, vx, n, sim_params)
+
+
             # advect electron velocities
             ax.prepointvaluemesh = -Ex
             vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
+
             fe = DECSKS.lib.convect_velocity.scheme(
                 fe,
                 t,
@@ -89,6 +92,7 @@ def scheme(
             # advect ion velocities
             ax.prepointvaluemesh = 1. / sim_params['mu'] * Ex
             vx.CFL.compute_numbers(vx, ax, split_coeff*t.width)
+
             fi = DECSKS.lib.convect_velocity.scheme(
                 fi,
                 t,

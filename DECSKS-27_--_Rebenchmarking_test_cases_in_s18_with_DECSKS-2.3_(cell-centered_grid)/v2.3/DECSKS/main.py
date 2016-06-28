@@ -40,7 +40,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s17-01.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-02b.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -70,31 +70,33 @@ print sim_params['BC']['f']['x']['lower']
 print sim_params['BC']['f']['x']['upper']
 print sim_params['BC']['f']['vx']['lower']
 print sim_params['BC']['f']['vx']['upper']
-#$print sim_params['compute_electric_potential_phi_handle'][x.str]
+#print sim_params['compute_electric_potential_phi_handle'][x.str]
 #print sim_params['phi_BC']['x']
-
 
 Plot = DECSKS.lib.plots.PlotSetup(fe, 0, t, x, vx, sim_params, species = 'electron')
 Plot(n = 0)
 Plot = DECSKS.lib.plots.PlotSetup(fi, 0, t, x, vx, sim_params, species =  'ion')
 Plot(n = 0)
-
-#phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
-DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
+print "plotted at time zero"
+phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
+phi_exact = np.ones_like(x.gridvalues)*5.
+#DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
+print phi
 
 IQ = np.sum(-fe + fi) * vx.width * x.width
 print IQ
 
-
-#matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
-#matplotlib.pyplot.grid()
-#matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], 0, 35])
-#matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
-#matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
-#matplotlib.pyplot.title(r's18-23 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], 0.0, 0))
-#it_str = 'it%05d' % 0
-#matplotlib.pyplot.savefig('./plots/' + 'phi_s18-23_' + it_str)
-#matplotlib.pyplot.clf()
+# phi is a 2D array, whose columns are copied vx.N times
+matplotlib.pyplot.plot(x.gridvalues, phi[:,0], linestyle = '--', linewidth = 2, color = 'blue')
+matplotlib.pyplot.plot(x.gridvalues, phi_exact, linestyle = '-', linewidth = 2, color = 'm')
+matplotlib.pyplot.grid()
+matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], -5.1,5.1])
+matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
+matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
+matplotlib.pyplot.title(r's18-02b Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %04d' % (sim_params['total_dims'][0], sim_params['total_dims'][1], 0.0, 0))
+it_str = 'it%05d' % 0
+matplotlib.pyplot.savefig('./plots/' + 'phi_s18-02b_' + it_str)
+matplotlib.pyplot.clf()
 
 #print sim_params['sigma']['x']['lower']
 #print sim_params['sigma']['x']['upper']
@@ -120,21 +122,20 @@ for n in t.stepnumbers:
     Plot = DECSKS.lib.plots.PlotSetup(fi, n, t, x, vx, sim_params, species =  'ion')
     Plot(n)
 
-
-    #    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
-    #    matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
-    #    matplotlib.pyplot.grid()
-    #    matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], 0, 35])
-    #    matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
-    #    matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
-    #    matplotlib.pyplot.title(r's18-23 Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %03d' % (sim_params['active_dims'][0], sim_params['active_dims'][1], t.stepnumbers[n]*t.width, n))
-    #    it_str = 'it%05d' % n
-    #    matplotlib.pyplot.savefig('./plots/' + 'phi_s18-23_' + it_str)
-    #    matplotlib.pyplot.clf()
+    phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
+    matplotlib.pyplot.plot(x.gridvalues, phi[:,0], linewidth = 2, color = 'blue')
+    matplotlib.pyplot.grid()
+    #    matplotlib.pyplot.axis([x.gridvalues[0], x.gridvalues[-1], -5.1, 5.1])
+    matplotlib.pyplot.xlabel(r'position $x$', fontsize = 18)
+    matplotlib.pyplot.ylabel(r'$\phi (t^n,x)$', fontsize = 18)
+    matplotlib.pyplot.title(r's18-02b Potential $\phi (x)$: $N_x$ = %d, $N_v$ = %d, $t^n$ = %2.3f, n = %04d' % (sim_params['total_dims'][0], sim_params['total_dims'][1], t.stepnumbers[n]*t.width, n))
+    it_str = 'it%05d' % n
+    matplotlib.pyplot.savefig('./plots/' + 'phi_s18-02b_' + it_str)
+    matplotlib.pyplot.clf()
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat
-    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, n, x, vx, sim_params['mu'])
+    #    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, n, x, vx, sim_params['mu'])
     DECSKS.lib.status.check_and_clean(t, n, tic, rm_plots)
 
 
@@ -147,7 +148,6 @@ for n in t.stepnumbers:
     #plt.xlabel(r'time step $n$', fontsize = 18)
     #plt.ylabel(r'$\sigma (t,x)$', fontsize = 18)
     #plt.legend(loc = 'best')
-
 
 
 #phi_left = sim_params['sigma_n']['x']['lower'] # E = -1/2 sigma, phi = 1/2 sigma, here sigma = ni - ne

@@ -58,7 +58,8 @@ def scheme(
                        stage,
                        z,
                        vz,
-                       charge
+                       charge,
+                       c
                        )
 
     # (3) COLLISION STEP (NOT YET IMPLEMENTED)
@@ -144,7 +145,8 @@ def remap_step(
         stage,
         z,
         vz,
-        charge
+        charge,
+        c
         ):
 
     f_copy =  f_old.copy()
@@ -155,8 +157,6 @@ def remap_step(
       eval(sim_params['distribution_function_boundarycondition_orchestrator_handle'][z.str])(
           f_k1, f_copy, Uf_copy, t, z, vz, sim_params, charge, k = 0)
 
-
-
     # for now, we do not have a symmetry boundary condition, hence vz.postpointmesh[k,:,:] = vz.prepointmesh
     f_k1 += DECSKS.lib.remap.nearest_gridpoint_assignment(f_copy, Uf_copy, z.postpointmesh[0,:,:], vz.postpointmesh[0,:,:], z.N, vz.N)
 
@@ -166,7 +166,6 @@ def remap_step(
           f_k2, f_old, Uf_old, t, z, vz, sim_params, charge, k = 1)
 
     # for now, we do not have a symmetry boundary condition, hence vz.postpointmesh[k,:,:] = vz.prepointmesh
-
     f_k2 += DECSKS.lib.remap.contiguous_gridpoint_assignment(f_old, Uf_old, z.postpointmesh[1,:,:], vz.postpointmesh[1,:,:], z.N, vz.N)
 
     f_remapped = f_k1 + f_k2
@@ -215,6 +214,7 @@ def flux(
     # calls lib.derivatives.fd or lib.derivatives.fourier based on the
     # HOC specified in etc/params.dat, sim_params['derivative_method']
     # contains the related function handle as a string
+
     d = eval(sim_params['derivative_method'][z.str])(f_old, z, vz, sim_params)
 
     # compute high order fluxes column-by-column

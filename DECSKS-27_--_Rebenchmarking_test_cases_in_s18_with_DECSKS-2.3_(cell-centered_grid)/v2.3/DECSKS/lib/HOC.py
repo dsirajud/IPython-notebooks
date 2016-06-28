@@ -269,12 +269,12 @@ def compute_all_correctors_on_a_configuration_variable(sim_params, z, vz, t):
     dim2 = sim_params['N']
     dim3 = vz.N
 
-    B = np.zeros((dim1, dim2, dim3))
+    B = np.zeros((dim2, dim3))
     c = np.zeros((dim1, dim2, dim3))
 
     for stage in range(1,dim1):
-        B[stage,:,:] = Beta_matrix_for_given_stage(sim_params, z, vz, stage)
-        c[stage,:,:] = sim_params['I_alternating'].dot(B[stage,:,:])
+        B = Beta_matrix_for_given_stage(sim_params, z, vz, stage)
+        c[stage,:,:] = sim_params['I_alternating'].dot(B)
 
     return c
 
