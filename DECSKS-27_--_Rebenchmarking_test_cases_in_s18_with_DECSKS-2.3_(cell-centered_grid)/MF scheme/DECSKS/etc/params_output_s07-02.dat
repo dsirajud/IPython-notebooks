@@ -1,0 +1,19 @@
+Output filenames (read in from ./DECSKS)
+
+------------------------------------------------------------
+
+# I = "invariant"
+
+parent directory of directory for files to be written to: etc/
+directory name for files to be written to: outputs/
+
+L1 norm filename: out_I1_s07-02
+L2 norm filename: out_I2_s07-02
+
+IW total energy filename: out_IW_s07-02
+WE electrostatic energy filename: out_WE_s07-02
+
+S entropy file name: out_S_s07-02
+Q total charge file name: out_IQ_s07-02
+
+

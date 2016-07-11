@@ -1,0 +1,22 @@
+<u>Remap summary of source particles</u>
+<table "width = 60%">
+<tr><td>ghost prepoint density $S^{\alpha}_{g_i}$</td><td>ghost prepoint $g_i$</td><td>true (real number) postpoint $k$</td><td>(integral) postpoint $k_2$</td><td>(integral) postpoint $k_1$</td><td>left edge case?</td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_0}$</font></font></td><td><font color = "blue">$i = 4$</font><td><font color = "red">$i = -2.25$</font><td><font color = "red">$i=-3$</font></td><td><font color = "red">$i=-2$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_1}$</font></td><td><font color = "blue">$i = 5$</font><td><font color = "red">$i = -1.25$</font><td><font color = "red">$i=-2$</font></td><td><font color = "red">$i=-1$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_2}$</font></td><td><font color = "blue">$i = 6$</font><td><font color = "red">$i = -0.$</font><font color = "purple">$25$</font><td><font color = "red">$i=-1$</font></td><td><font color = "purple">$i=0$</font></td><td>X</td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_3}$</font></td><td><font color = "blue">$i = 7$</font><td><font color = "purple">$i = 0.75$</font><td><font color = "purple">$i=0$</font></td><td><font color = "purple">$i=1$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_4}$</font></td><td><font color = "blue">$i = 8$</font><td><font color = "purple">$i = 1.75$</font><td><font color = "purple">$i=1$</font></td><td><font color = "purple">$i=2$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_5}$</font></td><td><font color = "blue">$i = 9$</font><td><font color = "purple">$i = 2.75$</font><td><font color = "purple">$i=2$</font></td><td><font color = "purple">$i=3$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_6}$</font></td><td><font color = "blue">$i = 10$</font><td><font color = "purple">$i = 3.$</font><font color = "blue">$75$</font><td><font color = "purple">$i=3$</font></td><td><font color = "blue">$i=4 = g_0$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_7}$</font></td><td><font color = "blue">$i = 11$</font><td><font color = "blue">$i = 4.75$</font><td><font color = "blue">$i=4 = g_0$</font></td><td><font color = "blue">$i=5 = g_1$</font></td><td></td></tr>
+</table>
+
+<u>Remap summary of source particles</u>
+<table "width = 70%">
+<tr><td>ghost prepoint density $S^{\alpha}_{g_i}$</td><td>ghost prepoint $g_i$</td><td>true (real number) postpoint $k$</td><td>(integral) postpoint $k_2$</td><td>(integral) postpoint $k_1$</td><td>left edge case?</td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_0}$</font></td><td><font color = "blue">$i = 4$</font></td><td><font color = "purple">$i = 0.75$</font><td><font color = "purple">$i=0$</font></td><td><font color = "purple">$i=1$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_1}$</font></td><td><font color = "blue">$i = 5$</font></td><td><font color = "purple">$i = 1.75$</font><td><font color = "purple">$i=1$</font></td><td><font color = "purple">$i=2$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_2}$</font></td><td><font color = "blue">$i = 6$</font></td><td><font color = "purple">$i = 2.75$</font><td><font color = "purple">$i=2$</font></td><td><font color = "purple">$i=3$</font></td><td></td></tr>
+<tr><td><font color = "blue">$S^{\alpha}_{g_3}$</font></td><td><font color = "blue">$i = 7$</font></td><td><font color = "purple">$i = 3$</font><font color = "blue">$.75$</font><td><font color = "purple">$i=3$</font></td><td><font color = "blue">$i=4 = g_0$</font></td><td></td></tr>
+</table>
+

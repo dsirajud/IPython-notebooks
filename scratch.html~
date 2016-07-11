@@ -1,0 +1,7 @@
+<table "width = 60%">
+<tr><td>ghost prepoint density $S^{\alpha}_{g_i}$</td><td>true (real number) postpoint $k$</td><td>nearest (integer) postpoint $k_1$</td><td>contiguous (integer) postpoint $k_2$</td><td>proportion remapped or BC applied?</tr>
+<tr><td>$S^{\alpha}_{g_0}$</td><td>$i = 0.75$<td>$i=1$</td><td>$i=0$</td><td>$\chi_1, \chi_2$ mapped on-grid</td></tr>
+<tr><td>$S^{\alpha}_{g_1}$</td><td>$i = 1.75$<td>$i=2$</td><td>$i=1$</td><td>$\chi_1, \chi_2$ mapped on-grid</td></tr>
+<tr><td>$S^{\alpha}_{g_2}$</td><td>$i = 2.75$<td>$i=3$</td><td>$i=2$</td><td>$\chi_1, \chi_2$ mapped on-grid</td></tr>
+<tr><td>$S^{\alpha}_{g_3}$</td><td>$i = 3.75$<td>$i=4 = g_0$</td><td>$i=3$</td><td>$\chi_2$ mapped on-grid</td></tr>
+</table>

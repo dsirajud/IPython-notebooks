@@ -1,0 +1,5 @@
+
+
+ffmpeg -qscale 5 -r 48 -b 9600 -i filename.png movie.mp4
+
+here we can use notation like it%05d to mean a five digit number after 'it', padded with as many zeroes as needed, e.g. it00234

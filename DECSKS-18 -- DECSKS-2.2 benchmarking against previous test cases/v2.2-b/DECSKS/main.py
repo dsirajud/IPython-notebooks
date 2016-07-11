@@ -40,7 +40,7 @@ import time
 rm_plots = 0
 tic = time.clock()
 
-sim_params = DECSKS.lib.read.inputfile('./etc/params_s18-21d.dat')
+sim_params = DECSKS.lib.read.inputfile('./etc/params_s07-01.dat')
 
 # both species will use same grid x, vx. Can reuse the same vx and ax here
 # given serial implementation. In parallel applications, distinct vx_i, vx_e
@@ -93,7 +93,7 @@ print "integral 2 (f dx dvx - fi dx dvx) = %g" % ((np.sum(-fe[:x.Ngridpoints-1,:
 #phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)
 #phi = phi[:,0]
 #print phi.shape
-#DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
+DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, 0, x, vx, sim_params['mu'])
 
 
 #matplotlib.pyplot.plot(x.gridvalues, phi, linewidth = 2, color = 'blue')
@@ -169,7 +169,7 @@ for n in t.stepnumbers:
 
     # calcs performed and outputs written only if "record outputs? = yes"
     # in ./etc/params.dat
-    #    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, n, x, vx, sim_params['mu'])
+    DECSKS.lib.diagnostics.calcs_and_writeout(sim_params,fe, fi, n, x, vx, sim_params['mu'])
     DECSKS.lib.status.check_and_clean(t, n, tic, rm_plots)
 
 

@@ -1,0 +1,147 @@
+import linecache # to specify pointer of line reader
+import numpy as np
+import numpy.linalg as LA
+
+
+def HighPrecisionE(number):
+    """Converts a number into a string object
+    while retaining a chosen degree of precision. This
+    is designed to evade the truncation that is involved
+    with str() so that outputs can store numbers with high
+    precision
+
+    inputs:
+    number -- (number)
+
+    outputs:
+    string object with chosen precision in scientific notation
+    """
+
+    num_decimals = 22    # store up to specified decimal places
+    precision = "%." + str(num_decimals) + "e"
+    return precision % number 
+
+def find_difference_coefficients(dn,p,x):
+    """
+    inputs:
+    dn -- (int) order of derivative
+    p -- (int) order of truncation error desired
+    x -- (list, int) list of integers i in x + i(dx)
+         the choice of scheme (asymmetric (forward, backward,
+         unequal sampling on each side) vs. symmetric (centered)
+         will determine this range), A[i,:] = x ** i
+
+    outputs:
+    C -- (ndarray, ndim=2) difference coefficients from solving AC = b
+    x -- (list, int) the integer i in (x + ih) the weight applies to
+         i.e. the stencil
+    """
+    x = np.array(x)
+    A = np.zeros([dn+p, dn+p])
+    b = np.zeros(len(x))
+
+    for i in range(dn+p):
+        A[i,:] = x ** i
+
+        if i == dn:
+            b[i] = 1.
+        else:
+            b[i] = 0.
+
+    C = LA.solve(A,b) # = C[0], C[1], .., C[p+dn-1]
+
+    return C, x
+
+def write_coefficients(outfile, C, x):
+
+    coefficients = len(x) # or len(C), C and x are the same length
+
+    for i in range(coefficients):
+        outfile.write( str(C[i]) + ', '
+                       + str(x[i]) + '\n')
+
+    return outfile
+
+def store_finite_difference_schemes(dn_max):
+
+    FD_schemes = {}
+    dn_max = 4 # read this off of generated files
+    infile_suffix = '_FD_coefficients.dat'
+
+    for dn in range(1,dn_max+1):
+        infilename = 'f' + str(dn) + infile_suffix
+
+        # create empty subdictionary for given dn
+        FD_schemes['dn' + str(dn)] = {}
+
+        # store schemes in subdictionaries of dn
+        # which are the keys: 'handedness', 'asymmetry'
+        FD_schemes = read_finite_difference_schemes(
+                                 infilename,
+                                 FD_schemes,
+                                 str(dn))
+
+    return FD_schemes
+
+def read_finite_difference_schemes(infilename,
+                FD_schemes,
+                dn):
+
+    infile = open(infilename, 'r')
+    lines = infile.readlines()
+
+    dn = 'dn' + dn # dn key
+
+    # create empty subdictionaries for each handedness
+    FD_schemes[dn]['forward'] = {}
+    FD_schemes[dn]['central'] = {}
+    FD_schemes[dn]['backward'] = {}
+
+    for i in range(len(lines)):
+
+        if lines[i][0] == 'F':
+            handedness = 'forward'
+            asymmetry = lines[i][1]
+
+            # create empty subdictionary for given asymmetry
+            FD_schemes[dn][handedness][asymmetry] = {}
+        elif lines[i][0] == 'C':
+            handedness = 'central'
+            asymmetry = lines[i][1]
+
+            # create empty subdictionary for given asymmetry
+            FD_schemes[dn][handedness][asymmetry] = {}
+        elif lines[i][0] == 'B':
+            handedness = 'backward'
+            asymmetry = lines[i][1]
+
+            # create empty subdictionary for given asymmetry
+            FD_schemes[dn][handedness][asymmetry] = {}
+        elif lines[i].split(' ')[0] == 'number':
+            numlines = eval(lines[i][lines[i].find(':')+1:].strip())
+
+            # set switch on for storage and intialize empties
+            store_data_switch = 1
+            w = []
+            stencil = []
+
+        elif store_data_switch == 1:
+            for j in range(i+1, i + numlines+1):
+                # note: first line in linecache is [1], not [0]
+                line = linecache.getline(infilename,j)
+                pairs = line.split(', ')
+
+                w.append(eval(pairs[0]))
+                stencil.append(eval(pairs[1]))
+
+            # store as values in subdictionary keys 'w', 'stencil'
+            FD_schemes[dn][handedness][asymmetry]['w'] = w
+            FD_schemes[dn][handedness][asymmetry]['stencil'] = stencil
+
+            # reset switch for next scheme dict key
+            store_data_switch = 0
+
+        else:
+            pass
+
+    return FD_schemes

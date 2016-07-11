@@ -1,0 +1,45 @@
+def HighPrecisionE(number):
+    """Converts a number into a string object
+    while retaining a chosen degree of precision. This
+    is designed to evade the truncation that is involved
+    with str() so that outputs can store numbers with high
+    precision
+
+    inputs:
+    number -- (number)
+
+    outputs:
+    string object with chosen precision in scientific notation
+    """
+
+    return "%.22e" % number
+
+
+def strings_for_writeout():
+    """creates a dictionary of the strings below used in
+    the outfile writing decoration
+
+    inputs:
+    None
+
+    outputs:
+    table_strings -- (dict) decorating strings used in output writing
+    """
+    newline = '\n'
+    divider = '-------------------------'
+    spc = ' '
+    colon = ':'
+    equaldivider = '========================='
+    outfilename_suffix = '_FD_coefficients.dat'
+    number_of_lines_to_read = 'number of lines to read: '
+
+    table_strings = dict(newline = newline,
+                         divider = divider,
+                         spc = spc,
+                         colon = colon,
+                         equaldivider = equaldivider,
+                         outfilename_suffix = outfilename_suffix,
+                         number_of_lines_to_read = number_of_lines_to_read
+                        )
+
+    return table_strings
