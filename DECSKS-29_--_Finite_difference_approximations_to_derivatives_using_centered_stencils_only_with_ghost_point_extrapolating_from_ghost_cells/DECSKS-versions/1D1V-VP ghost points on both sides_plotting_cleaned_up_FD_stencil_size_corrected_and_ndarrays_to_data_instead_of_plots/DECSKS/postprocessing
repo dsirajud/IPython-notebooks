@@ -1,0 +1,48 @@
+
+
+ffmpeg -qscale 5 -r 48 -b 9600 -i filename.png movie.mp4
+
+# here we can use notation like it%05d to mean a five digit number after 'it', padded with as many zeroes as needed, e.g. it00234
+
+----------------------------------------------------------------------------------------------------
+
+# To save an ndarray, x:
+
+    with open('file.npy', 'w') as outfile:
+        np.save(outfile, x)
+
+# To load the file into an ndarray X:
+
+    with open('file.npy', 'r') as infile:
+        X = np.load(infile)
+
+# some convenient read functions have been programmed in bin/postprocessing/
+# compute_quantities, etc.
+    
+----------------------------------------------------------------------------------------------------
+
+# plotting files using DECSKS modules:
+
+# can calculate phi (1D vector by index slicing the returned 2D array)
+phi = eval(sim_params['compute_electric_potential_phi_handle'][x.str])(fe, fi, x, vx, 0, sim_params)[:,0] # returns a 2D array, all cols are identical
+
+# can create a class object for phi plot, 
+PlotPhi = DECSKS.lib.plots.PlotSetup(phi, t, x, sim_name = sim_name, sim_params = sim_params, quantity = 'potential')
+
+# call as
+PlotPhi(phi, sim_name = sim_name)
+
+# sources
+Plot = DECSKS.lib.plots.PlotSetup(sim_params['sources']['f_Se'][1,:,:], 0, t, x, vx, sim_name, sim_params, species = 'source electrons from right')
+Plot(n = 0)
+
+# distribution functions
+
+# Create plotting class objects (contains __call__ plot routine and __init__ sets up the file name and save location)
+PlotElectron = DECSKS.lib.plots.PlotSetup(fe, t, x, vx, sim_name, sim_params, species = 'electron', quantity = 'distribution_function')
+PlotIon = DECSKS.lib.plots.PlotSetup(fi, t, x, vx, sim_name, sim_params, species =  'ion', quantity = 'distribution_function')
+
+# plot and save
+PlotElectron(fe, n, sim_name = sim_name)
+PlotIon(fi, n, sim_name = sim_name)
+

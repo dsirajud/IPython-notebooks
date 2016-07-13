@@ -1,0 +1,9 @@
+import numpy as np
+import DECSKS
+
+# cd = DECSKS/bin/postprocessing
+
+# outputs are stored in DECSKS/etc/outputs/sim_number
+rel_path = '../etc/outputs/'
+
+def plot(sim_number, )

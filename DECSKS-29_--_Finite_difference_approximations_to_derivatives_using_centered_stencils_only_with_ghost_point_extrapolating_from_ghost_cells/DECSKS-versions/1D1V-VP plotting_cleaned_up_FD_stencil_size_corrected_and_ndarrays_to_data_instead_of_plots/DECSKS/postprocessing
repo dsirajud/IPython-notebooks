@@ -1,0 +1,19 @@
+
+
+ffmpeg -qscale 5 -r 48 -b 9600 -i filename.png movie.mp4
+
+here we can use notation like it%05d to mean a five digit number after 'it', padded with as many zeroes as needed, e.g. it00234
+
+----------------------------------------------------------------------------------------------------
+
+To save an ndarray, x:
+
+    with open('file.npy', 'w') as outfile:
+        np.save(outfile, x)
+
+To load the file into an ndarray X:
+
+    with open('file.npy', 'r') as infile:
+        X = np.load(infile)
+    
+   	

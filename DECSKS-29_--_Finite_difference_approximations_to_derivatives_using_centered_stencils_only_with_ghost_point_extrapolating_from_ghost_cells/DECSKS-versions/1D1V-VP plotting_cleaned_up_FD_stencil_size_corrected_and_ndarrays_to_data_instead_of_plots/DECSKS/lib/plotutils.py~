@@ -1,0 +1,34 @@
+import numpy as np
+
+# cd = DECSKS/bin/postprocessing
+
+# outputs are stored in DECSKS/etc/outputs/sim_number
+rel_path = '../../etc/outputs/'
+
+def read_data(filename):
+
+    filepath = rel_path + filename
+    with open(filename, 'r') as infile:
+        data = np.load(filename)
+
+    return data
+
+def read_data_over_range_of_times(n_start, n_stop, quantity = None, sim_name = None):
+
+    dir_path = rel_path + sim_name + '/'
+
+    filename = sim_name + '_--_' + quantity + '_'
+    fileformat = '.npy'
+
+    for n in range(n_start, n_stop + 1):
+        # generate specific filepath for
+        time_label = '%06d' % n
+        filepath = dir_path + filename + time_label + fileformat
+
+        data = read_data(filepath)
+        print filepath
+        print data
+
+
+
+    return None

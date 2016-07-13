@@ -1,0 +1,237 @@
+================================================================================
+Boundary conditions on the distribution functions, f
+================================================================================
+ - REQUESTED INPUTS ARE PUT BETWEEN **** rows
+ - INFORMATION is put between ---- or ==== rows
+
+ - case insensitive (caps recommended to distinguish inputs from rest of text)
+ - options (do not include quotes):
+
+    * 'periodic'
+
+    * 'absorbing'        (removes all particles that reach BOTH the boundary AND beyond)
+
+    * 'cutoff'           (removes only those particles that go beyond the boundary cutoff; 
+                         can only be used with velocity variables, see below for reasoning)
+
+    * 'collector'        (absorbs all charges that reach a boundary and collects them in a 
+                         wall charge density object)
+
+    * 'symmetric' or 'symmetry' (only available as a lower boundary option)
+
+- The boundary conditions on configuration will need to be compatible with 
+  those on the field quantities below (guidance is provided in that section
+  in the forenotes), e.g. 'absorbing' here must be used with 'BIAS' on phi
+
+- consistency is also needed within each set (lower/upper). For example, 
+  it does not make sense to have the lower BC be 'periodic' and the upper
+  BC to be 'absorbing' as a periodic condition involves both boundaries.
+
+- synonyms are accepted as prescribed above, e.g. 'symmetric' is treated
+  the same as 'symmetry'. 
+
+- 'cutoff' and 'absorbing' are implementation-wise almost identical, the 
+  only difference being 'cutoff' zeroes out any particle that advects beyond
+  the grid boundary (> or <), whereas 'absorbing' zeroes out any particle that advects
+  to AND beyond the boundary (>= or <=). For example, if 'cutoff' is on an upper boundary, 
+  any particle with postpoint k > z.N-1 is zeroed out. If 'absorbing' is specified 
+  on an upper boundary, then any particle with postpoint k >= z.N-1 is zeroed out.
+  Note: 'cutoff' or 'absorbing' can be used on a velocity variable; however,
+  'cutoff' cannot be used on a configuration variable as the physical meaning of
+  this condition suggests we are windowing in on one region of a larger system.
+  While this is not an issue for the advection step, this condition on a configuration
+  variable makes it unclear how to calculate or specify the boundary conditions on
+  the electric potential phi (below) as we do not have information about the charges 
+  outside of the domain.  Hence, we reserve 'absorbing' for configuration, which is 
+  physically suggestive of closing a system with a boundary, where the potential can
+  be consistently calculated or biased.
+
+-------------------------------------------------------------------------------
+CONFIGURATION (x, y, z) BOUNDARY CONDITIONS INPUTS ON DISTRIBUTION FUNCTION
+-------------------------------------------------------------------------------
+*******************************************************************************
+
+lower boundary condition x = COLLECTOR
+upper boundary condition x = SOURCE
+
+lower boundary condition y = None
+upper boundary condition y = None
+
+lower boundary condition z = None
+upper boundary condition z = None
+
+*******************************************************************************
+-------------------------------------------------------------------------------
+VELOCITY (vx, vy, vz) BOUNDARY CONDITIONS INPUTS ON DISTRIBUTION FUNCTION
+-------------------------------------------------------------------------------
+*******************************************************************************
+
+lower boundary condition vx = PERIODIC
+upper boundary condition vx = PERIODIC
+
+lower boundary condition vy = None
+upper boundary condition vy = None
+
+lower boundary condition vz = None
+upper boundary condition vz = None
+
+*******************************************************************************
+================================================================================
+Boundary conditions on the electric potential, phi
+
+* if on the configuration variable, 'fourier' is chosen as the high order correction
+* this section is ignored (unused) and the Fourier Gauss law solver is used
+* (periodic boundary conditions)
+================================================================================
+
+- 'lower' and 'upper' refer to domain boundaries on abscissas x, y, z
+
+-  if configuration variable is set above to periodic, this section is ignored 
+   (a periodic field solver is used along with the corresponding high order method 
+    the user indicated, i.e. a fourier solver is used if fourier corrections are
+    specified above, and an fd solver is used if fd corrections are specified above)
+
+-  if a variable or value is not used, must denote by 'None' (case sensitive)
+
+keyword options:
+
+    * PERIODIC -- the potential of a periodic plasma is computed. THIS REQUIRES THE BOUNDARY CONDITION
+                  ON THE DISTRIBUTION FUNCTION f TO BE 'PERIODIC'
+
+    * BIAS -- the boundary will be held constant at a bias potential phi that is
+              is chosen by the user in the BIAS value input section below. Must accompany this by specifying
+              the option 'absorbing' on all such x boundaries for the distribution function which have this
+              'BIAS' BC on phi.  
+
+    * SELF-CONSISTENT -- the potential at the boundary will be computed self-consistently using
+                         the wall charge density history (MUST ALSO SET THE SAME BOUNDARY ON CONFIGURATION
+                         VARIABLE TO 'collector' FOR THE DISTRIBUTION FUNCTION). In 1D1V, the charge
+                         density is the the total charge. Note: DECSKS does not give precedence to one boundary
+                         condition over another (i.e. the phi conditions are not more important than the x
+                         boundary conditions on which are on the density). If the BCs for phi and the
+                         configuration are not compatible, DECSKS will throw an error and stop the simulation.
+                         Example: if 'SELF-CONSISTENT' is set on the upper boundary on phi, but both boundary
+                         conditions on x are set to 'periodic', DECSKS will let the user know this happened and
+                         stop the simulation.
+
+    * SYMMETRIC or SYMMETRY -- (can only be used on a lower boundary). Indicate this option to treat the domain
+                                as having a symmetry line at x = 0. Must also indicate the lower boundary 
+                                condition on x as 'symmetric' or 'symmetry' (does not matter which) to stop
+                                DECSKS from throwing an error due to incompatible inputs. Example: if
+                                'SYMMETRIC' is indicated as the lower boundary condition on phi, but 'absorbing'
+                                is selected for the BC on the x configuration variable, an error results and the
+                                simulation will stop after notifying the user of why.
+
+GENERAL INFORMATION ON DECISIONS DECSKS MAKES BASED ON USER INPUTS
+
+    we label boundaries below lower/upper, DBC = Dirichlet boundary condition, NBC = Neumann boundary condition
+
+    EXAMPLES
+
+    - PERIODIC/PERIODIC (PBC/PBC)
+
+        lower boundary condition on x = PERIODIC
+        upper boundary condition on x = PERIODIC
+
+        * will call the 6th order finite difference Poisson PBC solver. 
+        * must be matched with periodic conditions on the distribution function
+
+    - bias/bias (DBC/DBC)
+
+        lower boundary condition on x = BIAS
+        upper boundary condition on x = BIAS
+
+        * will call the 6th order finite difference Poisson LDBC_RDBC solver. 
+        * will take LDBC as phi = BIAS value
+        * will take UDBC as phi = BIAS value as specified in the BIAS VALUE section
+
+    - symmetry/bias (NBC/DBC) -- note: symmetry on the upper boundary is not available
+
+        lower boundary condition on x = SYMMETRY
+        upper boundary condition on x = BIAS
+
+        * will call the 6th order finite difference Poisson LNBC_RDBC solver. 
+        * will take LNBC as dphi = 0
+        * will take UDBC as phi = BIAS value specified in BIAS VALUE section.
+
+
+    - symmetry/self-consistent (NBC/NBC) : note: symmetry on the upper boundary is not available
+
+                                        Two NBCs are recasted as an equivalent NBC-DBC pair at left boundary,
+                                        the value at the upper wall is not enforced but fulfilled automatically
+                                        for well-posed problems (e.g. quasineutral systems), the DBC is set
+                                        to zero so that the potential at any point x gives the potential
+                                        difference directly; in general this is just some reference potential of
+                                        our choosing
+
+        lower boundary condition on x = SYMMETRY
+        upper boundary condition on x = SELF-CONSISTENT
+
+        * will call the 6th order finite difference Poisson LDBC_LNBC solver.
+        * will take LDBC as phi = 0 (reference datum)
+        * will take LNBC as dphi = 0 (symmetry condition)
+        * these conditions automatically fulfill the self-consistent condition on the UNBC
+
+        ** the specification SELF-CONSISTENT instructs DECSKS to create and track a wall charge density
+        history, sim_params['x']['upper'], which is a global variable. The object is not actively used
+        but is stored should the user wish to explore its time history
+
+    - self-consistent/self-consistent (NBC/NBC) : 
+
+                                        Two NBCs are recasted as an equivalent NBC-DBC pair at left boundary,
+                                        the value at the upper wall is not enforced but fulfilled automatically
+                                        for well-posed problems (e.g. quasineutral systems), the DBC is set
+                                        to zero so that the potential at any point x gives the potential
+                                        difference directly; in general this is just some reference potential of
+                                        our choosing. The left NBC is enforced as the self-consistent
+                                        potential calculated according to the cumulative charge history sigma, 
+                                        which follows from basic electrostatics for a thick conducting wall.
+
+        lower boundary condition on x = SELF-CONSISTENT
+        upper boundary condition on x = SELF-CONSISTENT
+
+        * will call the 6th order finite difference Poisson LDBC_LDBC solver
+        * will take LDBC as phi = 0 (reference datum)
+        * will take LNBC = -sim_params['sigma']['x']['lower'], which is a global variable
+        that stores the cumulative charge density history for the lower boundary
+
+        * these conditions automatically fulfill the self-consistent condition on the UNBC
+        ** the specification SELF-CONSISTENT instructs DECSKS to create and track a wall charge density
+        history, sim_params['x']['upper'], which is a global variable. The object is not actively used
+        but is stored should the user wish to explore its time history            
+
+--------------------------------------------------------------------------------
+PHI BOUNDARY CONDITIONS INPUTS (e.g. BIAS, SYMMETRIC, SYMMETRY, SELF-CONSISTENT)
+
+* case insensitive, though all caps are recommended
+-------------------------------------------------------------------------------
+********************************************************************************
+
+lower boundary condition on x = SELF-CONSISTENT
+upper boundary condition on x = BIAS
+
+lower boundary condition on y = None
+upper boundary condition on y = None
+
+lower boundary condition on z = None
+upper boundary condition on z = None
+
+********************************************************************************
+--------------------------------------------------------------------------------
+BIAS VALUE INPUTS
+
+* section is ignored (unused) if no boundary conditions above are set to 'BIAS'
+* inputing 'None' on unused vars is not required, though recommended for clarity
+--------------------------------------------------------------------------------
+********************************************************************************
+
+bias on lower boundary in x = None
+bias on upper boundary in x = 0.
+
+bias on lower boundary in y = None
+bias on upper boundary in y = None
+
+bias on lower boundary in z = None
+bias on upper boundary in z = None
+
+********************************************************************************

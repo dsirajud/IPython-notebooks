@@ -1,0 +1,19 @@
+
+def notifications(fe, fi, x, vx, sim_params):
+
+    print "printing several notifications per request of developer (can modify this list by editing notifications function))"
+    print sim_params['compute_electric_potential_phi_handle'][x.str]
+    print sim_params['phi_BC']['x']
+    print "CHECK BOUNDARIES MATCH INPUTS"
+    print "BC type on f on x"
+    print sim_params['BC']['f']['x']['type']
+    print "BC type on f on vx"
+    print sim_params['BC']['f']['vx']['type']
+    print "left BC on f on x"
+    print sim_params['BC']['f']['x']['lower']
+    print "right BC on f on x"
+    print sim_params['BC']['f']['x']['upper']
+    print "left BC on f on vx"
+    print sim_params['BC']['f']['vx']['lower']
+    print "right BC son f on vx"
+    print sim_params['BC']['f']['vx']['upper']

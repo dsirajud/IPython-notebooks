@@ -1,0 +1,33 @@
+# working directory DECSKS/bin/
+# outputs located in etc/outputs/sim_name --> rel_path stem = ../etc/outputs/
+import numpy as np
+
+def toarray(filename):
+    with open(filename, 'r') as infile:
+        data = np.load(infile)
+    return data
+
+def create_filename(quantity = None, sim_name = None, rel_path = '../etc/outputs/', timestep  = None):
+    """
+    technically creates the filepath, based on string input parameters and known output
+    filename template
+    """
+    if quantity is None:
+        print "the function does not know for which quantity the user wants data, please specify the string keyword input: quantity"
+        return None
+    elif sim_name is None:
+        print "the function does not know which simulation data the user wants, please specify the string keyword input: sim_name"
+        return None
+    else:
+        if timestep is not None:
+            assert( type(timestep) == int)
+            time = '_%06d' % timestep
+        else:
+            time = ''
+
+        fileformat = '.npy'
+        filename = quantity + time + fileformat
+        dirpath = rel_path + sim_name + '/'
+
+        filepath = dirpath + filename
+        return filepath

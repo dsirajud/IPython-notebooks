@@ -1,0 +1,110 @@
+import numpy as np
+import pylab
+import os
+
+# cd = DECSKS/lib/
+
+# outputs are stored in DECSKS/etc/outputs/sim_number
+rel_path = '../etc/outputs/'
+
+def read(filename):
+
+    filepath = rel_path + filename
+    with open(filename, 'r') as infile:
+        data = np.load(filename)
+
+    return data
+
+def read_and_plot_times(n_start, n_stop, quantity = None, ndim = 1, sim_name = None):
+
+    dir_path = rel_path + sim_name + '/'
+    filename = sim_name + '_--_' + quantity + '_'
+    fileformat = '.npy'
+
+    grid = mesh_construction(ndim, dir_path, sim_name)
+
+    print "plotting requested times"
+    for n in range(n_start, n_stop + 1):
+        # generate specific filepath for
+        time_label = '%06d' % n
+        filepath = dir_path + filename + time_label + fileformat
+        data = read(filepath)
+        plotname = filename + time_label + '.png'
+        plot_and_save(data, grid, ndim = ndim, timestep = n, plotname = plotname, sim_name = sim_name, quantity = quantity)
+        print "saved %s" % (filename + time_label + '.png')
+
+    return None
+
+
+def mesh_construction(ndim, dir_path, sim_name):
+    """
+    creates a mesh suitible for data.ndim
+    and returns the grid as a tuple
+    """
+
+    if ndim  == 2:
+        print "grabbing (x,y) grid values, e.g. (x,y) = (x,vx)\n"
+
+        xaxis_filepath = dir_path  + sim_name + '_--_grid_xaxis.npy'
+        yaxis_filepath = dir_path + sim_name + '_--_grid_yaxis.npy'
+
+        # get data and generate 2D mesh
+        x = read(xaxis_filepath)
+        y = read(yaxis_filepath)
+        X, Y = np.meshgrid(x,y)
+
+        print "grid setup (X,Y) complete"
+
+        # store in tuple for general return
+        grid = (X,Y)
+
+    elif ndim  == 1:
+        print "grabbing x grid values\n"
+
+        xaxis_filepath = dir_path + 'grid_--_xaxis.npy'
+        x = read(xaxis_filepath)
+        print "grid setup in x complete"
+
+        # store in tuple for general return
+        grid = (x,)
+
+    return grid
+
+
+def plot_and_save(data, grid, ndim = 1, timestep = 0, plotname = 'untitled', sim_name = 'untitled_sim_', quantity = 'unspecified_quantity'):
+
+    if ndim == 2:
+
+        X,Y = grid[0], grid[1]
+        twidth = 0.5
+
+
+        pylab.pcolormesh(X,Y, data.T, cmap = 'jet')
+        pylab.colorbar()
+
+        #------------------------------------------------------------------------------------------
+        # clim for various test cases
+        #------------------------------------------------------------------------------------------
+        # pylab.clim(0,0.38)              # for bump on tail test cases (s17-01, 02, 03, 04)
+        # pylab.clim(-0.004, 0.004)       # for linear landau test cases (s07-01, 02, 03, 04, 05)
+        # pylab.clim(0.0, 0.45)           # for two stream instability (s18-18)
+        # pylab.clim(0.0, 0.6)            # for strong landau test cases (s18-17)
+        #------------------------------------------------------------------------------------------
+
+        pylab.clim(0,0.38)
+        pylab.grid()
+
+        xmin = -10.428342280666119
+        xmax =  10.428342280666119
+        ymin = -8.0
+        ymax = 8.0
+        pylab.axis([xmin, xmax, ymin, ymax])
+        pylab.xlabel('$x$', fontsize = 18)
+        pylab.ylabel('$v_x$', fontsize = 18)
+
+        plot_title = '[' + sim_name + '] ' + quantity \
+              + ': $t^{%d}$ = %2.3f' % (timestep, timestep*twidth)
+
+        pylab.title(plot_title)
+        pylab.savefig('../plots/' + plotname)
+        pylab.clf()
